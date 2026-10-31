@@ -1,0 +1,3216 @@
+{
+  "timestamp": "2026-11-01T03:16:11.348951+08:00",
+  "jobs": [
+    {
+      "id": "03_prefix_joint_6pyy",
+      "roles": [
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_001/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 3,
+          "responses": 3,
+          "explicit_control": [
+            {
+              "id": "b110_late_100_100",
+              "anchor_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "updates": [
+                {
+                  "window_id": 2,
+                  "step": -1
+                },
+                {
+                  "window_id": 3,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "ev_e1f88cc85aeb7109dede",
+                "ev_3ff50e38f4bf903b61ef"
+              ],
+              "improvement_reason": "Anchor is the incumbent best complete configuration: condition_coordinate_root_mean_square_deviation_angstrom 0.37125335589051245 at uniform 110 (population_50). Its own interval record shows the late windows no longer buying coverage: window [51,75] endpoint loss moves 0.0776 -> 0.0819 and window [76,99] moves 0.0820 -> 0.0891, i.e. both late intervals end above where they start, while window [26,50] still improves strongly (0.0994 -> 0.0789). Paired comparison of uniform 100 vs 110 shows a late/lower-strength tilt is cheap to test: only +0.00342 A worst-case mean change, interval [-0.0342, +0.0399], 19 of 50 slots already improved. So a mild reduction of the two late windows keeps the empirically best early/mid strength while trimming the intervals whose measured endpoint loss drifts upward.",
+              "uncertainty": "The late-window rise in endpoint loss may come from re-matching or from a handful of tail slots rather than from over-driving, so trimming windows 2-3 may not transfer into a lower final mean; the 100-vs-110 paired interval still spans zero.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "tilt_120_110_100_90",
+              "anchor_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": 1
+                },
+                {
+                  "window_id": 2,
+                  "step": -1
+                },
+                {
+                  "window_id": 3,
+                  "step": -2
+                }
+              ],
+              "evidence_ids": [
+                "ev_e1f88cc85aeb7109dede",
+                "ev_3ff50e38f4bf903b61ef"
+              ],
+              "improvement_reason": "Monotone-decreasing tilt 120/110/100/90 from the incumbent: keep the strong mid window, add one tick where the anchor still carries most of the residual (window [10,25] endpoint loss 0.2776 -> 0.1010, largest remaining contributor and max atom increment 3.69 A), and remove two ticks each from the two intervals whose endpoint loss drifts upward (0.0776 -> 0.0819 -> 0.0891). Uniform 120 was worse than 110 overall, but it raised all four windows at once; isolating the increase to the single early window while lowering the late ones is an untested complete configuration that keeps most of the good 110 behaviour.",
+              "uncertainty": "Untested combination; the early window is already the one producing the largest single-atom increments, so +1 there could add tail damage that the late cuts do not offset. Also unclear whether the late-window loss drift is the cause or a symptom.",
+              "exploration_tier": "expanded"
+            },
+            {
+              "id": "bold_tilt_130_120_90_90",
+              "anchor_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": 2
+                },
+                {
+                  "window_id": 1,
+                  "step": 1
+                },
+                {
+                  "window_id": 2,
+                  "step": -2
+                },
+                {
+                  "window_id": 3,
+                  "step": -2
+                }
+              ],
+              "evidence_ids": [
+                "ev_e1f88cc85aeb7109dede"
+              ],
+              "improvement_reason": "Aggressive cross-neighbourhood tilt 130/120/90/90 taken from the incumbent best: concentrate effort in the two intervals that measurably still reduce endpoint loss (window [10,25]: 0.2776 -> 0.1010; window [26,50]: 0.0994 -> 0.0789) and cut the final two intervals, whose measured endpoint loss rises (0.0776 -> 0.0819; 0.0820 -> 0.0891). If the incumbent's remaining error is dominated by early incomplete convergence plus late over-driving, this configuration tests that combined direction at a distance no previous measured point covers; no uniform-level run has this shape.",
+              "uncertainty": "Highest risk of the three: 130 in window 0 needs range evidence and the uniform-120 run already showed growth of the large single-atom increments (up to 4.03 A) hurting the mean, so two extra ticks there could dominate any late-window gain. Unknown whether coverage depends on any late guidance at all.",
+              "exploration_tier": "bold"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1094,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                110,
+                110,
+                110
+              ],
+              "best_checkpoint_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "best_checkpoint_performance": 0.37125335589051245,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_001/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [
+            "b110_late_100_100",
+            "tilt_120_110_100_90"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1993,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                110,
+                110,
+                110
+              ],
+              "best_checkpoint_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "best_checkpoint_performance": 0.37125335589051245,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_002/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 18,
+          "responses": 18,
+          "explicit_control": [
+            {
+              "id": "iter2-late-up-one-each",
+              "anchor_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "updates": [
+                {
+                  "window_id": 2,
+                  "step": 1
+                },
+                {
+                  "window_id": 3,
+                  "step": 1
+                }
+              ],
+              "evidence_ids": [
+                "ev_0daac5c1c33f6e257b34"
+              ],
+              "improvement_reason": "Anchor is the incumbent complete best (ranking_condition_coordinate_root_mean_square_deviation_angstrom 0.37125336, uniform 110, population_50). The paired record for the incumbent against the 110/110/100/100 variant is the only measured evidence about moving the late windows: lowering windows 2-3 by one tick worsened 47 of 50 paired slots with a paired mean change of +0.00162 A and a cluster interval strictly above zero. So at 110 the late windows are not over-driven, and the untested direction is one tick up on exactly those two windows while windows 0-1 stay at the incumbent strength. Total move is two ticks/20 strength units, i.e. the smallest legal jump, and it is a complete configuration distinct from both measured tilts.",
+              "uncertainty": "Expected effect size (order 0.002-0.01 A) is comparable to the paired noise, so this can easily land at or above the incumbent. Uniform 120 raised all four windows and was clearly worse in the paired comparison (+0.0420 A mean change, 31 of 50 slots worsened, interval barely containing zero), so part of that penalty may sit in the late windows and cancel this small gain. No direct measurement exists of any window at 120 with the others held at 110.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "iter2-w0down-late-up",
+              "anchor_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": -1
+                },
+                {
+                  "window_id": 2,
+                  "step": 1
+                },
+                {
+                  "window_id": 3,
+                  "step": 1
+                }
+              ],
+              "evidence_ids": [
+                "ev_8d96163df4e1489138eb"
+              ],
+              "improvement_reason": "Untested complete schedule 100/110/120/120 built from the incumbent. Window 0 is where the anchor spends the most guidance per unit coverage: it carries the largest coefficients and the largest single-atom increments (about 3.69 A, native increment ratio slightly above 1), and it is also the window whose strength increase is least justified by the measured envelope, since uniform 100 is statistically indistinguishable from the incumbent (paired mean +0.00342 A, interval spanning zero, 19 of 50 slots already better) while uniform 120 is worse. So one tick is given back in window 0 and spent in windows 2-3, which the late-window reduction test showed to be under- rather than over-driven; window 1 is left at 110 because it still converts strength into the largest endpoint-loss reduction.",
+              "uncertainty": "The sign is genuinely unknown: the uniform-120 regression and the late-window reduction regression pull in opposite directions, so the result could sit between the two measured anchors or be worse than both. The three-tick distance crosses no measured configuration, and no window-level effect has been isolated in any measurement.",
+              "exploration_tier": "expanded"
+            },
+            {
+              "id": "iter2-w0down-w1to3up",
+              "anchor_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": -1
+                },
+                {
+                  "window_id": 1,
+                  "step": 1
+                },
+                {
+                  "window_id": 2,
+                  "step": 1
+                },
+                {
+                  "window_id": 3,
+                  "step": 1
+                }
+              ],
+              "evidence_ids": [
+                "ev_8d96163df4e1489138eb"
+              ],
+              "improvement_reason": "Untested complete schedule 100/120/120/120 from the incumbent: the wider version of the 100/110/120/120 jump, and the first configuration in this history that pushes window 0 down and all three later windows up simultaneously. Motivation is the measured flatness of the low side (uniform 100 vs 110 differ by only +0.00342 A with a zero-spanning interval, so giving back one tick in the highest-increment window is cheap) combined with the late-window evidence that lowering windows 2-3 costs a small, consistent amount, which points to strength being usable later in the trajectory rather than earlier.",
+              "uncertainty": "The neighbouring three-tick jump may already capture most of this effect, so the extra tick in window 1 could add tail damage rather than coverage. If the uniform-120 penalty is spread over all four windows instead of concentrated in window 0, this configuration inherits it and lands above the incumbent.",
+              "exploration_tier": "expanded"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1148,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                110,
+                110,
+                110
+              ],
+              "best_checkpoint_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "best_checkpoint_performance": 0.37125335589051245,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_002/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [
+            "iter2-late-up-one-each",
+            "iter2-w0down-late-up",
+            "iter2-w0down-w1to3up"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1784,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                110,
+                110,
+                110
+              ],
+              "best_checkpoint_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+              "best_checkpoint_performance": 0.37125335589051245,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_003/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 2,
+          "responses": 2,
+          "explicit_control": [
+            {
+              "id": "gd01-i3-w23up",
+              "anchor_id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+              "updates": [
+                {
+                  "window_id": 2,
+                  "step": 1
+                },
+                {
+                  "window_id": 3,
+                  "step": 1
+                }
+              ],
+              "evidence_ids": [
+                "ev_066d3ea0257b85c1359e",
+                "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+                "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3"
+              ],
+              "improvement_reason": "Anchor is the incumbent complete best, 110/110/120/120 at ranking_condition_coordinate_root_mean_square_deviation_angstrom 0.36912754639983175 (population_50). The paired read against uniform 110 gives a mean change of -0.00213 A with 46 of 50 slots improved, i.e. raising exactly the two late windows by one tick is the only measured step that moved the complete-population mean down. Extending the same late push by one further tick while holding windows 0-1 at the empirically best 110 is the most direct untested climb and stays at the minimal legal distance.",
+              "uncertainty": "The incumbent edge over uniform 110 is only a few thousandths of an angstrom and its paired cluster interval still spans zero, so the underlying signal is weak and the extra tick may simply add tail damage. Late-window strength 130 is outside the measured constant levels and sits at the coverage-limited upper edge of the given working intervals.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "gd01-i3-w123up",
+              "anchor_id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+              "updates": [
+                {
+                  "window_id": 1,
+                  "step": 2
+                },
+                {
+                  "window_id": 2,
+                  "step": 1
+                },
+                {
+                  "window_id": 3,
+                  "step": 1
+                }
+              ],
+              "evidence_ids": [
+                "ev_d17daa113e795006198a",
+                "versions/GD01/6pyy_H7S_A_402/iteration_002/action_002",
+                "versions/GD01/6pyy_H7S_A_402/iteration_002/action_003"
+              ],
+              "improvement_reason": "Untested complete schedule 110/130/130/130 built from the incumbent. Cross-anchor support for window 1 going up: with window 0 held at 100, raising window 1 from 110 to 120 lowered the complete-population mean from 0.38252 to 0.37379 (paired mean change -0.00872 A, 30 of 50 slots improved), so the mid window has shown the largest single gain available from an increase. Combining that with the late-window tick already supported at window 0 = 110 gives a joint move on all three later windows while keeping the early window at its best measured strength; all four strengths stay inside the given working intervals.",
+              "uncertainty": "The window-1 comparison was made with window 0 at 100, so the gain may not transfer to window 0 = 110; that pairing also improved only 30 of 50 slots. Strength 130 in windows 1-3 is unconfirmed, and no configuration with three simultaneous changes has been measured.",
+              "exploration_tier": "expanded"
+            },
+            {
+              "id": "gd01-i3-bold-late",
+              "anchor_id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+              "updates": [
+                {
+                  "window_id": 1,
+                  "step": 2
+                },
+                {
+                  "window_id": 2,
+                  "step": 3
+                },
+                {
+                  "window_id": 3,
+                  "step": 3
+                }
+              ],
+              "evidence_ids": [
+                "ev_066d3ea0257b85c1359e",
+                "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+                "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/2abaca4911e68fa9bfbf3482ee797fd5b9045b841fdff7253557c5fe15de6477"
+              ],
+              "improvement_reason": "Bold cross-neighbourhood climb that keeps window 0 at the best supported 110 and pushes the three later windows far past their measured range: effective schedule 110/130/150/150, eight ticks / 80 strength units. The only measured improvement in this history came from increasing late-window strength, and every measured increase of windows 1-3 has been non-negative, while the clear regressions (uniform 120, 120/110/100/90) all raised window 0 - so the far end of the late-window direction remains unexplored and is the cheapest large jump away from the incumbent.",
+              "uncertainty": "150 exceeds both the coverage-limited upper bounds (140) and the measured constant levels; the early-window regression evidence does not rule out that high strength is harmful regardless of window, and late-window increments grow with strength, so added single-atom displacement could generate tail damage that outweighs any coverage gain. This is a genuine out-of-envelope guess with no measured neighbour between 120 and 150.",
+              "exploration_tier": "bold"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1436,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                110,
+                120,
+                120
+              ],
+              "best_checkpoint_id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+              "best_checkpoint_performance": 0.36912754639983175,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_003/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [
+            "gd01-i3-w23up",
+            "gd01-i3-w123up"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 2397,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                110,
+                120,
+                120
+              ],
+              "best_checkpoint_id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+              "best_checkpoint_performance": 0.36912754639983175,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_004/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 5,
+          "responses": 5,
+          "explicit_control": [
+            {
+              "id": "GD02-P1-w1-120",
+              "anchor_id": "range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50",
+              "updates": [
+                {
+                  "window_id": 1,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "ev_d0deb628b908a83675c2",
+                "ev_c7288ff56360e1edf928",
+                "ev_65f4ecee7c3b72911538",
+                "ev_10de0bf020a239c36996"
+              ],
+              "improvement_reason": "Anchor is the best complete configuration on record, effective schedule [110,130,130,130], ranking_condition_coordinate_root_mean_square_deviation_angstrom 0.3637487855553627 with a complete 50-slot population_50 measurement (summarize_population read: 50 measured, 0 excluded, 0 build failures). The one genuinely live axis inside the already-measured strength envelope is window 1. Paired read of the best schedule against [110,110,130,130] gives arithmetic_mean_change -0.00049 A with 35 slots improved and 15 worsened and an interval spanning zero, so window 1 at 130 is not a resolved improvement over 110: the extra tick helps a majority of slots but costs on a minority large enough to cancel the gain. Untested cell in between, [110,120,130,130], keeps the two late windows at the level that was shown to matter (late 120->130 gave -0.00489 A, 47 of 50 slots improved, interval [-0.0133,-0.0004]) while placing window 1 at the intermediate strength. This is exactly the kind of not-yet-measured landing point that can plausibly sit below 0.36375 rather than being an obvious regression: it retains most of the multi-slot benefit of the window-1 raise and may avoid the tail cost that the 130 tick introduced in 15 of 50 paired slots. Distance from the anchor is one tick / 10 strength units, direction decrease, i.e. the smallest legal focused jump and fully inside the given working interval for window 1.",
+              "uncertainty": "Honest expectation is a near-tie: the window-1 effect measured so far is about half a thousandth of an angstrom with an interval containing zero, so 120 may land anywhere in roughly [-0.005,+0.005] around the anchor rather than clearly below it. No measurement isolates window 1 at 120 with the late windows at 130, and the late-window gain was only ever measured with window 1 at 110, so the two effects may not be separable. If the window-1 130 tick had actually been the main contributor in the slots that improved, this probe gives that back and can end slightly above the anchor. Unknown whether any real residual remains in window 1 at all; the interval record for the anchor shows window 1 still converting strength into loss reduction (first endpoint 0.0994 -> last 0.0726), which argues the higher strength has a function.",
+              "exploration_tier": "focused"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1583,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                130,
+                130,
+                130
+              ],
+              "best_checkpoint_id": "range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50",
+              "best_checkpoint_performance": 0.3637487855553627,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_004/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [
+            "GD02-P1-w1-120"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 2634,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                130,
+                130,
+                130
+              ],
+              "best_checkpoint_id": "range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50",
+              "best_checkpoint_performance": 0.3637487855553627,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_005/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 3,
+          "responses": 3,
+          "explicit_control": [
+            {
+              "id": "GD01_i005_w2_to140",
+              "anchor_id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+              "updates": [
+                {
+                  "window_id": 2,
+                  "step": 1
+                }
+              ],
+              "evidence_ids": [
+                "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+                "range_evidence/6pyy_H7S_A_402/fa9e69c2518806c0bcf8f4fbbaf24d7f58b521b516c407a14a93437fa733670f/population_50",
+                "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001"
+              ],
+              "improvement_reason": "Anchor is the incumbent complete best, effective schedule [110,120,130,130] at ranking_condition_coordinate_root_mean_square_deviation_angstrom 0.35801614105701446 (population_50, 50 measured, 0 excluded). Among the untested neighbours, the one axis with measured upside is window 2. History: with window 0-1 at [110,110], raising both late windows 120->130 gave a paired mean change of -0.00489 A with 47 of 50 slots improved (110/110/120/120 = 0.36912754639983175 vs the [110,110,130,130] receipt 0.36424061432480814); lowering the same pair cost +0.00489 A with 47 of 50 worsened. So the late-window increase is the most consistent paired signal available, and the two late windows have never been separated. The interval records of the [110,110,130,130] run show window 2 still converting strength into loss reduction (endpoint loss 0.0818 -> 0.0808) while window 3 has flattened and drifts up (0.0806 -> 0.0853). This proposal therefore spends the single extra tick only where the gain is still negative, holding window 3 at its measured 130 and keeping the best-known window 1 at 120. One tick / 10 strength units, fully inside the declared working interval of window 2.",
+              "uncertainty": "Strength 140 in window 2 is above the measured envelope (measured late levels reach 130 only), so this is a frontier jump rather than a re-measurement of a known level, and the executor may classify it as range-evidence work while the range-evidence allowance is exhausted. Even if 140 behaves like 130 did, the expected gain is a few thousandths of an angstrom, comparable to paired noise. Window 2 and window 3 effects have only ever been measured jointly, so the supposed separation of a still-improving window 2 from a saturated window 3 is an inference from endpoint-loss records, not a measured fact.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "GD01_i005_late_pair_to140",
+              "anchor_id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+              "updates": [
+                {
+                  "window_id": 2,
+                  "step": 1
+                },
+                {
+                  "window_id": 3,
+                  "step": 1
+                }
+              ],
+              "evidence_ids": [
+                "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+                "range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50",
+                "range_evidence/6pyy_H7S_A_402/fa9e69c2518806c0bcf8f4fbbaf24d7f58b521b516c407a14a93437fa733670f/population_50"
+              ],
+              "improvement_reason": "Same incumbent anchor ([110,120,130,130] at 0.35801614105701446) but keeping the two late windows together, since every measurement so far moved them as a pair. The only repeated paired result in this history is that the late pair at 130 beats the late pair at 120 (-0.00489 A, 47 of 50 slots improved, comparing the [110,110,130,130] receipt against the measured [110,110,120,120] configuration), and the strength ordering across history is monotone in favour of stronger late guidance once the early/mid windows sit at 110/120: [110,110,120,120] = 0.36912754639983175, [110,110,130,130] = 0.36424061432480814, [110,120,130,130] = 0.35801614105701446. Continuing that same pair by one tick in both windows is the direct continuation of the best measured climb, keeps the reached optimum at window 1 = 120, and is a complete configuration whose lower bound (in the event that 140 simply reproduces the 130 gain) is the incumbent itself. Two ticks / 20 strength units.",
+              "uncertainty": "Both late strengths at 140 are unconfirmed and above the measured envelope, and the last interval's endpoint-loss record in the 130 runs shows window 3 no longer converting strength, so part of this jump may buy nothing or turn into tail damage; uniform 120 being clearly worse than uniform 110 is a reminder that added strength is not uniformly helpful. The pair may also have already reached its optimum at 130, in which case repeating the 120->130 gain is impossible. No measurement exists at 140 in any window, and this configuration also cannot separate which of the two late windows carries the effect.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "GD01_i005_w3_trim120",
+              "anchor_id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+              "updates": [
+                {
+                  "window_id": 3,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+                "range_evidence/6pyy_H7S_A_402/fa9e69c2518806c0bcf8f4fbbaf24d7f58b521b516c407a14a93437fa733670f/population_50"
+              ],
+              "improvement_reason": "Within-envelope counterpart on the same incumbent: all four strengths stay at levels already measured (110/120/130/120), so this is a plain optimization landing, not frontier work. Motivation is the last-window record in the strong late runs, where window 3 starts its interval at 0.0806 and ends at 0.0853 while window 2 still ends below its start (0.0818 -> 0.0808): the final interval appears saturated at 130, and its last-step coefficient is already near zero. The only measured evidence against lowering the late windows came from lowering both at once (110/110/130/130 -> 110/110/120/120, +0.00489 A, 47 of 50 slots worse); that cost has never been attributed to a specific window, so returning one tick in the saturated interval while holding window 2 at 130 is an untested complete configuration that could recover part of the cost and cannot leave the measured envelope. One tick / 10 strength units, decrease.",
+              "uncertainty": "If the late-pair reduction cost was actually carried by window 3, this proposal will simply reproduce that loss and land around 0.363 A rather than below the incumbent. Strength 120 in window 3 has only been measured together with 120 in window 2, never alone, and the endpoint-loss drift that motivates the trim may be a re-matching artefact in a handful of slots rather than over-driving.",
+              "exploration_tier": "focused"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1497,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                120,
+                130,
+                130
+              ],
+              "best_checkpoint_id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+              "best_checkpoint_performance": 0.35801614105701446,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_005/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [
+            "GD01_i005_w2_to140",
+            "GD01_i005_w3_trim120"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 2313,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                110,
+                120,
+                130,
+                130
+              ],
+              "best_checkpoint_id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+              "best_checkpoint_performance": 0.35801614105701446,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [],
+          "decision": "hold",
+          "maximum_text_characters": 2009,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": []
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [],
+          "decision": "hold",
+          "maximum_text_characters": 2165,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": []
+        }
+      ],
+      "actual_http_attempts": 38,
+      "actual_http_responses": 38,
+      "observed_completion_tokens": 81001,
+      "budget_claims": 38,
+      "budgets": [
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_001/model_budget/POLICY.json",
+          "calls": 4,
+          "charged_output_tokens": 7489
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_002/model_budget/POLICY.json",
+          "calls": 19,
+          "charged_output_tokens": 24241
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_003/model_budget/POLICY.json",
+          "calls": 3,
+          "charged_output_tokens": 11972
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_004/model_budget/POLICY.json",
+          "calls": 6,
+          "charged_output_tokens": 19176
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_005/model_budget/POLICY.json",
+          "calls": 4,
+          "charged_output_tokens": 16544
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/analysis_final/model_budget/POLICY.json",
+          "calls": 2,
+          "charged_output_tokens": 1579
+        }
+      ],
+      "rounds": [
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_001/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "versions/GD01/6pyy_H7S_A_402/iteration_001/action_001",
+            "performance": 0.3728733031451702,
+            "input_incumbent_performance": 0.37125335589051245,
+            "best_compatible_source_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+            "best_compatible_performance": 0.37125335589051245
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+            "best_checkpoint_actual_schedule": [
+              110,
+              110,
+              110,
+              110
+            ],
+            "best_checkpoint_performance": 0.37125335589051245,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_002/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+            "performance": 0.36912754639983175,
+            "input_incumbent_performance": 0.37125335589051245,
+            "best_compatible_source_id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+            "best_compatible_performance": 0.36912754639983175
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+            "best_checkpoint_actual_schedule": [
+              110,
+              110,
+              110,
+              110
+            ],
+            "best_checkpoint_performance": 0.37125335589051245,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_003/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50",
+            "performance": 0.3637487855553627,
+            "input_incumbent_performance": 0.36912754639983175,
+            "best_compatible_source_id": "range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50",
+            "best_compatible_performance": 0.3637487855553627
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+            "best_checkpoint_actual_schedule": [
+              110,
+              110,
+              120,
+              120
+            ],
+            "best_checkpoint_performance": 0.36912754639983175,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_004/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "performance": 0.35801614105701446,
+            "input_incumbent_performance": 0.3637487855553627,
+            "best_compatible_source_id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "best_compatible_performance": 0.35801614105701446
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50",
+            "best_checkpoint_actual_schedule": [
+              110,
+              130,
+              130,
+              130
+            ],
+            "best_checkpoint_performance": 0.3637487855553627,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_005/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "versions/GD01/6pyy_H7S_A_402/iteration_005/action_002",
+            "performance": 0.35849551260471346,
+            "input_incumbent_performance": 0.35801614105701446,
+            "best_compatible_source_id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "best_compatible_performance": 0.35801614105701446
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "best_checkpoint_actual_schedule": [
+              110,
+              120,
+              130,
+              130
+            ],
+            "best_checkpoint_performance": 0.35801614105701446,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        }
+      ],
+      "attempts": {
+        "calibration": 340,
+        "formal": 350
+      },
+      "qualities": [
+        {
+          "source": "range_evidence/6pyy_H7S_A_402/fa9e69c2518806c0bcf8f4fbbaf24d7f58b521b516c407a14a93437fa733670f/population_50",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "55189062c56fc85da4741bd7497fe905fd084b591b6bb0caf64e79f735833cb7",
+            "records_sha256": "dfd4c6db43f66620d7308951486046e820917f85f579c9e9e97831e302673dd0",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/6pyy_H7S_A_402/iteration_001/action_001",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "8c31162b35de958191369c3764de6d1770703183f87d709374db7700a0709c37",
+            "records_sha256": "0cfac10dd1ba966e00d3badf516987099792b79ed5cf3cdc3a524368a5ba9181",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "20943eaf3a965ad2587f67a840f76e81eae8c2027c9941a970871adffdd621da",
+            "records_sha256": "b1a4f97f8f6ae56e424fd840a7c36ecc0da4642c037e1d0c722e9bf57cfc8034",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "60306870dc45e462c624c667de361d300bf4089363b1bd6e5f2a546ce2f16b43",
+            "records_sha256": "205cbf902954ab3304d99a3f5d877caf123a593fdfc435f98595f42a46d56875",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/6pyy_H7S_A_402/iteration_005/action_002",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "fb42b7e178dd7e431d5a8e4f1e9e57218e5243d61089fc3c237d798fdee54aed",
+            "records_sha256": "c3404bcf61733e468e810eb5598a422d9ec1bdf73800780f6b2479b043f2cea2",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "c73e1a325ef3f95e0be5d096dfdc8899344375c787c52a0be69f2356cc95f73f",
+            "records_sha256": "23413281ea2b2653e55a155e9be5b8340d2d680da141300ddebd762bc90b0a3c",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/6pyy_H7S_A_402/iteration_001/action_002",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "78e68167499794c66579f2e053da4d7822b1346fd72d0b47a8a5f9e3b0bae37f",
+            "records_sha256": "120a68ca57e191151f934274020df3f90d118bd2d73d8cdb84f0054c7ed5f557",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_002",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "1134b5206c2cebdbee7aca744aab5ae14c93347a2df25d34890c5dc8ca263c32",
+            "records_sha256": "93d1730cc707adac316beeb3d2eeda212c363e532bbe1c29d73c49a3bd2b55c3",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_003",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "fa217e18612f637e42012e6459883d5e439d0b208dbf0f80e8b49cdfdc565de4",
+            "records_sha256": "977c5563752113008e33e159dbec2cced42064b8b842eb02bfbbe239e21d8402",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        }
+      ],
+      "worker_process": {
+        "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -m agenticgen.uniguide.quality_queue --runtime /workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002/quality_queue/runtime.json ",
+        "cwd": "/root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180",
+        "numerics_and_device": {
+          "CUDA_VISIBLE_DEVICES": "",
+          "HIP_VISIBLE_DEVICES": "",
+          "ROCR_VISIBLE_DEVICES": "",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "quality_status": {
+        "pid": 110022,
+        "unix": 1793474168.5070634,
+        "active": [],
+        "pending": 0,
+        "workers": 2,
+        "device": "cpu",
+        "blocks_inference": false,
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10
+      },
+      "locks": {
+        ".executor.lock": "free",
+        ".campaign.lock": "absent",
+        "quality_queue/.worker.lock": "held"
+      }
+    },
+    {
+      "id": "06_five_windows_3w54",
+      "roles": [
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_001/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 2,
+          "responses": 2,
+          "explicit_control": [
+            {
+              "id": "w0-trim-80-90-90-90-90",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "ev_108ad98f9ed361255038",
+                "ev_5d691347ca1ddeaa042f",
+                "ev_72bec4f213646d90fd0c",
+                "ev_d3984e9d69d71a2779ce"
+              ],
+              "improvement_reason": "Incumbent flat 90 is the best of the four measured full populations (ranking condition coordinate root mean square deviation 0.2792 vs 0.3843 at 80, 0.3354 at 100, 0.3739 at 110). Window 0 carries by far the largest guidance increments at that setting (native_increment_ratio_mean 4.49, unconstrained single-atom increments up to 5.84 A, endpoint loss 0.498->0.094), so a one-tick trim there is the smallest real departure from the incumbent that could reduce residual tail outliers while leaving later windows untouched.",
+              "uncertainty": "Window 0 also shows its best endpoint loss at 90 in the uniform sweep (0.094 vs 0.110 at 100 and 0.141 at 80), so trimming may remove useful early convergence; no mixed schedule has been measured in a full population.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "mid-boost-90-100-110-110-90",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 1,
+                  "step": 1
+                },
+                {
+                  "window_id": 2,
+                  "step": 2
+                },
+                {
+                  "window_id": 3,
+                  "step": 2
+                }
+              ],
+              "evidence_ids": [
+                "ev_108ad98f9ed361255038",
+                "ev_5d691347ca1ddeaa042f",
+                "ev_72bec4f213646d90fd0c",
+                "ev_d3984e9d69d71a2779ce"
+              ],
+              "improvement_reason": "Middle windows 1-3 at the incumbent have small endpoint losses (0.085->0.059, 0.059->0.048, 0.052->0.053) and modest native_increment_ratio (0.98, 0.73, 0.54), i.e. guidance is only a fraction of native motion there, so extra strength in those windows is a comparatively small per-tick perturbation. Keeping first and last windows at the measured best 90 tests whether added mid-trajectory guidance removes the remaining high-deviation tail without disturbing the parts of the schedule that currently deliver the best full-population score.",
+              "uncertainty": "Every measured constant level peaks at 90, so more strength anywhere may simply overshoot; the tolerance conjecture for windows 1-3 rests only on small-population window diagnostics, not on any measured mixed schedule.",
+              "exploration_tier": "expanded"
+            },
+            {
+              "id": "frontload-110-110-80-80-80",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": 2
+                },
+                {
+                  "window_id": 1,
+                  "step": 2
+                },
+                {
+                  "window_id": 2,
+                  "step": -1
+                },
+                {
+                  "window_id": 3,
+                  "step": -1
+                },
+                {
+                  "window_id": 4,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "ev_108ad98f9ed361255038",
+                "ev_5d691347ca1ddeaa042f",
+                "ev_72bec4f213646d90fd0c",
+                "ev_d3984e9d69d71a2779ce"
+              ],
+              "improvement_reason": "Bold cross-neighborhood shape: concentrate guidance in the two windows where increments actually dominate (native_increment_ratio 4.49 and 0.98, endpoint loss still falling fastest) and relax the late windows where guidance contributes only 0.54 and 0.11 of native motion and endpoint losses are already flat or partly rebounding (window 4 last endpoint 0.078/0.071 at 100/110 vs 0.027 at 90). All five strengths stay inside the confirmed constant levels 80-110, so no extra range evidence is needed.",
+              "uncertainty": "Uniform 110 already degraded window-0 endpoint loss and produced single-atom increments up to about 14.9 A, so front-loading may amplify exactly the outliers that limit the population tail; this schedule shape is entirely untested and could fall below all measured constant levels.",
+              "exploration_tier": "bold"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1109,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                90
+              ],
+              "best_checkpoint_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "best_checkpoint_performance": 0.2792394658178091,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_001/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [
+            "mid-boost-90-100-110-110-90"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 2399,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                90
+              ],
+              "best_checkpoint_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "best_checkpoint_performance": 0.2792394658178091,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_002/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 2,
+          "responses": 2,
+          "explicit_control": [
+            {
+              "id": "late_window_decrease_focused",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 2,
+                  "step": -1
+                },
+                {
+                  "window_id": 3,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+                "ev_03d3fd59bc42805b22a4"
+              ],
+              "improvement_reason": "Constant 90 holds the best measured full-population conditional coordinate deviation (0.27924 raw arithmetic mean, 49 built of 50, maximum condition atom error 1.353 A). The only measured non-constant schedule raised windows 1-3 and landed slightly worse, so the untested mirror move trims two middle windows by one tick while leaving the first window and the fourth window at the incumbent level; this keeps the early descent that dominates displacement untouched and only lightens the late stage where endpoint losses are smallest.",
+              "uncertainty": "Constant 80 is substantially worse than constant 90 on the same population protocol, so a partial decrease could lower the mean rather than help; there is no direct measurement of any partial-strength schedule besides the mid-heavy mixture.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "mid_schedule_trim_expanded",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 1,
+                  "step": -1
+                },
+                {
+                  "window_id": 2,
+                  "step": -1
+                },
+                {
+                  "window_id": 3,
+                  "step": -1
+                },
+                {
+                  "window_id": 4,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+                "versions/GD01/3w54_RNB_A_504/iteration_001/action_001"
+              ],
+              "improvement_reason": "Widens the same trimming idea to window 1 while keeping window 0 exactly at the measured best level, giving schedule [90,80,80,80,80]. The measured mid-heavy mixture [90,100,110,110,90] lost only about 0.01 raw mean versus the incumbent, so mid-to-late windows are comparatively insensitive and can be moved several ticks to probe whether a lighter remainder removes the residual high-deviation samples (small-population minima near 0.05 A coexisting with maxima near 0.64 A).",
+              "uncertainty": "Downward sensitivity is steeper than upward in the measured constants (80 is worse than 100), so four one-tick decreases could erase the incumbent margin; the window-1 reduction is the least supported part since only a mid-heavy mixture was measured directly.",
+              "exploration_tier": "expanded"
+            },
+            {
+              "id": "front_loaded_late_light_bold",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": 1
+                },
+                {
+                  "window_id": 1,
+                  "step": -2
+                },
+                {
+                  "window_id": 2,
+                  "step": -2
+                },
+                {
+                  "window_id": 3,
+                  "step": -2
+                },
+                {
+                  "window_id": 4,
+                  "step": -2
+                }
+              ],
+              "evidence_ids": [
+                "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+                "ev_03d3fd59bc42805b22a4"
+              ],
+              "improvement_reason": "A cross-neighborhood shape never measured: [100,70,70,70,70]. It puts the only strength increase in the first guidance window, where the initial assignment deviation is largest (about 1.94 A) and most of the displacement occurs, and drops the remainder two ticks per window. If the constant-90 optimum is driven mainly by the opening window rather than by uniform strength, this shape could beat the incumbent; it is deliberately different from the already measured mid-heavy mixture.",
+              "uncertainty": "Strength 70 lies below the confirmed constant levels, so this needs the small-population range-evidence step before full confirmation, and constants 100/110 are both worse than 90 with much larger single-atom increments in window 0, so extra opening strength may add outlier samples while the strong late reduction could slow convergence.",
+              "exploration_tier": "bold"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1305,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                90
+              ],
+              "best_checkpoint_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "best_checkpoint_performance": 0.2792394658178091,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_002/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 2,
+          "responses": 2,
+          "explicit_control": [
+            "late_window_decrease_focused",
+            "mid_schedule_trim_expanded"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 2741,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                90
+              ],
+              "best_checkpoint_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "best_checkpoint_performance": 0.2792394658178091,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_003/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 2,
+          "responses": 2,
+          "explicit_control": [
+            {
+              "id": "gd01-late-boost-110",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 4,
+                  "step": 2
+                }
+              ],
+              "evidence_ids": [
+                "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+                "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+                "versions/GD01/3w54_RNB_A_504/iteration_002/action_001"
+              ],
+              "improvement_reason": "Incumbent constant 90 holds the best measured full-population conditional coordinate deviation (raw arithmetic mean 0.2792394658178091 A, 49 built / 49 connected of 50 attempts, maximum condition atom error 1.3528 A). Its residual is a wide spread: small-population records at the same level show minima near 0.055 A coexisting with maxima near 0.636 A, so the mean is limited by tail cases rather than by the typical sample. Constant 100 (0.3353546542674303) and constant 110 (0.3738719318807125) are both worse, and the small-population window diagnostics for those levels show where the extra strength goes: window 0 grows maximum single-atom guidance increments to 6.99 A (100) and 14.87 A (110), while window 4 stays at 0.42-0.55 A even at 110-120. The untested allocation explored here is therefore terminal-only: keep windows 0-3 exactly at the measured best level and raise only the 51-99 refinement window to 110, i.e. add guidance in the segment where per-step displacement is smallest and cannot generate large atom jumps.",
+              "uncertainty": "No schedule in the completed history holds the first four windows at the incumbent while changing only the final window, so the direction of this single-ray move is unmeasured. Both neighbouring constants (80 and 100) are worse than 90, which may indicate that the whole-schedule level is near its optimum and that any added strength, including in the cheap terminal window, pushes some samples further past the target; the terminal window also contributes only a small share of total displacement, so the achievable gain may fall inside the population noise of a 50-sample comparison.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "gd01-mid-late-boost",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 1,
+                  "step": 1
+                },
+                {
+                  "window_id": 2,
+                  "step": 1
+                },
+                {
+                  "window_id": 3,
+                  "step": 1
+                },
+                {
+                  "window_id": 4,
+                  "step": 2
+                }
+              ],
+              "evidence_ids": [
+                "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+                "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+                "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3"
+              ],
+              "improvement_reason": "The two most successful schedule-shape probes so far both moved away from the incumbent and stayed close: [90,100,110,110,90] measured 0.2887168160825968 and [90,90,80,80,90] measured 0.28503116622567176, versus the incumbent 0.2792394658178091, each within about 0.006-0.010 A of the best. Both of those kept window 0 at 90 and both left a large tail (maximum condition atom error 1.608-1.710 A, several unbuilt samples). The untested combination proposed here applies the cheapest upward increments to windows 1-3 (which measured only a small cost in the mid-heavy probe) and pairs them with the terminal-window increase, so that guidance grows monotonically through the refinement half where small-population diagnostics show window increments stay below 0.8 A per atom. The intention is that added strength in the second half trims the high-deviation samples without recreating the window-0 overshoot that costs constant 100 and 110 their margin.",
+              "uncertainty": "This is a four-window change resting on indirect reasoning: no measured schedule has combined mid-window increases with a terminal increase, and window 0 is left at 90 purely by analogy with the two near-incumbent probes. Upward sensitivity is real, since constant 100 is 0.056 A worse than constant 90 while the mid-heavy probe was only 0.009 A worse; adding a fourth window of extra strength could accumulate the small per-window losses into a clearly worse mean.",
+              "exploration_tier": "expanded"
+            },
+            {
+              "id": "gd01-trim-first-raise-rest",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": -1
+                },
+                {
+                  "window_id": 1,
+                  "step": 2
+                },
+                {
+                  "window_id": 2,
+                  "step": 2
+                },
+                {
+                  "window_id": 3,
+                  "step": 2
+                },
+                {
+                  "window_id": 4,
+                  "step": 2
+                }
+              ],
+              "evidence_ids": [
+                "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3",
+                "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+                "versions/GD01/3w54_RNB_A_504/iteration_002/action_002"
+              ],
+              "improvement_reason": "Every completed full-population schedule so far keeps window 0 at 90; no measurement leaves that corner of the lattice, so the compensating ray is entirely untested. Window 0 is also the only segment where measured guidance strength produces extreme single-atom moves: 23.88 A maximum increment at constant 80 and 14.65 A at constant 90 in the 50-sample records, and 14.87 A at constant 110 in the small population, with window-0 first endpoint loss near 0.50-0.51 A in every small-population record. Later windows never exceed about 0.8 A per atom at any measured level. This bold jump reallocates rather than adds overall emphasis: one tick down in the displacement phase and four two-tick increases spread across the refinement phase, i.e. it asks whether the incumbent's tail comes from an over-driven first window while the second half is under-strength. If that trade holds, the mean could fall below 0.2792394658178091 even though no single uniform level between 80 and 110 does.",
+              "uncertainty": "This is the least supported of the three: it contradicts the observed pattern that window 0 at 90 appears in the best measurement and in both near-incumbent probes, and constant 80 as a whole schedule is markedly worse (0.38432059325277806), which is at least consistent with the first window needing full strength to reach the correct region. The 110 level in windows 1-4 is additionally supported only by small populations (10 and 20 attempts) that are explicitly not rankable, so the upward half of the trade is inferred from per-window diagnostics rather than from any ranking-eligible measurement.",
+              "exploration_tier": "bold"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1647,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                90
+              ],
+              "best_checkpoint_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "best_checkpoint_performance": 0.2792394658178091,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_003/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 2,
+          "responses": 2,
+          "explicit_control": [
+            "gd01-late-boost-110",
+            "gd01-mid-late-boost"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 2628,
+          "format_repairs": 1,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                90
+              ],
+              "best_checkpoint_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "best_checkpoint_performance": 0.2792394658178091,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_004/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 3,
+          "responses": 3,
+          "explicit_control": [
+            {
+              "id": "p1_90_90_80_80_110",
+              "anchor_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+              "updates": [
+                {
+                  "window_id": 2,
+                  "step": -1
+                },
+                {
+                  "window_id": 3,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "ev_4da197685f5c85e26d9b",
+                "ev_1dcb5f5469120e721b3e"
+              ],
+              "improvement_reason": "Current best is the terminal-only schedule at versions/GD01/3w54_RNB_A_504/iteration_003/action_001 ([90,90,90,90,110]), full-population condition coordinate root mean square deviation 0.27916298881173135 A (49 built / 49 connected of 50 attempts, maximum condition atom error 1.3850518465042114 A), essentially tied with constant 90 at 0.2792394658178091. Two shape probes were the closest competitors: [90,90,80,80,90] at 0.28503116622567176 and [90,100,100,100,110] at 0.28605112366378305. This proposal keeps window 0 and window 1 at the measured best level, keeps the terminal window at the best measured 110, and merges the trim of windows 2-3 (the segment where the trimming probes were cheapest) with that terminal increase. Untested jointly: the two moves that individually stayed closest to the best, giving [90,90,80,80,110] at focused distance (2 ticks, 20 strength, both levels already confirmed).",
+              "uncertainty": "No measured schedule combines a mid-window trim with a terminal increase, so both sign and size of the joint effect are unknown; if the trim's small loss (0.006 A as [90,90,80,80,90]) and the terminal move's negligible gain (0.00008 A) simply add, the result will be marginally worse than the incumbent. Downward sensitivity near the optimum is real (constant 80 measures 0.38432059325277806 A), so a two-window trim could cost more than the single-window probes suggest, and any gain may fall inside the 50-sample population noise.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "p2_80_90_90_90_110",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": -1
+                },
+                {
+                  "window_id": 4,
+                  "step": 2
+                }
+              ],
+              "evidence_ids": [
+                "ev_4da197685f5c85e26d9b",
+                "ev_5c294dfb54e4880d2b80"
+              ],
+              "improvement_reason": "Constant 90 remains the strongest single measured level on the complete 50-attempt population (0.2792394658178091 A), and the incumbent adds only a nominal terminal increase on top of it. Small-population window diagnostics on the same protocol show where added strength is spent: window 0 at 90 already reaches 5.84 A maximum single-atom increment, growing to 6.99 A at 100 and 14.87 A at 110, while window 4 stays at 0.42-0.55 A even at 110-120. The untested direction is to relieve only the first window, which carries the largest per-atom displacement and the largest first-endpoint loss, and to keep the terminal refinement window at the best measured level 110; the schedule [80,90,90,90,110] has never been measured, uses only confirmed levels 80/90/110, and sits at expanded distance (3 ticks, 30 strength).",
+              "uncertainty": "Constant 80 across all windows is clearly worse (0.38432059325277806 A) and the measured all-window downward probe [90,80,80,80,80] measures 0.30979996114969255 A, so lowering strength generally hurts and a single-window reduction may lose more than it gains. The incumbent's margin over constant 90 is only 0.00008 A, so a genuine window-0 improvement would have to exceed that to be visible. The direction of a window-0 reduction has never been measured in any mixed schedule.",
+              "exploration_tier": "expanded"
+            },
+            {
+              "id": "p3_bold_70_110_110_110_110",
+              "anchor_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+              "updates": [
+                {
+                  "window_id": 0,
+                  "step": -2
+                },
+                {
+                  "window_id": 1,
+                  "step": 2
+                },
+                {
+                  "window_id": 2,
+                  "step": 2
+                },
+                {
+                  "window_id": 3,
+                  "step": 2
+                },
+                {
+                  "window_id": 4,
+                  "step": 2
+                }
+              ],
+              "evidence_ids": [
+                "ev_4da197685f5c85e26d9b",
+                "ev_6f19a6c60a2d0968e2f0",
+                "ev_71bb716658ccbea89ea6"
+              ],
+              "improvement_reason": "Every measured schedule holds window 0 at 90 and only varies windows 1-4, so the early window is the one region with no mixed-schedule evidence. A monotone shape [70,110,110,110,110] has not been measured: it removes two ticks from the window where single-atom increments are largest (5.84 A at 90 rising to 14.87 A at 110 in the small-population diagnostics) and places the confirmed level 110 on all four later windows, including the terminal refinement window where the incumbent already sits at 110. Constant 110 measured 0.3738719318807125 A on the full population, but that score was earned with a heavily over-driven first window; the level 70 so far exists only as a 10-sample diagnostic (0.44987482093274594 A, not rankable) at the lower edge of window 0's working interval. This is a deliberate bold jump (10 ticks, 100 strength) into the schedule region no near-incumbent probe has touched.",
+              "uncertainty": "Uses 70, an unconfirmed constant level at the lower edge of window 0's working interval, so the executor may require range evidence; the only measurement involving 70 is a 10-sample diagnostic and is not rankable. Both neighbouring constants are unfavourable on paper (constant 70 and constant 110 both far worse than 90), and a five-window leap of this size may lose substantially rather than improve. The expectation rests on a shape argument, not on any measured success of a lighter early window.",
+              "exploration_tier": "bold"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1555,
+          "format_repairs": 1,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                110
+              ],
+              "best_checkpoint_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+              "best_checkpoint_performance": 0.27916298881173135,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_004/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [
+            "p1_90_90_80_80_110",
+            "p2_80_90_90_90_110"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 2442,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                110
+              ],
+              "best_checkpoint_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+              "best_checkpoint_performance": 0.27916298881173135,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_005/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 2,
+          "responses": 2,
+          "explicit_control": [
+            {
+              "id": "gd01-terminal-tick-down-100",
+              "anchor_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+              "updates": [
+                {
+                  "window_id": 4,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "ev_3413d56b335c671947eb",
+                "ev_53f2699221597825099e"
+              ],
+              "improvement_reason": "Current best is [90,90,90,90,110] at 0.27916298881173135 A raw mean over 50 attempts (49 built / 49 connected, maximum condition atom error 1.3850518465042114 A). The measured constant-90 population on the same protocol is 0.2792394658178091 A, so the incumbent's only non-90 window buys 0.00008 A, i.e. the terminal ray is flat between 90 and 110 on the full population. Small-population window diagnostics agree that window 4 is the cheapest segment anywhere in the schedule: increment vector RMS 0.0035 A, native ratio about 0.11, maximum single-atom increment 0.08 A, against 0.27-0.40 A RMS and multi-angstrom max increments in window 0. The untested point on that flat ray, terminal 100 with windows 0-3 held exactly at the measured best 90, is proposed here. If it is neutral it identifies a schedule whose terminal strength is fully confirmed as unused headroom, which is a precondition for relocating ticks into windows that still close coordinates; if it degrades, the flatness is asymmetric and the terminal window is already at its useful level.",
+              "uncertainty": "Terminal flatness is inferred only from 90-versus-110 comparisons, and both of those were measured with windows 0-3 at 90 while the incumbent terminal 110 was measured relative to constant 90 on a different sample pairing; terminal 100 has never been measured in any schedule. Because the terminal window contributes so little displacement, the expected effect is far inside the roughly 0.005 A spread among the tied top schedules, so a genuine improvement is unlikely and a within-noise tie is the more probable outcome.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "gd01-late-single-trim-w3",
+              "anchor_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+              "updates": [
+                {
+                  "window_id": 3,
+                  "step": -1
+                }
+              ],
+              "evidence_ids": [
+                "ev_4488ca3bcf8b60b08098",
+                "ev_5e722b6a9356acd2828d",
+                "ev_86222555c7222206d30e"
+              ],
+              "improvement_reason": "Completed full-population probes bracket the incumbent [90,90,90,90,110] at 0.27916298881173135 A: constant 90 at 0.2792394658178091 A, [90,90,80,80,110] at 0.2835416506975889 A, [90,90,80,80,90] at 0.28503116622567176 A, [90,100,100,100,110] at 0.28605112366378305 A, [90,100,110,110,90] at 0.2887168160825968 A. Two late-window trims therefore cost only about 0.004-0.006 A, whereas touching window 1 ([90,80,80,80,80], 0.30979996114969255 A) or window 0 ([80,90,90,90,110], 0.3223770968616009 A) costs 0.03-0.043 A. The single window-3 trim on top of the incumbent's terminal increase, [90,90,90,80,110], has never been measured and isolates whether one late tick is truly the cheapest remaining move. That matters because the incumbent is only 0.00008 A ahead of constant 90, so its margin is well inside the observed spread; a schedule that reaches the same level with one tick of slack in window 3 would be the better anchor for a relocated-strength jump.",
+              "uncertainty": "Every measured deviation from 90 in any window has been worse, and the nearest two-trim analogue [90,90,80,80,110] is 0.0044 A worse, so a one-tick trim plausibly costs 0.002-0.005 A rather than helping. The comparison also rests on a single 50-sample population whose top schedules differ by less than the spacing of the measured probes, so even a repeat of the incumbent level would not establish that the trim is free.",
+              "exploration_tier": "focused"
+            },
+            {
+              "id": "gd01-relocate-terminal-to-w2w3",
+              "anchor_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+              "updates": [
+                {
+                  "window_id": 2,
+                  "step": 1
+                },
+                {
+                  "window_id": 3,
+                  "step": 1
+                },
+                {
+                  "window_id": 4,
+                  "step": -2
+                }
+              ],
+              "evidence_ids": [
+                "ev_93203cda51284d577d78",
+                "ev_96ce787da421d456d56f",
+                "ev_9b72bb78c9aa2e90b6d5",
+                "ev_dbe9e0bfb2b91fc32eab"
+              ],
+              "improvement_reason": "The incumbent spends its only extra strength in the terminal window and gains 0.00008 A over constant 90, while small-population diagnostics at 90 show windows 2 and 3 still closing endpoint loss (about 0.060 to 0.048 A in window 3, 0.048 to 0.056 A in window 4 with per-atom increments under 0.6 A). This expanded proposal [90,90,100,100,90] keeps window 0 and window 1 exactly at the measured best level, adds one tick each in windows 2 and 3, and returns the terminal window to 90. The nearest measured analogue [90,90,80,80,90] (0.28503116622567176 A) and [90,90,80,80,110] (0.2835416506975889 A) both show that two simultaneous late-window ticks move the mean by only about 0.004-0.006 A, and [90,100,110,110,90] (0.2887168160825968 A) shows that when window 1 is left at 90 the mid-upward direction is comparatively cheap. This is the untested mixed sign combination: late-mid upward with terminal downward, tested at four ticks.",
+              "uncertainty": "Upward ticks in windows 1-3 have each measured a small cost rather than a gain, so three upward ticks plus a terminal relaxation assumed near-neutral may simply accumulate to a mean 0.005-0.01 A above the incumbent. The assumption that terminal 90 equals terminal 110 rests on the constant-90 versus incumbent comparison and not on any terminal-only measurement with windows 2-3 raised, so if the terminal ray is not flat the relaxation adds a second unknown. Net improvement, if any, is likely to fall inside the 50-sample population spread rather than be resolvable at this budget.",
+              "exploration_tier": "expanded"
+            }
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1797,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                110
+              ],
+              "best_checkpoint_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+              "best_checkpoint_performance": 0.27916298881173135,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_005/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [
+            "gd01-terminal-tick-down-100",
+            "gd01-relocate-terminal-to-w2w3"
+          ],
+          "decision": "propose",
+          "maximum_text_characters": 1141,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": [
+            {
+              "best_checkpoint_actual_schedule": [
+                90,
+                90,
+                90,
+                90,
+                110
+              ],
+              "best_checkpoint_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+              "best_checkpoint_performance": 0.27916298881173135,
+              "consecutive_declines": 0,
+              "instruction": "Learn all completed results and seek promising paths beyond the current best.",
+              "policy": "two-consecutive-round-declines-rebase-best-v1",
+              "rebase_from_best_checkpoint": false,
+              "unsuccessful_recent_paths": []
+            }
+          ]
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/analysis_final/proposal.receipt.json",
+          "role": "proposal",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [],
+          "decision": "hold",
+          "maximum_text_characters": 1254,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": []
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/analysis_final/synthesis.receipt.json",
+          "role": "synthesis",
+          "requests": 1,
+          "responses": 1,
+          "explicit_control": [],
+          "decision": "hold",
+          "maximum_text_characters": 1586,
+          "format_repairs": 0,
+          "checkpoint_learning_in_actual_prompt": []
+        }
+      ],
+      "actual_http_attempts": 20,
+      "actual_http_responses": 20,
+      "observed_completion_tokens": 65276,
+      "budget_claims": 20,
+      "budgets": [
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_001/model_budget/POLICY.json",
+          "calls": 3,
+          "charged_output_tokens": 10246
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_002/model_budget/POLICY.json",
+          "calls": 4,
+          "charged_output_tokens": 11139
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_003/model_budget/POLICY.json",
+          "calls": 4,
+          "charged_output_tokens": 11967
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_004/model_budget/POLICY.json",
+          "calls": 4,
+          "charged_output_tokens": 14814
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_005/model_budget/POLICY.json",
+          "calls": 3,
+          "charged_output_tokens": 15134
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/analysis_final/model_budget/POLICY.json",
+          "calls": 2,
+          "charged_output_tokens": 1976
+        }
+      ],
+      "rounds": [
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_001/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+            "performance": 0.2887168160825968,
+            "input_incumbent_performance": 0.2792394658178091,
+            "best_compatible_source_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+            "best_compatible_performance": 0.2792394658178091
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+            "best_checkpoint_actual_schedule": [
+              90,
+              90,
+              90,
+              90,
+              90
+            ],
+            "best_checkpoint_performance": 0.2792394658178091,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_002/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+            "performance": 0.28503116622567176,
+            "input_incumbent_performance": 0.2792394658178091,
+            "best_compatible_source_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+            "best_compatible_performance": 0.2792394658178091
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+            "best_checkpoint_actual_schedule": [
+              90,
+              90,
+              90,
+              90,
+              90
+            ],
+            "best_checkpoint_performance": 0.2792394658178091,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_003/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "performance": 0.27916298881173135,
+            "input_incumbent_performance": 0.2792394658178091,
+            "best_compatible_source_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "best_compatible_performance": 0.27916298881173135
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "calibration/frozen/478775c7fecfe6a2d08f41044ec851b516fe3b857f2593a05e9148c5a572cf67/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+            "best_checkpoint_actual_schedule": [
+              90,
+              90,
+              90,
+              90,
+              90
+            ],
+            "best_checkpoint_performance": 0.2792394658178091,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_004/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+            "performance": 0.2835416506975889,
+            "input_incumbent_performance": 0.27916298881173135,
+            "best_compatible_source_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "best_compatible_performance": 0.27916298881173135
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "best_checkpoint_actual_schedule": [
+              90,
+              90,
+              90,
+              90,
+              110
+            ],
+            "best_checkpoint_performance": 0.27916298881173135,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        },
+        {
+          "path": "versions/GD01/3w54_RNB_A_504/advice_005/ROUND_COMPLETE.json",
+          "checkpoint": {
+            "status": "measured",
+            "measured_source_id": "versions/GD01/3w54_RNB_A_504/iteration_005/action_002",
+            "performance": 0.2739486414939165,
+            "input_incumbent_performance": 0.27916298881173135,
+            "best_compatible_source_id": "versions/GD01/3w54_RNB_A_504/iteration_005/action_002",
+            "best_compatible_performance": 0.2739486414939165
+          },
+          "checkpoint_learning": {
+            "policy": "two-consecutive-round-declines-rebase-best-v1",
+            "rebase_from_best_checkpoint": false,
+            "best_checkpoint_id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "best_checkpoint_actual_schedule": [
+              90,
+              90,
+              90,
+              90,
+              110
+            ],
+            "best_checkpoint_performance": 0.27916298881173135,
+            "consecutive_declines": 0,
+            "unsuccessful_recent_paths": [],
+            "instruction": "Learn all completed results and seek promising paths beyond the current best."
+          }
+        }
+      ],
+      "attempts": {
+        "calibration": 240,
+        "formal": 450
+      },
+      "qualities": [
+        {
+          "source": "versions/GD01/3w54_RNB_A_504/iteration_005/action_002",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "086cb6bff9799639b30ed3dd2ffdeb15601c1c0d969048fe9789294b6b495a77",
+            "records_sha256": "8114b3a43276a782e9c086b94118e2cae6089f4a7a79c6501fbcaf7e46eeef45",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/3w54_RNB_A_504/iteration_004/action_002",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "3027ffcdae8cba5e554282d027ef2ac3bfdcd18b447244ccb1707d7a1f4bd49c",
+            "records_sha256": "7fe51509b28385519ec1da4b8b2df23b6a8dad9704a6b97039e0d5069326a42e",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "cb6541162d389b6f38731d20df99fb32517a749f032c2332e5f407a34c9cea9e",
+            "records_sha256": "5a56e9f29d5533c732aa05e66a3821705a44d53d069094dfd48021a2bc096d0c",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "4c25acc7308ccd96f843b0072a90878fd1fc77e395970a8e7052e12b0be59bb5",
+            "records_sha256": "340cda67ce0c0a2abddd57fcc832e50d99e4ddc6ab76bd16a758aa629e464102",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "d6e15b77f31302b60eab7f32424d94e68d3f1b102b13eedacd4244e89fb48f63",
+            "records_sha256": "587ecfd00a19f72dacb7c99d2f812859e98ff629d8219fcf4bacbd58ae249f11",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "cb8620276d8dfe8908cd86350aabb9ddc705c4eb48b13e3f152f851105a59032",
+            "records_sha256": "f6b7b0e0d8bff2c94b3e7c6f519fa09b58d5dcab74fd4e751fb1d62a1de0f804",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "b5505f6d6ec1c4390794abf76054dec47f6d21e2d7c64b299224331420337265",
+            "records_sha256": "aa7df70a7b4abb95d13ccee0cf68f701decb2e9825f21c3a8d515c6430dca443",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/3w54_RNB_A_504/iteration_005/action_001",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "b1c0da7d5af1cc8ae3982732f17a4dc7d7cb7310e2c432a74e1f53e7b3050b1e",
+            "records_sha256": "ecff9490a9e3ea0edeb0419294a9a35208784dcab849d9bcd78984af69cc6a3e",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        },
+        {
+          "source": "versions/GD01/3w54_RNB_A_504/iteration_003/action_002",
+          "complete": true,
+          "failed": null,
+          "receipt": {
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "attempts": 50,
+            "checked_attempts": 10,
+            "not_selected": 40,
+            "coverage": 0.2,
+            "metric_population": "checked_attempts; do not extrapolate these counts to the full population",
+            "selection": [
+              {
+                "node_id": "geometry_b000_final_000",
+                "logical_seed": 42,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b000_final_001",
+                "logical_seed": 42,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b001_final_000",
+                "logical_seed": 100045,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b001_final_001",
+                "logical_seed": 100045,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b002_final_000",
+                "logical_seed": 200048,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b002_final_001",
+                "logical_seed": 200048,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b003_final_000",
+                "logical_seed": 300051,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b003_final_001",
+                "logical_seed": 300051,
+                "logical_slot": 1
+              },
+              {
+                "node_id": "geometry_b004_final_000",
+                "logical_seed": 400054,
+                "logical_slot": 0
+              },
+              {
+                "node_id": "geometry_b004_final_001",
+                "logical_seed": 400054,
+                "logical_slot": 1
+              }
+            ],
+            "unbuilt_selected": 0,
+            "built": 10,
+            "posebusters_pass": 10,
+            "posebusters_evaluable": 10,
+            "posebusters_unevaluable_built": 0,
+            "valid_connected": 10,
+            "severe_clash": 0,
+            "clash_evaluable": 10,
+            "plip_evaluable": 10,
+            "plip_unevaluable_built": 0,
+            "plip_unevaluable_reasons": {},
+            "quality_sha256": "06e87eeffa993e67de1cde953d33bb43ad79af2ec84a67aefb3b34b669b6eaf4",
+            "records_sha256": "afda88d2ef1c8f3430af5aa6ffb9b343978921459f920f92354bfb5eb0abed29",
+            "quality_implementation_sha256": {
+              "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+              "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+            }
+          }
+        }
+      ],
+      "worker_process": {
+        "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -m agenticgen.uniguide.quality_queue --runtime /workspace/agenticgen_guidance_selected_retest_20261031/jobs/06_five_windows_3w54/attempt_002/quality_queue/runtime.json ",
+        "cwd": "/root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180",
+        "numerics_and_device": {
+          "CUDA_VISIBLE_DEVICES": "",
+          "HIP_VISIBLE_DEVICES": "",
+          "ROCR_VISIBLE_DEVICES": "",
+          "OMP_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "quality_status": {
+        "pid": 129941,
+        "unix": 1793474169.0241356,
+        "active": [],
+        "pending": 0,
+        "workers": 2,
+        "device": "cpu",
+        "blocks_inference": false,
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10
+      },
+      "locks": {
+        ".executor.lock": "free",
+        ".campaign.lock": "absent",
+        "quality_queue/.worker.lock": "held"
+      }
+    }
+  ],
+  "issues": [],
+  "source": "/workspace/agenticgen_guidance_selected_retest_20261031/monitoring/20261101_0118/audit_and_archive.py",
+  "source_sha256": "e6ce73de325cf231af9068046e1a7ca7cbb24288555c98c3269e998898ce0c01"
+}
