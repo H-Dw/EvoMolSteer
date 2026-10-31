@@ -14,7 +14,7 @@
 
 只读原baseline任务的calibration/domains.json及initial_source完整人口回执：6pyy参考为70，3w54参考为90，四窗口分别[70,70,70,70]和[90,90,90,90]。不使用baseline后续Agent范围取证选出的90等参数，也不使用prefix/five_windows的Agent最优参数。部署记录原domains文件SHA、原初始源COMPLETE及全部产物SHA。新掩码策略未重新标定，明确是固定baseline预标定参数的干预实验，不能宣称已为新策略重新确认安全域。
 
-六任务依次为condition_6pyy、condition_3w54、hop1_6pyy、hop1_3w54、hop2_6pyy、hop2_3w54。每任务新根、prepare→新提交自身完整acceptance→run-fixed-scope一次50候选→CPU固定10/50诊断。总科学预算300，标定新增0、Agent/LLM调用0、迭代0。相同五种子各10槽位和原冻结初态用于配对复现，不是独立验证。失败计费、不补样、不降档、不自动重启；单任务失败保留后继续其他任务。
+六任务依次为hop0_6pyy、hop0_3w54、hop1_6pyy、hop1_3w54、hop2_6pyy、hop2_3w54。每任务新根、prepare→新提交自身完整acceptance→run-fixed-scope一次50候选→CPU固定10/50诊断。总科学预算300，标定新增0、Agent/LLM调用0、迭代0。相同五种子各10槽位和原冻结初态用于配对复现，不是独立验证。失败计费、不补样、不降档、不自动重启；单任务失败保留后继续其他任务。
 
 UG04串行调度保持：逻辑组50、网络/VJP固定10行默认stream顺序执行、CPU算子8线程；无GPU线程池、额外stream或GPU子进程池。独立CPU质量worker隐藏GPU、数值库1线程。每组抽查五种子slot0/1共10，其余40不追加慢查；构建失败占分母，PLIP/PoseB内部几何、蛋白冲突、能量分报，不外推全人口。
 
@@ -35,3 +35,11 @@ CPU验收覆盖图半径、候选独立、方向并集、padding、动态槽位�
 03:32实际核查：/root/private_data仅余2,066,743,296字节；最近两轮已有压缩包合计4,344,429,977字节，原始结果约5.81GB，尚不含更早根和本次新实验。已向用户询问扩容、其他持久路径或缩小范围，等待回复；未经回复不缩小“所有结果”、不删除旧文件腾空间。08:00可先在/workspace完成压缩和校验，若实际tar.gz仍大于目标剩余空间，保留已验证tar.gz于/workspace并报告阻塞，不能冒称已移到持久盘。
 
 中文UTF-8，所有时间标Asia/Shanghai。仅在codex/uniguide-flowr-agent修改并提交推送，新固定目录运行；既有结果、失败、FINALIZED、已完成四项与两个重测只读保留。原uniguide-flowr继续PAUSED/35分钟，不恢复旧巡检，不向其他聊天发消息。凭据不输出或写入仓库/自动化，所有launcher.log及core不下载。08:00任务实际读取新六项进度和结果，收集审计；仅在路径/进程归属、质量队列空闲确认后停止本次CPU worker。
+
+## 实际启动记录
+
+04:06启动固定提交47db1bf1dfe0787b04138eed4b41a2d6cb215604，执行目录/root/private_data/uniguide_gradient_scope_20261101/runs/scope-47db1bf1。本地及远端同一336项CPU回归全部通过、无跳过；不能代替各任务真实模型acceptance。原c3e12df0预检因NFS小文件I/O等待而停止，未创建科学根或候选；新提交只把测试临时目录放到/workspace，采样模块逐字不变，不迁移验收回执。
+
+04:10真实命令与进度显示首项hop0_6pyy正在验收：独立10行轨迹已走完100步，合批对照仍在运行，尚未见acceptance/COMPLETE，因此当时正式尝试为0。固定检出干净、全部运行模块和六份配置SHA一致，29277项历史保护文件逐文件未变，两份旧FINALIZED也未变。机器PLAN、启动命令、配置SHA与安全审计下载校验见launch_audit.json、remote_launch_receipt.json；下载的原始安全审计留本地remote_launch，不提交大清单。
+
+08:00一次触发gradient-scope-archive-0800已创建并读回：ACTIVE、Asia/Shanghai、提示与UTF-8源一致，无替换字符，原PAUSED/35分钟任务哈希未变。当前可见28个历史及新增实验结果根列在实际ARCHIVE_PLAN中；不可见的已取消八轮结果不能冒称已归档。04:10目标可用空间约1.96GB，仍未完成打包或搬移，须在08:00按真实tar.gz大小核查。

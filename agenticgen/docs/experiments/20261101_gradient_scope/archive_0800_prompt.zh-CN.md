@@ -2,7 +2,7 @@
 
 服务器root@ssh.zzai.scnet.cn:11741，使用本对话授权凭据及D:/llm_controlled_generation/tmp/uniguide_ops.py的JSON stdin接口，凭据不打印、不写入仓库或自动化。所有launcher.log（含api_probe/deploy启动日志及其轮转副本）与core只留远端，禁止打印或下载。打包模型权重排除，实验checkpoint_010.pt.gz、checkpoint_100.pt.gz及terminal.pt.gz必须保留。API及小写代理来自交互bash，但本次科学任务不需要API，严禁调用LLM。
 
-本次初始科学提交c3e12df0a2b78fc1ceeb794e67b808b343fc3e87，固定目录/root/private_data/uniguide_gradient_scope_20261101/runs/scope-c3e12df0，部署审计/root/private_data/uniguide_gradient_scope_20261101/audits/scope-c3e12df0。科学根/workspace/agenticgen_gradient_scope_20261101，PLAN为根PLAN.json。以launch_audit.json和实际LAUNCH.json记录为准；若有后续合法修复，看新绑定，不用纯文档HEAD覆盖运行目录。部署PID只作定位，不能代替真实命令/锁/日志/进度/标记。
+本次初始科学提交47db1bf1dfe0787b04138eed4b41a2d6cb215604，固定目录/root/private_data/uniguide_gradient_scope_20261101/runs/scope-47db1bf1，部署审计/root/private_data/uniguide_gradient_scope_20261101/audits/scope-47db1bf1。科学根/workspace/agenticgen_gradient_scope_20261101，PLAN为根PLAN.json。以launch_audit.json和实际LAUNCH.json记录为准；若有后续合法修复，看新绑定，不用纯文档HEAD覆盖运行目录。部署PID只作定位，不能代替真实命令/锁/日志/进度/标记。
 
 六项依次hop0/1/2各两个teacher，baseline四窗10–25/26–50/51–75/76–99，6pyy固定[70,70,70,70]、3w54固定[90,90,90,90]，来自原baseline独立标定的initial_source，不用Agent后续最优或范围探测。每项prepare→自己新提交完整acceptance→run-fixed-scope一次50候选→CPU10/50；科学总上限300，新增标定0、Agent迭代0、LLM0。旧3790与selected重测1380共5170只读保留，失败不退款，精确重复引用，不补样、不自动重启。固定scale不是对新掩码策略重新标定。
 
@@ -21,3 +21,5 @@
 实际读取六项固定scope的原始/排名RMSD、loss、初始对应误差、构建和10/50质量，按teacher配对比较0/1/2跳与旧baseline预标定同scale源；同seed/slot不计独立验证。保存机器读数、完整归档清单、主GPT复盘并提交推送；纯文档不部署执行目录。新实验失败按实际证据报告，不能用改scale/容差、删除claim、清零/补样绕过。写FINALIZED须绑定真实复盘/源码且明确科学/归档各自完成状态。
 
 归档已校验并移入授权持久目录、结果收集结束后，通知本对话实际路径与SHA、六项完成/失败状态，并仅删除当前触发的本专项08:00定时任务。若目标空间阻塞，只报告真实完成的打包和未完成的搬移，保留待用户处理状态。所有记录Asia/Shanghai，中文UTF-8；自动化读回JSON ensure_ascii=true且无Unicode替换字符。GitHub依次直连、ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc；全部失败才用已验证且仅含已推送提交的bundle。
+
+04:02接续说明：原c3e12df0仅因远端CPU测试使用NFS临时目录导致大量小文件I/O等待而主动停止预检，未创建科学根、未生成候选或调用LLM。原检出和ENGINEERING_SUPERSEDED保留。新47db1bf1仅将同一336项测试的临时目录移到/workspace；所有GPU/采样模块与c3e12df0逐字相同，验收标准不变。当前部署路径以新47db1bf1为准。
