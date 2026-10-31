@@ -1,0 +1,134 @@
+{
+  "protocol": "protein-anchored-absolute-coordinate-guidance-v2-uncapped-upper-tail",
+  "output_policy": "raw999",
+  "chemical_inpainting": {
+    "enabled": true
+  },
+  "calibration": {
+    "search_policy": "linear-envelope-frontier-v1"
+  },
+  "root": "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002",
+  "generation_context_root": "/root/private_data/uniguide_comparison5_20261031/inputs/context",
+  "flowr": "/root/private_data/uniguide_comparison5_20261031/inputs/flowr_root",
+  "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
+  "checkpoint_sha256": "f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0",
+  "native_hashes": {
+    "flowr/models/fm_pocket.py": "beaace3ab92a8377bc8eab95333c8f40ce370ca9224f7a78927c5a424bb38426",
+    "flowr/models/integrator.py": "e9abd83167f708da4712db2ac49ab24ac44a39c59c46a54c20789c7873c58000",
+    "flowr/models/mol_builder.py": "30df0c63e75d4350b9d38d97a13f67ba14cf8a45b847faf257a34ddfb3d035a3",
+    "flowr/util/functional.py": "72bb2f8b5e7f8eca3b44551a3e966b61873df15e203dcd3e3a0c10084b0174ed"
+  },
+  "conditions": [
+    {
+      "teacher_id": "6pyy_H7S_A_402",
+      "features_path": "/root/private_data/uniguide_comparison5_20261031/inputs/conditions/6pyy_H7S_A_402.json"
+    }
+  ],
+  "steps": 100,
+  "windows": [
+    [
+      10,
+      25
+    ],
+    [
+      26,
+      50
+    ],
+    [
+      51,
+      75
+    ],
+    [
+      76,
+      99
+    ]
+  ],
+  "rounds": 5,
+  "population": 50,
+  "agent_tools": {
+    "mode": "readonly_tools_v1",
+    "skill_release": "2.8.2",
+    "max_model_calls_per_round": 30,
+    "max_output_tokens_per_round": 491520
+  },
+  "seeds": [
+    42,
+    100045,
+    200048,
+    300051,
+    400054
+  ],
+  "noise_level": 0.2,
+  "llm": {
+    "model": "deepseek-flash",
+    "thinking": true,
+    "reasoning_effort": "high",
+    "max_output_tokens": 16384,
+    "final_response_mode": "strict_tool_v1",
+    "attempts": 3,
+    "max_format_repairs": 1
+  },
+  "rmsd_outlier_policy": {
+    "method": "upper_outer_fence",
+    "interquartile_multiplier": 3.0,
+    "minimum_upper_excess_angstrom": 1.0,
+    "maximum_excluded_fraction": 0.1,
+    "minimum_population": 10
+  },
+  "task_scheduling": "ug04-930db032-serial",
+  "guidance_control": {
+    "policy": "linear-envelope-frontier-v1",
+    "guidance_scale_grid_unit": 10,
+    "search_minimum": 10,
+    "search_maximum": 200,
+    "initial_scales": [
+      20,
+      40,
+      60,
+      80,
+      100
+    ],
+    "teacher_overrides": {
+      "6pyy_H7S_A_402": {
+        "initial_scales": [
+          20,
+          40,
+          60,
+          80
+        ]
+      },
+      "3w54_RNB_A_504": {
+        "initial_scales": [
+          40,
+          60,
+          80
+        ]
+      }
+    },
+    "maximum_screening_levels": 8,
+    "maximum_confirmation_levels": 4,
+    "maximum_attempts_per_teacher": 350,
+    "range_evidence_attempts": 100,
+    "maximum_range_evidence_configurations": 2,
+    "working_radius_ticks": 2,
+    "maximum_window_tick_change": 4,
+    "maximum_total_tick_change": 12,
+    "maximum_proposals": 6,
+    "maximum_selected": 3,
+    "improvement_tolerance_angstrom": 0.0
+  },
+  "atom_assignment_policy": "per_step_and_terminal_endpoint_hungarian",
+  "guidance_exploration": {
+    "policy": "three-intensity-jump-search-v1",
+    "focused_maximum_total_ticks": 2,
+    "expanded_maximum_total_ticks": 6,
+    "bold_maximum_total_ticks": 12
+  },
+  "plip_dependencies": "/opt/MolSteer/generated_datasets/plip_guidance_5nn4_5ost_s42_20261020/deps",
+  "checkpoint_learning": {
+    "enabled": true
+  },
+  "prefix_inpainting": {
+    "enabled": true
+  }
+}
