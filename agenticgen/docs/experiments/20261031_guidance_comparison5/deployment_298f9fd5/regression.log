@@ -1,0 +1,46 @@
+.......F................................................................ [ 25%]
+........................................................................ [ 50%]
+........................................................................ [ 75%]
+......................................................................   [100%]
+=================================== FAILURES ===================================
+________ test_durable_mirror_keeps_safe_terminal_and_excludes_launcher _________
+
+tmp_path = PosixPath('/root/private_data/uniguide_comparison5_20261031/audits/comparison5-298f9fd5/pytest/test_durable_mirror_keeps_safe0')
+
+    def test_durable_mirror_keeps_safe_terminal_and_excludes_launcher(tmp_path):
+        path = (
+            Path(__file__).resolve().parents[2]
+            / "docs/experiments/20261031_guidance_comparison5/durable_snapshot.py"
+        )
+        spec = importlib.util.spec_from_file_location("durable_mirror_test", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        source, target = tmp_path / "run", tmp_path / "nfs"
+        source.mkdir()
+        for name in (
+            "aggregate.json",
+            "output.pt.gz",
+            "structures.sdf",
+            "launcher.log",
+            "trace.h5",
+            "core.123",
+        ):
+            (source / name).write_bytes(b"fixture")
+        report = module.mirror(source, target)
+        assert report["files"] == 3 and not report["full_hdf5_included"]
+        assert not (target / "launcher.log").exists() and not (target / "trace.h5").exists()
+        assert read(target / "MIRROR_STATE.json")["output.pt.gz"]["sha256"] == sha(
+            source / "output.pt.gz"
+        )
+        (source / "aggregate.json").write_bytes(b"updated")
+        module.mirror(source, target)
+>       assert (target / "aggregate.json").read_bytes() == b"updated"
+E       AssertionError: assert b'fixture' == b'updated'
+E         
+E         At index 0 diff: b'f' != b'u'
+E         Use -v to get more diff
+
+agenticgen/tests/unit/test_guidance_comparison5.py:191: AssertionError
+=========================== short test summary info ============================
+FAILED agenticgen/tests/unit/test_guidance_comparison5.py::test_durable_mirror_keeps_safe_terminal_and_excludes_launcher
+1 failed, 285 passed in 76.15s (0:01:16)
