@@ -15,24 +15,29 @@ def configure(config):
     from .absolute_coordinate import POLICY as coordinate_policy
     defaults = dict(DEFAULTS, skill_release="2.7.0") if config.get("protocol")==coordinate_policy else DEFAULTS
     settings=dict(defaults,**config.get("agent_tools",{}))
-    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0","2.2.0",RELEASE,"2.4.0","2.5.0","2.6.0","2.7.0","2.8.0","2.8.1"):
+    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0","2.2.0",RELEASE,"2.4.0","2.5.0","2.6.0","2.7.0","2.8.0","2.8.1","2.8.2"):
         raise ValueError("Unsupported Agent tool configuration/release")
-    roles=2 if settings["skill_release"] in ("2.6.0","2.7.0","2.8.0","2.8.1") else 4
+    roles=2 if settings["skill_release"] in ("2.6.0","2.7.0","2.8.0","2.8.1","2.8.2") else 4
     if type(settings["max_model_calls_per_round"]) is not int or not roles<=settings["max_model_calls_per_round"]<=1000:
         raise ValueError("Model call allowance cannot cover the configured roles")
     if type(settings["max_output_tokens_per_round"]) is not int or settings["max_output_tokens_per_round"]<roles*512:
         raise ValueError("Round output token allowance cannot cover the configured roles")
     result["agent_tools"]=settings
-    if settings["skill_release"] in ("2.6.0","2.7.0","2.8.0","2.8.1"):
+    if settings["skill_release"] == "2.8.2":
+        llm = dict(result.get("llm", {}))
+        if llm.get("final_response_mode", "strict_tool_v1") != "strict_tool_v1":
+            raise ValueError("Skills 2.8.2 require explicit strict final submissions")
+        result["llm"] = dict(llm, final_response_mode="strict_tool_v1")
+    if settings["skill_release"] in ("2.6.0","2.7.0","2.8.0","2.8.1","2.8.2"):
         if config.get("protocol") != coordinate_policy:
             raise ValueError("Linear skills require the absolute coordinate protocol")
         from .linear_scale import configure as configure_linear
-        if settings["skill_release"] in ("2.7.0","2.8.0","2.8.1"):
+        if settings["skill_release"] in ("2.7.0","2.8.0","2.8.1","2.8.2"):
             control_settings=dict(config.get("guidance_control",{}))
             control_settings.setdefault("maximum_total_tick_change",12)
             result["guidance_control"]=control_settings
         result=configure_linear(result)
-        if settings["skill_release"] in ("2.7.0","2.8.0","2.8.1"):
+        if settings["skill_release"] in ("2.7.0","2.8.0","2.8.1","2.8.2"):
             from .absolute_coordinate import DYNAMIC_ASSIGNMENT
             from .exploration import configure as configure_exploration
             if config.get("atom_assignment_policy",DYNAMIC_ASSIGNMENT)!=DYNAMIC_ASSIGNMENT:
@@ -62,6 +67,10 @@ def bind_experiment(config):
             "registry":sha(Path(__file__).with_name("analysis_tools.py")),
             "council":sha(Path(__file__).with_name(council)),
             "runtime":sha(__file__)},scope="all targets and versions of this experiment; no in-experiment skill updates")
+    if config["agent_tools"]["skill_release"] == "2.8.2":
+        from agenticgen.providers import strict_tools
+        body["implementation_sha256"]["strict_tools"] = sha(strict_tools.__file__)
+        body["final_response_mode"] = config["llm"]["final_response_mode"]
     if linear_enabled(config):
         body["implementation_sha256"].update({name:sha(Path(__file__).with_name(name+".py"))
             for name in ("linear_scale","linear_calibration","linear_runtime","exploration")})

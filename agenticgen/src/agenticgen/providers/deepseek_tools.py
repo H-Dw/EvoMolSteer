@@ -73,7 +73,8 @@ class RoundBudget:
 def call_with_tools(messages, schema, output, *, registry, budget, response_validator=None,
                     response_parser=strict_json, model="deepseek-flash", timeout=240,
                     transport=None, attempts=3, sleep=time.sleep, max_output_tokens=16384,
-                    max_format_repairs=1, thinking=True, reasoning_effort="high"):
+                    max_format_repairs=1, thinking=True, reasoning_effort="high",
+                    final_response_mode="text"):
     """Replay durable responses; never automatically repeat an ambiguous/failed model request.
 
     Registry.execute is deterministic/read-only and returns evidence receipts. Tool errors
@@ -87,6 +88,21 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
         raise ValueError("Bounded format repair allowance required")
     if type(max_output_tokens) is not int or not 512 <= max_output_tokens <= 98304:
         raise ValueError("Bounded output token allowance required")
+    if final_response_mode not in {"text", "strict_tool_v1"}:
+        raise ValueError("Unsupported final response transport")
+    strict = final_response_mode == "strict_tool_v1"
+    endpoint = "https://api.deepseek.com/chat/completions"
+    wire_tools = registry.definitions
+    wire_contract = None
+    if strict:
+        from .strict_tools import FINAL_TOOL, ENDPOINT, definitions
+
+        endpoint = ENDPOINT
+        wire_tools, client_checks = definitions(registry.definitions, schema)
+        wire_contract = dict(mode=final_response_mode, endpoint=endpoint,
+            final_tool=FINAL_TOOL, tools=wire_tools, client_only_checks=client_checks,
+            full_application_schema_sha256=value_sha(schema),
+            implicit_field_completion=False, plaintext_final_accepted=False)
     output = Path(output)
     session = output.parent/(output.stem+".session")
     session.mkdir(parents=True, exist_ok=True)
@@ -95,12 +111,20 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
         model=model, thinking=thinking, reasoning_effort=reasoning_effort,
         max_output_tokens=max_output_tokens, max_format_repairs=max_format_repairs,
         attempts=attempts, timeout=timeout)
+    if strict:
+        binding["final_response_transport"] = wire_contract
     frozen(session/"BINDING.json", binding)
     if (session/"FAILED.json").exists():
         raise SessionStopped("Archived failed session requires explicit audited recovery")
+    completion = (
+        f"When ready, call {FINAL_TOOL} alone with the complete final object as arguments. "
+        "Never finish with ordinary text or JSON content. Include every required property, "
+        "including explicit empty arrays when required. No field is inferred from your explanation. "
+        if strict else "When ready, return one complete final JSON object, no Markdown or extra fields. "
+    )
     transcript = list(messages) + [dict(role="user", content=
         "Use native registered tool calls only when required evidence is missing. "
-        "When ready, return one complete final JSON object, no Markdown or extra fields. "
+        + completion +
         "Copy evidence_id strings verbatim (ev_ followed by all 20 hexadecimal characters); never shorten them. "
         "Keep each text field comfortably below its maxLength; cite evidence without repeating tables or numeric arrays. "
         "Final response schema: "+json.dumps(schema, ensure_ascii=False, separators=(",", ":")))]
@@ -113,7 +137,7 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                 event = session/f"step_{step:04d}"
                 event.mkdir(exist_ok=True)
                 request_path, wire_path = event/"REQUEST.json", event/"RESPONSE.json"
-                base = dict(model=model, messages=transcript, tools=registry.definitions,
+                base = dict(model=model, messages=transcript, tools=wire_tools,
                     thinking={"type":"enabled" if thinking else "disabled"})
                 if thinking:
                     base["reasoning_effort"] = reasoning_effort
@@ -133,7 +157,10 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                     limit = min(max_output_tokens, tokens)
                     if calls < 1 or limit < 512:
                         raise SessionStopped("Round model-call/output-token budget exhausted")
-                    body = dict(base, max_tokens=limit, tool_choice="none" if calls == 1 else "auto")
+                    # Thinking mode cannot force a named/required function. Keep the
+                    # submission tool available even on the final allowed request.
+                    body = dict(base, max_tokens=limit,
+                        tool_choice="auto" if strict else "none" if calls == 1 else "auto")
                     key = os.environ.get("DEEPSEEK_API_KEY")
                     if not key:
                         raise SessionStopped("DEEPSEEK_API_KEY is absent from this process")
@@ -142,7 +169,7 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                         claim = budget.reserve(output.stem, sha(request_path), limit)
                         frozen(event/f"HTTP_{attempt+1}.json", dict(budget_claim=claim.name))
                         try:
-                            response = client.post("https://api.deepseek.com/chat/completions", json=body,
+                            response = client.post(endpoint, json=body,
                                 headers={"Authorization":"Bearer "+key})
                         except (httpx.TimeoutException, httpx.NetworkError):
                             if attempt+1 == attempts:
@@ -163,6 +190,8 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                 choice = wire["choices"][0]
                 message = choice["message"]
                 calls = message.get("tool_calls")
+                final_calls = ([c for c in calls if c.get("function", {}).get("name") == FINAL_TOOL]
+                               if strict and calls else [])
                 # Keep the full assistant message including opaque reasoning_content.
                 assistant = dict(message, role="assistant")
                 if calls:
@@ -171,8 +200,9 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                     ids = [c["id"] for c in calls]
                     if len(set(ids)) != len(ids) or any(not isinstance(i,str) or not i for i in ids):
                         raise SessionStopped("Duplicate or absent tool-call identity")
-                    transcript.append(assistant)
-                    for index, call in enumerate(calls):
+                    if not final_calls:
+                        transcript.append(assistant)
+                    for index, call in enumerate(calls if not final_calls else []):
                         try:
                             if call.get("type") != "function":
                                 raise ValueError("Only registered function calls are supported")
@@ -189,12 +219,20 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                         frozen(event/f"TOOL_{index:02d}.json", saved)
                         transcript.append(dict(role="tool", tool_call_id=call["id"],
                             content=json.dumps(result, ensure_ascii=False, allow_nan=False, separators=(",", ":"))))
-                    continue
-                if choice.get("finish_reason") != "stop":
+                    if not final_calls:
+                        continue
+                if not calls and choice.get("finish_reason") != "stop":
                     raise SessionStopped("Model output incomplete; no automatic length retry")
                 result = None
                 try:
-                    content = message.get("content")
+                    if strict:
+                        if len(final_calls) != 1 or len(calls or []) != 1:
+                            raise ValueError(f"Call {FINAL_TOOL} alone; required fields: {schema.get('required', [])}")
+                        if final_calls[0].get("type") != "function":
+                            raise ValueError("Final submission must be a native function call")
+                        content = final_calls[0]["function"].get("arguments")
+                    else:
+                        content = message.get("content")
                     if not isinstance(content, str):
                         raise ValueError("Final response is not JSON text")
                     result = response_parser(content)
@@ -223,16 +261,39 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                         diagnostics = (response_diagnostics(error, result, schema)
                             if isinstance(error,(json.JSONDecodeError,jsonschema.ValidationError))
                             else dict(error_type=type(error).__name__,reason=str(error)[:300]))
-                    transcript.extend([assistant, dict(role="user", content=
-                        "Replace the entire final JSON; preserve evidence and do not invent measurements. Validation: "+
-                        json.dumps(diagnostics, ensure_ascii=False))])
+                    transcript.append(assistant)
+                    if strict and calls:
+                        # Every native call needs a matching tool result before a
+                        # repair turn. Mixed final/evidence batches execute neither.
+                        for index, call in enumerate(calls):
+                            result_error = dict(status="final_submission_rejected",
+                                validation=diagnostics, evidence_executed=False)
+                            frozen(event/f"TOOL_{index:02d}.json",
+                                dict(tool_call_id=call["id"], call=call, result=result_error))
+                            transcript.append(dict(role="tool", tool_call_id=call["id"],
+                                content=json.dumps(result_error, ensure_ascii=False)))
+                    instruction = (f"Replace the complete arguments in one {FINAL_TOOL} call, alone. "
+                        f"All fields are mandatory: {schema.get('required', [])}. "
+                        "For selection, supply selected explicitly: [] for hold, otherwise existing candidate IDs. "
+                        if strict else "Replace the entire final JSON; ")
+                    transcript.append(dict(role="user", content=instruction+
+                        "preserve evidence and do not invent measurements. Validation: "+
+                        json.dumps(diagnostics, ensure_ascii=False)))
                     continue
                 frozen(output, result)
+                if strict:
+                    frozen(event/"TOOL_00.json", dict(tool_call_id=final_calls[0]["id"],
+                        call=final_calls[0], result=dict(status="final_submission_accepted",
+                        response_sha256=sha(output), evidence_executed=False)))
                 evidence = sorted(registry.receipt_ids)
                 receipt = dict(policy=POLICY, binding_sha256=sha(session/"BINDING.json"),
                     response_sha256=sha(output), steps=step, interface_repairs=repairs,
                     evidence_ids=evidence, transcript_files={p.relative_to(session).as_posix():sha(p)
                         for p in sorted(session.glob("step_*/*.json"))})
+                if strict:
+                    receipt.update(final_response_mode=final_response_mode,
+                        final_tool=FINAL_TOOL, final_tool_call_id=final_calls[0]["id"],
+                        complete_object_explicitly_submitted=True)
                 frozen(output.with_suffix(".receipt.json"), receipt)
                 return result
     except Exception as error:

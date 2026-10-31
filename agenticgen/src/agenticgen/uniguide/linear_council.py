@@ -159,6 +159,9 @@ def advise(
             ),
         )
     )
+    if config["llm"].get("final_response_mode") == "strict_tool_v1":
+        fields = proposal_schema["properties"]
+        proposal_schema = object_schema({key: fields[key] for key in ("decision", "proposals", "reason")})
 
     def check_proposals(result):
         jsonschema.validate(result, proposal_schema)
@@ -193,6 +196,19 @@ def advise(
         context = dict(
             context, existing_calculation_receipts=registry.observed_calculations()
         )
+        if config["llm"].get("final_response_mode") == "strict_tool_v1":
+            from agenticgen.providers.strict_tools import FINAL_TOOL
+            payload_field = "selected" if role == "synthesis" else "proposals"
+            context["final_submission_contract"] = dict(
+                tool=FINAL_TOOL, required_fields=schema["required"],
+                payload_field=payload_field,
+                explicit_empty_array_required=True, infer_selection_from_reason=False,
+                decision_cases={"hold": payload_field + " must be []",
+                    "propose_or_request_domain_evidence": payload_field + " must contain an explicitly chosen nonempty payload"},
+                no_future_execution=final,
+            )
+            if role == "synthesis":
+                context["final_submission_contract"]["candidate_ids"] = list(context["candidates"])
         modules = ["analysis.md", role + ".md", "computation.md"]
         messages = [
             dict(
@@ -254,6 +270,9 @@ def advise(
             ),
         )
     )
+    if config["llm"].get("final_response_mode") == "strict_tool_v1":
+        fields = synthesis_schema["properties"]
+        synthesis_schema = object_schema({key: fields[key] for key in ("decision", "selected", "reason")})
 
     def check_selection(result):
         jsonschema.validate(result, synthesis_schema)
