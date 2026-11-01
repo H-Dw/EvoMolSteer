@@ -12,7 +12,7 @@ def plan(config, target):
         scale.configure(config)["guidance_control"], target
     )
     return dict(
-        policy=scale.POLICY,
+        policy=settings["policy"],
         control_settings=settings,
         coarse_actual_scales=settings["initial_scales"],
         populations=[10, 20, 50],
@@ -100,7 +100,7 @@ def derive_domain(
     reference = winner[scale.EFFECTIVE][0]
     levels = sorted(r[scale.EFFECTIVE][0] for r in usable)
     body = dict(
-        scale_policy=scale.POLICY,
+        scale_policy=settings["policy"],
         teacher_id=target,
         condition_sha256=condition_hash,
         sampling_protocol_sha256=protocol_hash,
@@ -139,6 +139,18 @@ def derive_domain(
     )
     if exploration is not None:
         body["exploration_policy"] = exploration
+    if settings["policy"] == scale.OPEN_POLICY:
+        from .geometry_protocol import primary_score
+        unit = settings[scale.UNIT]
+        wanted = [reference+i*unit for i in (-2,-1,1,2)
+                  if reference+i*unit in scale.grid(settings)]
+        body["initial_calibration_performance"] = primary_score(winner)
+        body["admission_policy"] = "declared_grid_and_actual_budget; confirmation_is_evidence_not_whitelist"
+        body["reference_support"] = dict(
+            desired_neighbours=wanted, confirmed_neighbours=[x for x in wanted if x in levels],
+            missing_neighbours=[x for x in wanted if x not in levels],
+            full_population_winner_drives_confirmation=True,
+            finite_budget_cannot_guarantee_interior_optimum=True)
     return scale.seal(body)
 
 
@@ -155,7 +167,7 @@ def ensure_limits(config, subject_count):
     return frozen(
         Path(config["root"]) / "ATTEMPT_LIMITS.json",
         dict(
-            policy=scale.POLICY,
+            policy=config["guidance_control"].get("policy",scale.POLICY),
             stage_caps=dict(
                 calibration=350 * subject_count,
                 formal=50
@@ -207,7 +219,7 @@ class LinearSearch:
         write(
             self.folder / "SEARCH_STATE.json",
             dict(
-                policy=scale.POLICY,
+                policy=self.settings["policy"],
                 teacher_id=self.target,
                 stage=phase,
                 measurements=list(self.rows.values()),
@@ -258,6 +270,8 @@ class LinearSearch:
         return [r for (_, n), r in self.rows.items() if n == count]
 
     def run(self):
+        if self.settings["policy"] == scale.OPEN_POLICY:
+            return self.run_open()
         for value in self.settings["initial_scales"]:
             self.measure(value, 10)
         while len(self.population(10)) < self.settings["maximum_screening_levels"]:
@@ -281,6 +295,53 @@ class LinearSearch:
             self.config.get("guidance_exploration"),
             scale.windows(self.config),
         )
+
+    def run_open(self):
+        """Recenter confirmation on measured 50-row winners, within the original cap."""
+        for value in self.settings["initial_scales"]:
+            self.measure(value, 10)
+        blocked = set()
+        while len(self.population(50)) < self.settings["maximum_confirmation_levels"]:
+            full, _, _ = assess(self.population(50))
+            screened, _, _ = assess(self.population(10))
+            if not screened:
+                break
+            center = best(full or screened)[scale.EFFECTIVE][0]
+            unit = self.settings[scale.UNIT]
+            tried = {v for (v,n) in self.rows if n == 50}
+            rejected = blocked | {r[scale.EFFECTIVE][0] for r in self.rows.values()
+                        if not r["complete"] or not r.get("coordinate_loss_statistics", {}).get("ranking_eligible", True)}
+            order = ([center, center-unit, center+unit, center-2*unit, center+2*unit]
+                     + candidate_order(self.population(10), self.settings))
+            candidate = next((v for v in order if v in scale.grid(self.settings)
+                              and v not in tried and v not in rejected
+                              and ((v,10) in self.rows or len(self.population(10)) < self.settings["maximum_screening_levels"])), None)
+            if candidate is None:
+                break
+            # Each proposed level is used once even when a finite screening result is ineligible.
+            try:
+                for count in (10,20,50):
+                    row = self.measure(candidate, count)
+                    usable, _, _ = assess(self.population(count))
+                    if row not in usable:
+                        rejected.add(candidate)
+                        break
+                else:
+                    self.decisions.append(dict(operation="full_winner_support", actual_scale=candidate,
+                                               prior_full_winner=center))
+                    continue
+            except SearchInsufficient:
+                if not full:
+                    raise
+                self.decisions.append(dict(operation="budget_exhausted_with_measured_reference",
+                                           actual_scale=candidate))
+                break
+            # Avoid revisiting a complete but disqualified screening or promotion view.
+            self.decisions.append(dict(operation="not_promoted", actual_scale=candidate))
+            blocked.add(candidate)
+        return derive_domain(list(self.rows.values()), self.target,
+            self.binding["condition_sha256"], value_sha(self.binding), self.settings,
+            self.config.get("guidance_exploration"), scale.windows(self.config))
 
 
 def run(config, subjects, model_loader, executor):

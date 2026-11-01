@@ -396,6 +396,16 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 domain = inherited
         out = folder / target
         frozen(out / "domain_revisions/000.json", domain)
+        baseline = None
+        if scale.open_domain(domain):
+            from .checkpoint_learning import calibration_root, node_summary, best_from_calibration, best_state, context as checkpoint_context
+            initial_history, _ = history(config,teacher,condition,domain)
+            baseline = calibration_root(initial_history,domain)
+            frozen(out / "CALIBRATION_BASELINE.json",dict(
+                node_summary(baseline),source_completion_sha256=sha(root/baseline["id"]/"COMPLETE.json"),
+                default_incumbent=True,replace_only_on_strict_complete_population_improvement=True))
+            if not (out / "GLOBAL_BEST.json").exists():
+                write(out / "GLOBAL_BEST.json",best_state(checkpoint_context(config,initial_history,[],domain=domain)))
         groups = []
         model = model_loader(config, teacher)
         try:
@@ -459,7 +469,8 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 )
 
                 learning = checkpoint_context(
-                    config, current, [r for r in rounds if r["teacher_id"] == target]
+                    config, current, [r for r in rounds if r["teacher_id"] == target],
+                    **({"domain":domain} if scale.open_domain(domain) else {})
                 )
                 snapshot = dict(
                     history=current,
@@ -490,7 +501,16 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 input_domain = domain["domain_sha256"]
                 action_domain = domain
                 seen, measured, receipts, events = list(current), [], {}, []
-                incumbent = choose(current)
+                if scale.open_domain(domain):
+                    from .checkpoint_learning import best_from_calibration
+                    from .linear_admission import audit_actions, require_executable
+                    incumbent = best_from_calibration(current,domain,
+                        [r for r in rounds if r["teacher_id"]==target])
+                    admission = audit_actions(config,current,action_domain,actions,failed,learning,portfolio=True)
+                    frozen(call_folder / "ACTION_ADMISSION.json",admission)
+                    require_executable(admission,portfolio=True)
+                else:
+                    incumbent = choose(current)
                 for index, action in enumerate(actions, 1):
                     resolved = scale.resolve_action(
                         action,
@@ -590,14 +610,27 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                     },
                 )
                 if learning:
-                    saved["checkpoint"] = checkpoint(measured, incumbent)
+                    saved["checkpoint"] = checkpoint(measured, incumbent,baseline=baseline)
                     saved["checkpoint_learning"] = learning
+                if scale.open_domain(domain):
+                    saved["decision_summary"] = dict(decision=decision["decision"],
+                        selected_action_ids=[a["id"] for a in actions],reason=decision.get("reason"))
                 frozen(completed, saved)
                 groups.extend(measured)
                 rounds.append(saved)
+                if scale.open_domain(domain):
+                    verified, _ = history(config,teacher,condition,domain)
+                    write(out / "GLOBAL_BEST.json",best_state(checkpoint_context(config,verified,
+                        [r for r in rounds if r["teacher_id"]==target],domain=domain)))
             current, failed = history(config, teacher, condition, domain)
+            final_config = config
+            if scale.open_domain(domain):
+                final_learning = checkpoint_context(config,current,
+                    [r for r in rounds if r["teacher_id"]==target],domain=domain)
+                final_config = dict(config,guidance_checkpoint_context=final_learning)
+                write(out / "GLOBAL_BEST.json",best_state(final_learning))
             advisor(
-                config,
+                final_config,
                 current,
                 domain,
                 out / "analysis_final",
@@ -605,7 +638,8 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 failed,
                 final=True,
             )
-            winner = choose(current)
+            winner = (best_from_calibration(current,domain,[r for r in rounds if r["teacher_id"]==target])
+                      if scale.open_domain(domain) else choose(current))
             retainer(root, current, winner, out / "retention")
             formal = [
                 r
@@ -631,6 +665,11 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 .relative_to(root)
                 .as_posix(),
             )
+            if scale.open_domain(domain):
+                summaries[target].update(calibration_baseline=node_summary(baseline),
+                    global_best_includes_calibration=True,
+                    agent_improved_calibration=primary_score(winner)<primary_score(baseline),
+                    change_from_calibration=primary_score(winner)-primary_score(baseline))
             contexts.extend(
                 [
                     str(out / "analysis_final/proposal.json"),

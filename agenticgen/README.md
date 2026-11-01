@@ -2,6 +2,18 @@
 
 An installable subproject for adaptive conditional reconstruction with FLOWR.
 
+New absolute-coordinate guidance defaults to skills **2.9.0** and the
+`linear-open-domain-v2` control interface. Merge
+[the new-run overlay](configs/uniguide_open_domain.json) into a complete new
+absolute-coordinate configuration. It separates declared grid bounds from
+measured confirmation evidence, checks action budgets before selection, and
+keeps the best complete calibration measurement as the initial incumbent.
+Rollback prompts carry the saved best-node decision ancestry and poor side
+paths. See [the implementation and validation plan](docs/experiments/20261101_open_domain_v29/plan.zh-CN.md).
+Historical explicit releases and frozen experiment roots are not migrated.
+
+The following describes the original conditional reconstruction campaign.
+
 The current protocol is defined in [the experiment plan](docs/plan.zh-CN.md).
 Condition fidelity is the primary objective, mean predicted affinity agreement
 with the teacher is the functional objective, and best affinity is a bonus.

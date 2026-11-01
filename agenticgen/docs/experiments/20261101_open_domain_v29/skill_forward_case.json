@@ -1,0 +1,155 @@
+{
+  "scope": "Synthetic CPU-only forward-test fixture, not scientific measurements",
+  "calibration_baseline": {
+    "source_id": "fixture/calibration",
+    "actual_schedule": [
+      90,
+      90,
+      90,
+      90
+    ],
+    "performance": 0.4,
+    "population": 50
+  },
+  "global_best_performance": 0.28,
+  "confirmed_constant_levels": [
+    80,
+    90,
+    100,
+    110
+  ],
+  "execution_contract": {
+    "maximum_selected": 3,
+    "maximum_window_tick_change": 4,
+    "maximum_total_tick_change": 12
+  },
+  "action_admission": {
+    "remaining_formal_attempts": 100,
+    "range_evidence_allowance": {
+      "remaining_attempts": 0,
+      "remaining_configurations": 0
+    },
+    "declared_grid": [
+      10,
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80,
+      90,
+      100,
+      110,
+      120,
+      130,
+      140,
+      150,
+      160,
+      170,
+      180,
+      190,
+      200
+    ],
+    "scalar_confirmation_is_admission_whitelist": false
+  },
+  "exploration_hypotheses": {
+    "focused": [
+      1,
+      2
+    ],
+    "expanded": [
+      3,
+      6
+    ],
+    "bold": [
+      7,
+      12
+    ]
+  },
+  "allowed_anchor_ids": [
+    "fixture/best"
+  ],
+  "evidence_receipts": [
+    "fixture/calibration",
+    "fixture/parent",
+    "fixture/best",
+    "fixture/bad1",
+    "fixture/bad2"
+  ],
+  "checkpoint_learning": {
+    "rebase_from_best_checkpoint": true,
+    "best_checkpoint_id": "fixture/best",
+    "best_checkpoint_actual_schedule": [
+      100,
+      90,
+      110,
+      90
+    ],
+    "best_checkpoint_performance": 0.28,
+    "best_path_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "best_decision_path": [
+      {
+        "source_id": "fixture/calibration",
+        "parent_source_id": null,
+        "actual_schedule": [
+          90,
+          90,
+          90,
+          90
+        ],
+        "performance": 0.4
+      },
+      {
+        "source_id": "fixture/parent",
+        "parent_source_id": "fixture/calibration",
+        "actual_schedule": [
+          100,
+          90,
+          100,
+          90
+        ],
+        "performance": 0.32,
+        "saved_proposal_summary": {
+          "improvement_reason": "A different joint allocation may improve the best."
+        }
+      },
+      {
+        "source_id": "fixture/best",
+        "parent_source_id": "fixture/parent",
+        "actual_schedule": [
+          100,
+          90,
+          110,
+          90
+        ],
+        "performance": 0.28,
+        "saved_proposal_summary": {
+          "improvement_reason": "This nearby unmeasured region may contain a better complete path."
+        }
+      }
+    ],
+    "unsuccessful_recent_paths": [
+      {
+        "source_id": "fixture/bad1",
+        "actual_schedule": [
+          110,
+          90,
+          110,
+          90
+        ],
+        "performance": 0.31
+      },
+      {
+        "source_id": "fixture/bad2",
+        "actual_schedule": [
+          120,
+          90,
+          110,
+          90
+        ],
+        "performance": 0.35
+      }
+    ]
+  }
+}

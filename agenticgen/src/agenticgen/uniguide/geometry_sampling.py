@@ -385,7 +385,7 @@ def compatibility(config, teacher, condition, domain=None):
         result["scientific_sources"]["coordinate_statistics"] = sha(package / "coordinate_statistics.py")
     from . import linear_scale
     if linear_scale.enabled(config):
-        result["guidance_scale_protocol"] = dict(policy=linear_scale.POLICY,
+        result["guidance_scale_protocol"] = dict(policy=config["guidance_control"]["policy"],
             **{linear_scale.UNIT:config["guidance_control"][linear_scale.UNIT]})
         result["scientific_sources"].update({"linear_scale/"+fn.__name__:value_sha(inspect.getsource(fn))
             for fn in (linear_scale.effective,linear_scale.encode,linear_scale.binding,

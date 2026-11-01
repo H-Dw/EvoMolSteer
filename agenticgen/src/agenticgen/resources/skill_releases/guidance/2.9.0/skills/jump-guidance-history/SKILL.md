@@ -1,0 +1,18 @@
+---
+name: jump-guidance-history
+description: Review calibration-rooted measured decision paths before searching for improvements.
+metadata:
+  version: "2.9.0"
+---
+
+唯一目标是找到条件区域完整50候选排名RMSD可能更低的完整配置。标定结果是初始根节点；global best包含标定和已完成历史。第一轮也必须读取calibration_baseline的source_id、performance、配置和分母，不能以第一轮较差结果另立基线。只有严格更好的完整测量才能替换全局最优，持平或变差只能记录为探索结果。
+
+阶段一：读取基准与边界。区分标定根、全局最优、本轮新测量最优。读取action_admission的真实可用预算与declared_grid；确认档仅代表已有证据，未知域内落点仍可按新协议用正式50候选测量。未测不等于安全或更好，不能私自扩硬边界或加预算。
+
+阶段二：回顾决策路径。读取best_decision_path和calibration_selection：节点对应真实测量，父节点对应实际anchor_id，摘要对应当时保存的选择理由。评估哪次完整参数改动改善、哪次退步或未测；把当时理由看作待证的搜索猜想，而非生成机理事实。标定根来自程序选优，没有Agent父节点时不得编造前置思考。
+
+回滚时先回顾最优节点及其真实前置节点的配置、选择摘要、测量变化，再读unsuccessful_recent_paths的失败旁支；随后从最优节点提出不同且有潜在收益的完整路径。绑定输入best_path_sha256。只输出可核验的简短决策复盘，不索取或复述隐藏思维链；不重采最佳、不把坏方向改名重试。
+
+不把端点loss、increment大小或某窗看似静止外推成窗口因果作用、线性可加效果或必然无效。数值异常由执行器与工程审计处理；本优化角色不承担解释inference、消融、反证或绘制响应曲线的任务。
+
+科学契约保持：蛋白锚定绝对坐标、逐步及终态Hungarian、完整终态VJP、raw999与既定窗口。条件片段形状叠合是后处理指标，不擅自改变优化目标、坐标输出、随机流或化学注入规则。

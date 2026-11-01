@@ -177,6 +177,11 @@ class EvidenceTools:
                 "inspect_interval_evidence":"Read an existing run's numerical anomalies and step records to choose useful future jumps; never request mechanism or ablation experiments.",
                 "audit_action_batch":"Check integer jump intensity, actual strengths and novelty without sampling."}
             specs=[(name,descriptions.get(name,description),schema) for name,description,schema in specs]
+        from .linear_scale import open_domain
+        if open_domain(domain):
+            specs=[(name,("Check actual executability and attempt costs for independent alternatives and their selected portfolio; no sampling."
+                          if name=="audit_action_batch" else description),schema)
+                   for name,description,schema in specs if name!="inspect_interval_evidence"]
         if condition and condition.get("reward_policy"):
             from .geometry_condition import validate
             validate(condition)
@@ -193,6 +198,8 @@ class EvidenceTools:
         self.binding=dict(policy=self.statistics_policy,history_sha256=value_sha(history),domain_sha256=value_sha(domain),
             sources=self.sources,implementation_sha256=sha(__file__),action_implementation_sha256=sha(Path(__file__).with_name(action_source)))
         if condition:self.binding["reward_condition_sha256"]=condition["condition_sha256"]
+        if open_domain(domain):
+            self.binding["admission_implementation_sha256"]=sha(Path(__file__).with_name("linear_admission.py"))
         frozen(self.folder/"BINDING.json",self.binding)
 
     def verify_sources(self):
@@ -346,6 +353,13 @@ class EvidenceTools:
 
     def _audit_action_batch(self,actions):
         from . import linear_scale
+        if linear_scale.open_domain(self.domain):
+            from .linear_admission import audit_actions
+            config=getattr(self,"action_config",None)
+            if config is None:
+                config=read(self.root/"GEOMETRY_CONFIG.json")
+            return audit_actions(config,list(self.history.values()),self.domain,actions,
+                                 getattr(self,"action_failures",()),getattr(self,"action_learning",None))
         if linear_scale.enabled(self.domain):
             seen=list(self.history.values());results=[]
             for action in actions:

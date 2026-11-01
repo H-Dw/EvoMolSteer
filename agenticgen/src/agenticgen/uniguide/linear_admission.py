@@ -1,0 +1,93 @@
+"""Read-only action admission shared by tools, both roles and execution preflight."""
+from pathlib import Path
+
+from . import linear_scale as scale
+from .checkpoint_learning import context as checkpoint_context
+from .io import read, sha
+
+
+def budget_state(config, domain):
+    from .linear_runtime import formal_allowance, range_allowance
+    root = Path(config['root'])
+    ledger = root/'attempts.json'
+    rows = read(ledger) if ledger.exists() else {}
+    used = sum(r['count'] for r in rows.values()
+               if r['stage']=='formal' and r.get('teacher_id')==domain['teacher_id'])
+    teacher_cap = 50*config['rounds']*domain['control_settings']['maximum_selected']
+    return dict(remaining_formal_attempts=min(formal_allowance(config), max(0,teacher_cap-used)),
+                range_evidence_allowance=range_allowance(config,domain['teacher_id']),
+                attempts_sha256=sha(ledger) if ledger.exists() else None,
+                limits_sha256=sha(root/'ATTEMPT_LIMITS.json'),
+                scalar_confirmation_is_admission_whitelist=not scale.open_domain(domain),
+                declared_grid=scale.grid(domain['control_settings']),
+                confirmation_evidence_levels=domain['confirmed_effective_levels'],
+                unknown_configuration_stability='unmeasured; no safety or improvement guarantee')
+
+
+def audit_actions(config, history, domain, actions, failures=(), learning=None, *, portfolio=False):
+    from .linear_runtime import remaining_profile_cost
+    state = budget_state(config,domain)
+    available = state['remaining_formal_attempts']
+    frontier = dict(state['range_evidence_allowance'])
+    learning = learning or (checkpoint_context(config,history,[],domain) if scale.open_domain(domain) else None)
+    anchors = {r['id']:r for r in history}
+    seen, results = list(history), []
+    total_formal, total_range, total_configurations = 0, 0, 0
+    for action in actions:
+        try:
+            resolved = scale.resolve_action(action,anchors,domain,seen,failures)
+            if scale.open_domain(domain):
+                target = action['optimization_target']
+                if (target['incumbent_source_id'] != learning['best_checkpoint_id'] or
+                    target['reviewed_path_sha256'] != learning['best_path_sha256']):
+                    raise ValueError('Optimization target does not bind the current measured best decision path')
+                if learning['rebase_from_best_checkpoint'] and (
+                    action['anchor_id'] != learning['best_checkpoint_id'] or
+                    target['path_relation'] != 'redirect_from_reviewed_best'):
+                    raise ValueError('Rollback must redirect from the reviewed measured best node')
+            try:
+                cost = remaining_profile_cost(config['root'],domain['teacher_id'],resolved[scale.EFFECTIVE])
+            except ValueError as error:
+                from .analysis_tools import EvidenceIntegrityError
+                raise EvidenceIntegrityError('Measured admission source changed: '+str(error)) from error
+            except RuntimeError as error:
+                raise ValueError(str(error)) from error
+            stage = 'calibration' if resolved['task_type']=='range_evidence' else 'formal'
+            allowed = ((frontier['remaining_configurations']>=1 and frontier['remaining_attempts']>=cost)
+                       if stage=='calibration' else available>=cost)
+            admission = dict(executable_now=allowed,stage=stage,required_new_attempts=cost,
+                             reason=None if allowed else ('frontier_budget_exhausted' if stage=='calibration' else 'formal_budget_exhausted'))
+            if learning:
+                changes=[abs(a-b)/domain[scale.UNIT] for a,b in zip(
+                    resolved[scale.EFFECTIVE],learning['best_checkpoint_actual_schedule'])]
+                admission['distance_from_global_best_ticks']=dict(total=sum(changes),maximum_window=max(changes))
+            results.append(dict(action=action,status='executable_unmeasured' if allowed else 'not_executable',
+                                resolved=resolved,admission=admission,observed_performance=None))
+            seen.append(resolved)
+            if stage=='formal':
+                total_formal+=cost
+                if portfolio: available-=cost
+            else:
+                total_range+=cost;total_configurations+=1
+                if portfolio:
+                    frontier['remaining_attempts']-=cost;frontier['remaining_configurations']-=1
+        except ValueError as error:
+            results.append(dict(action=action,status='rejected',reason=str(error),
+                                admission=dict(executable_now=False)))
+    all_valid = all(r['status']!='rejected' for r in results)
+    batch_ok = (all_valid and total_formal<=state['remaining_formal_attempts']
+                and total_range<=state['range_evidence_allowance']['remaining_attempts']
+                and total_configurations<=state['range_evidence_allowance']['remaining_configurations'])
+    return dict(status='complete',actions=results,budget_state=state,
+                evaluation_scope='selected_portfolio' if portfolio else 'independent_alternatives',
+                batch_admission=dict(executable_now=batch_ok,formal_new_attempts=total_formal,
+                                     calibration_new_attempts=total_range,frontier_configurations=total_configurations),
+                new_molecular_attempts=0)
+
+
+def require_executable(report, *, portfolio):
+    bad = [r for r in report['actions'] if not r['admission']['executable_now']]
+    if bad or (portfolio and not report['batch_admission']['executable_now']):
+        raise ValueError('Action is not executable with the current measured context/budget: '+
+                         str([r.get('reason',r['admission'].get('reason')) for r in bad]
+                             or report['batch_admission']))

@@ -73,6 +73,9 @@ def advise(
     if not anchors or len(anchors) != len(history):
         raise ValueError("Unique completed linear history required")
     learning = config.get("guidance_checkpoint_context")
+    if scale.open_domain(domain) and learning is None:
+        from .checkpoint_learning import context
+        learning = context(config,history,[],domain)
     if learning and learning["rebase_from_best_checkpoint"]:
         anchors = {
             learning["best_checkpoint_id"]: anchors[learning["best_checkpoint_id"]]
@@ -84,6 +87,10 @@ def advise(
     registry = EvidenceTools(
         config["root"], history, domain, folder / "calculations", condition=condition
     )
+    if scale.open_domain(domain):
+        registry.action_config = config
+        registry.action_learning = learning
+        registry.action_failures = failures
     registry.precompute()
     settings = config["agent_tools"]
     budget = RoundBudget(
@@ -92,7 +99,10 @@ def advise(
         settings["max_output_tokens_per_round"],
     )
     provider = provider or call_with_tools
-    incumbent = choose(history)
+    if scale.open_domain(domain):
+        incumbent = next(r for r in history if r["id"]==learning["best_checkpoint_id"])
+    else:
+        incumbent = choose(history)
     from .linear_runtime import range_allowance, formal_allowance
 
     common = dict(
@@ -129,6 +139,25 @@ def advise(
     )
     if learning:
         common["checkpoint_learning"] = learning
+    if scale.open_domain(domain):
+        from .linear_admission import budget_state
+        common["calibration_baseline"] = learning["calibration_baseline"]
+        common["global_best_performance"] = learning["best_checkpoint_performance"]
+        common["action_admission"] = budget_state(config,domain)
+        common["remaining_formal_attempts"] = common["action_admission"]["remaining_formal_attempts"]
+        common["decision_methodology"] = [
+            "Read the calibration root and global best performance, then the actual executable grid and budget.",
+            "Review saved decisions and outcomes on the best path; on rollback also review failed side paths.",
+            "Propose distinct potentially better complete configurations; not mechanism, ablation or falsification experiments.",
+            "Audit individual alternatives, then the selected portfolio's cumulative admission cost.",
+            "Submit explicit strict tool fields; improvement is unknown until complete measurement.",
+        ]
+        # Numerical window traces remain archived for engineering, outside this optimization council.
+        for row in common["history"]:
+            for key in ("maximum_unconstrained_single_atom_guidance_increment_angstrom",
+                        "maximum_single_atom_guidance_increment_angstrom",
+                        "assignment_diagnostics_not_used_for_ranking"):
+                row.pop(key,None)
     common["allowed_anchor_ids"] = list(anchors)
     common["conditioning_protocol"] = dict(
         prefix_inpainting=config.get("prefix_inpainting", {"enabled": False}),
@@ -145,7 +174,8 @@ def advise(
         )
         common["working_neighbourhood_is_a_preference_not_an_admission_limit"] = True
     text = text_schema
-    decisions = ["hold"] if final else ["propose", "hold", "request_domain_evidence"]
+    decisions = (["hold"] if final else ["propose", "hold"] if scale.open_domain(domain)
+                 else ["propose", "hold", "request_domain_evidence"])
     proposal_schema = object_schema(
         dict(
             decision=dict(enum=decisions),
@@ -172,7 +202,7 @@ def advise(
             )
         seen = list(history)
         for action in proposed:
-            allowed = set(anchors) | registry.receipt_ids
+            allowed = set(registry.history) | registry.receipt_ids
             if not action["evidence_ids"] or set(action["evidence_ids"]) - allowed:
                 raise jsonschema.ValidationError(
                     "Use original measured IDs or observed calculation receipts"
@@ -191,6 +221,12 @@ def advise(
                 )
         if len({p["id"] for p in proposed}) != len(proposed):
             raise jsonschema.ValidationError("Repeated proposal identity")
+        if scale.open_domain(domain):
+            from .linear_admission import audit_actions, require_executable
+            try:
+                require_executable(audit_actions(config,history,domain,proposed,failures,learning),portfolio=False)
+            except ValueError as error:
+                raise jsonschema.ValidationError(str(error)) from error
 
     def invoke(role, context, schema, validator):
         context = dict(
@@ -254,6 +290,10 @@ def advise(
 
     proposed = invoke("proposal", common, proposal_schema, check_proposals)
     candidates = {p["id"]: p for p in proposed["proposals"]}
+    candidate_admission = None
+    if scale.open_domain(domain):
+        from .linear_admission import audit_actions
+        candidate_admission = audit_actions(config,history,domain,list(candidates.values()),failures,learning)
     synthesis_schema = object_schema(
         dict(
             decision=dict(enum=decisions),
@@ -292,10 +332,18 @@ def advise(
             raise jsonschema.ValidationError(
                 "Range evidence request must select unconfirmed frontier profiles"
             )
+        if scale.open_domain(domain):
+            from .linear_admission import audit_actions, require_executable
+            try:
+                require_executable(audit_actions(config,history,domain,
+                    [candidates[i] for i in result["selected"]],failures,learning,portfolio=True),portfolio=True)
+            except ValueError as error:
+                raise jsonschema.ValidationError(str(error)) from error
 
     selected = invoke(
         "synthesis",
-        dict(common, proposal_decision=proposed, candidates=candidates),
+        dict(common, proposal_decision=proposed, candidates=candidates,
+             **({"candidate_admission":candidate_admission} if candidate_admission is not None else {})),
         synthesis_schema,
         check_selection,
     )

@@ -10,6 +10,7 @@ from .io import value_sha
 from .guidance_windows import windows
 
 POLICY = "linear-envelope-frontier-v1"
+OPEN_POLICY = "linear-open-domain-v2"
 TICKS = "guidance_scale_tick_schedule"
 REFERENCE = "calibrated_guidance_reference_scale"
 UNIT = "guidance_scale_grid_unit"
@@ -33,12 +34,22 @@ DEFAULTS = dict(
     maximum_selected=3,
     improvement_tolerance_angstrom=0.0,
 )
+OPEN_DEFAULTS = dict(
+    DEFAULTS, policy=OPEN_POLICY,
+    initial_scales=[20, 50, 80, 110, 140, 170, 200],
+    maximum_screening_levels=10, maximum_confirmation_levels=6,
+    range_evidence_attempts=0, maximum_range_evidence_configurations=0,
+)
+
+
+def open_domain(value):
+    return value.get("scale_policy", value.get("guidance_control", {}).get("policy")) == OPEN_POLICY
 
 
 def enabled(value):
     return (
         value.get("scale_policy", value.get("guidance_control", {}).get("policy"))
-        == POLICY
+        in (POLICY, OPEN_POLICY)
     )
 
 
@@ -50,15 +61,17 @@ def integer(value, label, minimum=1):
 
 def configure(config):
     calibration = config.get("calibration", {})
+    selected_policy = config.get("guidance_control", {}).get("policy", POLICY)
     if (
         set(calibration) - {"search_policy"}
-        or calibration.get("search_policy", POLICY) != POLICY
+        or calibration.get("search_policy", selected_policy) != selected_policy
     ):
         raise ValueError(
             "Linear control cannot reuse exponent calibration settings or measurements"
         )
-    settings = dict(DEFAULTS, **config.get("guidance_control", {}))
-    if set(settings) != set(DEFAULTS) or settings["policy"] != POLICY:
+    defaults = OPEN_DEFAULTS if selected_policy == OPEN_POLICY else DEFAULTS
+    settings = dict(defaults, **config.get("guidance_control", {}))
+    if set(settings) != set(DEFAULTS) or settings["policy"] not in (POLICY, OPEN_POLICY):
         raise ValueError("Unknown linear guidance control settings")
     for name in (
         UNIT,
@@ -75,7 +88,11 @@ def configure(config):
         "maximum_proposals",
         "maximum_selected",
     ):
-        integer(settings[name], name)
+        integer(settings[name], name, minimum=0 if selected_policy == OPEN_POLICY and name in
+                ("range_evidence_attempts", "maximum_range_evidence_configurations") else 1)
+    if selected_policy == OPEN_POLICY and (settings["range_evidence_attempts"] or
+                                          settings["maximum_range_evidence_configurations"]):
+        raise ValueError("Open-domain actions use the formal budget; no separate frontier quota")
     if (
         settings["maximum_attempts_per_teacher"] > 350
         or settings["maximum_selected"] > 3
@@ -125,7 +142,7 @@ def configure(config):
         for target, values in overrides.items()
     }
     return dict(
-        config, guidance_control=settings, calibration=dict(search_policy=POLICY)
+        config, guidance_control=settings, calibration=dict(search_policy=selected_policy)
     )
 
 
@@ -242,7 +259,7 @@ def binding(ticks, domain, guidance_enabled=True):
         REFERENCE: domain[REFERENCE],
         UNIT: domain[UNIT],
         EFFECTIVE: effective(ticks, domain, guidance_enabled),
-        "scale_policy": POLICY,
+        "scale_policy": domain["scale_policy"],
         "scale_mode": "linear_reference_ticks",
         "guidance_enabled": guidance_enabled,
         "guidance_windows": windows(domain),
@@ -300,6 +317,15 @@ def action_schema(anchor_ids, domain=None):
 
         schema["properties"]["exploration_tier"] = dict(enum=list(TIERS))
         schema["required"].append("exploration_tier")
+    if domain and open_domain(domain):
+        schema["properties"]["optimization_target"] = obj(dict(
+            calibration_source_id=dict(enum=[domain["initial_source"]]),
+            incumbent_source_id=text(500),
+            reviewed_path_sha256=text(64),
+            purpose=dict(enum=["seek_potential_global_improvement"]),
+            path_relation=dict(enum=["new_joint_region", "frontier_jump", "redirect_from_reviewed_best"]),
+        ))
+        schema["required"].append("optimization_target")
     return schema
 
 
@@ -371,16 +397,23 @@ def resolve_action(action, anchors, domain, seen=(), failures=()):
     if actual in [r[EFFECTIVE] for r in blocked if EFFECTIVE in r]:
         raise ValueError("Exact failed/interrupted configuration cannot be retried")
     known = set(domain["confirmed_effective_levels"])
-    needs_evidence = any(
+    needs_evidence = not open_domain(domain) and (any(
         x not in known and x != source[EFFECTIVE][i] for i, x in enumerate(actual)
     ) or (
         not domain.get("exploration_policy")
         and max(map(abs, changes)) > settings["working_radius_ticks"]
-    )
+    ))
+    if open_domain(domain):
+        target = action.get("optimization_target", {})
+        if (set(target) != {"calibration_source_id", "incumbent_source_id", "reviewed_path_sha256", "purpose", "path_relation"}
+            or target["calibration_source_id"] != domain["initial_source"]
+            or target["purpose"] != "seek_potential_global_improvement"
+            or target["path_relation"] not in ("new_joint_region", "frontier_jump", "redirect_from_reviewed_best")):
+            raise ValueError("Open-domain action requires the calibration-rooted optimization target")
     direction = (
         "increase" if min(changes) > 0 else "decrease" if max(changes) < 0 else "mixed"
     )
-    return dict(
+    result = dict(
         action,
         **binding(ticks, domain),
         direction=direction,
@@ -391,6 +424,10 @@ def resolve_action(action, anchors, domain, seen=(), failures=()):
         executor_resolved=True,
         agent_action_sha256=value_sha(action),
     )
+    if open_domain(domain):
+        result["unconfirmed_scalar_levels"] = sorted(set(actual)-known)
+        result["stability_guarantee"] = False
+    return result
 
 
 def boundary_status(domain, incumbent):
