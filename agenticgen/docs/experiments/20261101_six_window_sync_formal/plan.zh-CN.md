@@ -29,6 +29,8 @@ CPU质量仅每实际源组50中固定抽查10（五seed各slot0/1），构建�
 
 ## 每小时巡检和收尾
 
+21:26巡检确认e07e08c7两教师均在acceptance停止，0标定/正式尝试、0 LLM。已只读保存证据；[工程修复说明](engineering_repair.zh-CN.md)列明旧固定步数夹具与VJP差分步长收敛问题。修复提交使用新固定目录和独立`_repair1`结果根、attempt_002；旧根只读保护，fresh acceptance不可省略，既有科学预算不增加。最新真实启动及配置SHA以launch_audit.json为准。
+
 首次985f9640部署预检为346通过、1失败：稀疏检出遗漏comparison8/run_suite.py测试依赖目录。未创建科学结果根、未生成候选、未调用API。修复仅补齐检出清单，以新固定提交独立检出后重验；原预检目录和DEPLOY_FAILED保留，不跳过测试、不改变科学源码或容差，不计科学预算。
 
 巡检调用固定目录inspect_suite.py --plan PLAN.json，保存Asia/Shanghai快照；核对真实命令/状态、全局/suite/任务executor与campaign锁、阶段安全日志、steps/progress、attempts、验收COMPLETE、标定域、五轮真实provider/工具回执、GLOBAL_BEST、初始根、质量队列及SUITE标记。逐文件核对SOURCE_PRESERVATION、固定提交、运行源码及配置SHA；不能仅凭PID/心跳/目录判健康。完整acceptance须真实包含全100步、零scale和端点/化学相位检查，不能拿CPU测试代替。

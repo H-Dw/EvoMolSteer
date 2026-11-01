@@ -225,6 +225,9 @@ def run_teacher(model,config,teacher,condition,folder):
 
 def verify_uncapped_guidance(model,config,teacher,condition,folder,units,separate):
     """One large finite update is observed, never followed by a weaker retry."""
+    from .guidance_endpoints import update_bounds
+    first_step=update_bounds(config)[0]
+    stop_step=first_step+1
     stress=[copy.deepcopy(units[0]),dict(id="uncapped_fixture",slots=[6,7],
         scale=scale_binding([1e6]*len(windows(config)),condition=condition,window_bounds=windows(config)))]
     destination=folder/"uncapped_large_increment"
@@ -232,18 +235,18 @@ def verify_uncapped_guidance(model,config,teacher,condition,folder,units,separat
         units=stress,physical_rows=20)
     sampler.sample(model,config,teacher,stress[0]["scale"][EFFECTIVE],destination,20,
         control_factory=factory,check_affinity=False,
-        initial_override=batch_initial(config,teacher["target"],stress),stop_step=11)
+        initial_override=batch_initial(config,teacher["target"],stress),stop_step=stop_step)
     steps=read(destination/"steps.json")
     assert all("guidance_increment_limited" not in row for row in steps)
-    assert max(steps[10]["max_atom_increment_A"][10:])>3.
+    assert max(steps[first_step]["max_atom_increment_A"][10:])>3.
     with h5py.File(destination/"trace.h5") as mixed,h5py.File(separate/"trace.h5") as reference:
-        assert np.array_equal(mixed["guidance_delta_A"][10].astype(np.float64),
-                              mixed["unconstrained_guidance_delta_A"][10])
+        assert np.array_equal(mixed["guidance_delta_A"][first_step].astype(np.float64),
+                              mixed["unconstrained_guidance_delta_A"][first_step])
         for key in reference:
-            assert np.array_equal(reference[key][:11],mixed[key][:11,:10]),key
+            assert np.array_equal(reference[key][:stop_step],mixed[key][:stop_step,:10]),key
     return dict(uncapped_large_increment_preserved=True,unaffected_candidates_exact=True,
         guidance_increment_limiter="none",stress_is_engineering_only=True,
-        stress_multiplier_is_not_calibrated=True,stress_steps=11)
+        stress_multiplier_is_not_calibrated=True,stress_steps=stop_step,stress_step_index=first_step)
 
 
 def engineering_inventory(folder):

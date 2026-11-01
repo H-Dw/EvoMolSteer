@@ -4,6 +4,7 @@ import copy
 from datetime import datetime, timezone, timedelta
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import shlex
@@ -18,7 +19,7 @@ SELECTED=Path('/workspace/agenticgen_guidance_selected_retest_20261031')
 SCOPE=Path('/workspace/agenticgen_gradient_scope_20261101')
 DOC='agenticgen/docs/experiments/20261101_six_window_sync_formal'
 PYTHON='/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python'
-TESTS=('synchronized_chemistry','zero_start_guidance','open_domain_search',
+TESTS=('local_derivative_acceptance','synchronized_chemistry','zero_start_guidance','open_domain_search',
        'strict_final_submission','guidance_comparison5','comparison8_contracts',
        'prefix_promotion_recovery','dynamic_matching_jump','linear_guidance',
        'adaptive_calibration','geometry_tensor_contract','geometry_chemical_state',
@@ -45,15 +46,53 @@ def command(args,cwd=None,timeout=120):
     return result.stdout
 
 
-def deploy(commit,bundle=None,bundle_sha=None):
+def stopped_zero_science_parent(root):
+    """Engineering acceptance repair only; never restart or mutate the parent."""
+    import fcntl
+    if root!=ROOT:raise ValueError('Unexpected engineering repair parent')
+    parent=read(root/'PLAN.json')
+    if parent['commit']!='e07e08c742acace38adfbcbf951ed82fef79e244':
+        raise ValueError('Unexpected parent source')
+    terminal=read(root/'SUITE_FINISHED.json')
+    if len(terminal['jobs'])!=2 or any(r['status']!='failed_skipped' for r in terminal['jobs']):
+        raise ValueError('Repair parent must have two preserved terminal failures')
+    paths=[root/'.suite.lock',Path(parent['global_executor_lock'])]
+    for job in parent['jobs']:
+        folder=Path(job['root'])
+        if sha(job['config'])!=job['config_sha256']:raise ValueError('Parent config changed')
+        if (folder/'attempts.json').exists() and read(folder/'attempts.json'):
+            raise ValueError('Repair requires explicit accounting for any scientific attempts')
+        if (folder/'acceptance/COMPLETE.json').exists() or (folder/'calibration').exists() or (folder/'versions').exists():
+            raise ValueError('Do not import a partial scientific campaign')
+        paths.extend(folder/p for p in ('.executor.lock','.campaign.lock','quality_queue/.worker.lock'))
+    for path in paths:
+        if not path.exists():continue
+        with path.open('r+') as stream:
+            fcntl.flock(stream,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            fcntl.flock(stream,fcntl.LOCK_UN)
+    for proc in Path('/proc').glob('[0-9]*'):
+        if int(proc.name)==os.getpid():continue
+        try:args=(proc/'cmdline').read_bytes().decode().split('\0')
+        except (OSError,UnicodeError):continue
+        if any(a==str(root) or a.startswith(str(root)+'/') or a.startswith(parent['repo']+'/') for a in args):
+            raise ValueError('Parent process remains active: '+proc.name)
+    return dict(root=str(root),plan_sha256=sha(root/'PLAN.json'),commit=parent['commit'],
+                terminal_sha256=sha(root/'SUITE_FINISHED.json'),scientific_attempts=0,llm_calls=0,
+                old_failures_preserved=True,acceptance_reused=False)
+
+
+def deploy(commit,bundle=None,bundle_sha=None,repair_from=None):
     if re.fullmatch('[0-9a-f]{40}',commit) is None:raise ValueError('Exact pushed commit required')
+    root=Path(str(ROOT)+'_repair1') if repair_from else ROOT
     repo=Path('/workspace/uniguide_runs')/('six-window-sync-'+commit[:8])
     audit=STORAGE/'audits'/('sync-'+commit[:8]);audit.mkdir(parents=True,exist_ok=True)
     def status(stage,**values):
         state=dict(timestamp=now(),stage=stage,commit=commit)
         state.update(values);write(audit/'DEPLOY_STATUS.json',state)
     try:
-        if ROOT.exists() or repo.exists():raise ValueError('Preserve existing root/checkout; inspect before any new attempt')
+        if root.exists() or repo.exists():raise ValueError('Preserve existing root/checkout; inspect before any new attempt')
+        repair=stopped_zero_science_parent(Path(repair_from)) if repair_from else None
+        if repair:write(audit/'ENGINEERING_REPAIR_PARENT.json',repair,True)
         if shutil.disk_usage('/workspace').free < (10<<30):raise ValueError('Insufficient run disk space')
         if shutil.disk_usage('/root/private_data').free < (256<<20):raise ValueError('Insufficient audit storage')
         old_plan=read(OLD/'PLAN.json');selected_plan=read(SELECTED/'PLAN.json')
@@ -113,7 +152,7 @@ def deploy(commit,bundle=None,bundle_sha=None):
             if sha(item['destination'])!=item['sha256']:raise ValueError('Frozen durable input changed')
             protected[item['destination']]=item['sha256']
         histories=[]
-        for prior in (OLD,SELECTED,SCOPE):
+        for prior in (OLD,SELECTED,SCOPE,*([ROOT] if repair else [])):
             preservation=prior/'SOURCE_PRESERVATION.json'
             if preservation.exists():
                 for name,digest in read(preservation).items():
@@ -134,7 +173,8 @@ def deploy(commit,bundle=None,bundle_sha=None):
         for index,target in enumerate(('6pyy_H7S_A_402','3w54_RNB_A_504'),1):
             original=templates[target];c=copy.deepcopy(read(original['config']));c.update(copy.deepcopy(overlay))
             job_id=f'{index:02d}_six_window_sync_'+('6pyy' if index==1 else '3w54')
-            c.update(root=str(ROOT/'jobs'/job_id/'attempt_001'),rounds=5)
+            attempt='attempt_002' if repair else 'attempt_001'
+            c.update(root=str(root/'jobs'/job_id/attempt),rounds=5)
             c['conditions']=[r for r in c['conditions'] if r['teacher_id']==target]
             for name in ('postprocessing_recovery','experiment_mode','gradient_atom_scope','initial_selection'):c.pop(name,None)
             c['llm']=dict(c['llm'],final_response_mode='strict_tool_v1',attempts=3,max_format_repairs=1)
@@ -155,33 +195,33 @@ def deploy(commit,bundle=None,bundle_sha=None):
             expected[target]={k:old_subject['condition'][k] for k in ('condition_sha256','controlled_atom_ids')}
             path=Path(str(repo)+'-configs')/(job_id+'.json');write(path,c,True)
             jobs.append(dict(id=job_id,experiment='six_window_sync',teacher=target,config=str(path),
-                config_sha256=sha(path),root=c['root'],rounds=5,skill_release='2.10.1',commit=commit,attempt='attempt_001'))
-        ROOT.mkdir(parents=True,exist_ok=False)
-        write(ROOT/'SOURCE_PRESERVATION.json',protected,True)
-        write(ROOT/'HISTORICAL_ACCOUNTING.json',dict(timestamp=now(),roots=histories,
+                config_sha256=sha(path),root=c['root'],rounds=5,skill_release='2.10.1',commit=commit,attempt=attempt))
+        root.mkdir(parents=True,exist_ok=False)
+        write(root/'SOURCE_PRESERVATION.json',protected,True)
+        write(root/'HISTORICAL_ACCOUNTING.json',dict(timestamp=now(),roots=histories,engineering_repair=repair,
               imported_measurements=0,old_attempts_not_refunded=True,new_calibration_cap=1000,new_formal_cap=1500),True)
         sources=[*(repo/'agenticgen/src').rglob('*.py'),*(repo/'src').rglob('*.py')]
         sources.extend(repo/DOC/name for name in ('deploy.py','run_suite.py','inspect_suite.py','launch.sh'))
-        plan=dict(timestamp=now(),root=str(ROOT),repo=str(repo),commit=commit,jobs=jobs,rounds=5,
+        plan=dict(timestamp=now(),root=str(root),repo=str(repo),commit=commit,jobs=jobs,rounds=5,engineering_repair=repair,
              generation_context_root=old_plan['generation_context_root'],
              global_executor_lock=old_plan['global_executor_lock'],wait_for_global_lock=True,
              maximum_calibration_attempts=1000,maximum_formal_attempts=1500,fresh_calibration=True,
              expected_conditions=expected,original_input_snapshot=str(snapshot),original_input_snapshot_sha256=sha(snapshot),
              source_preservation_count=len(protected),plan_document_sha256=sha(repo/DOC/'plan.zh-CN.md'),
-             persistent_storage=str(STORAGE),durable_snapshot_root=str(STORAGE/'result_snapshots'),
-             trajectory_storage=str(ROOT),trajectory_storage_is_overlay=True,
+             persistent_storage=str(STORAGE),durable_snapshot_root=str(STORAGE/('result_snapshots_repair1' if repair else 'result_snapshots')),
+             trajectory_storage=str(root),trajectory_storage_is_overlay=True,
              runtime_source_sha256={p.relative_to(repo).as_posix():sha(p) for p in sources},
              failure_policy='preserve_skip_continue; no automatic scientific retry')
-        write(ROOT/'PLAN.json',plan,True)
-        write(audit/'READY.json',dict(timestamp=now(),commit=commit,repo=str(repo),root=str(ROOT),
-              plan=str(ROOT/'PLAN.json'),plan_sha256=sha(ROOT/'PLAN.json'),protected_files=len(protected),
+        write(root/'PLAN.json',plan,True)
+        write(audit/'READY.json',dict(timestamp=now(),commit=commit,repo=str(repo),root=str(root),
+              plan=str(root/'PLAN.json'),plan_sha256=sha(root/'PLAN.json'),protected_files=len(protected),
               input_copies_verified=len(read(snapshot)['copies']),regression=counts,scientific_attempts=0,llm_calls=0),True)
         status('launching_background_suite')
-        launch=['bash','-i',str(repo/DOC/'launch.sh'),str(repo),str(ROOT/'PLAN.json')]
-        with (ROOT/'launcher.log').open('xb') as stream:
+        launch=['bash','-i',str(repo/DOC/'launch.sh'),str(repo),str(root/'PLAN.json')]
+        with (root/'launcher.log').open('xb') as stream:
             process=subprocess.Popen(launch,cwd=repo,stdin=subprocess.DEVNULL,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
         receipt=dict(timestamp=now(),pid=process.pid,command=launch,commit=commit,jobs=2,rounds=5,
-                     plan_sha256=sha(ROOT/'PLAN.json'),launcher_log_kept_remote_only=True)
+                     plan_sha256=sha(root/'PLAN.json'),launcher_log_kept_remote_only=True)
         write(audit/'LAUNCH.json',receipt,True);status('background_launched',**receipt)
     except Exception as error:
         write(audit/'DEPLOY_FAILED.json',dict(timestamp=now(),error_type=type(error).__name__,error=str(error),
@@ -193,4 +233,5 @@ def deploy(commit,bundle=None,bundle_sha=None):
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--commit',required=True)
     parser.add_argument('--bundle');parser.add_argument('--bundle-sha')
-    args=parser.parse_args();deploy(args.commit,args.bundle,args.bundle_sha)
+    parser.add_argument('--repair-from')
+    args=parser.parse_args();deploy(args.commit,args.bundle,args.bundle_sha,args.repair_from)

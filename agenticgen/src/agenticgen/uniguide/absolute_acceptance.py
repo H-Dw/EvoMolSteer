@@ -77,16 +77,21 @@ def real_vjp(model,config,teacher,condition):
     before=capture();x=curr["coords"].detach().clone().requires_grad_(True)
     gradient=torch.autograd.grad(objective(x),x)[0].detach();norm=gradient.norm()
     if not torch.isfinite(gradient).all() or norm<=1e-8:raise ValueError("Invalid real model input gradient")
-    direction=gradient/norm;errors=[]
+    direction=gradient/norm
+    from .derivative_acceptance import verify as verify_derivative
+    reference_identity=value_sha(fixed_assignment.detach().cpu().tolist())
     with torch.no_grad():
-        for epsilon in (.01,.005):
-            numerical=(objective(x.detach()+epsilon*direction)-objective(x.detach()-epsilon*direction))/(2*epsilon)
-            errors.append(float(abs(numerical-norm)/norm))
-    if max(errors)>.05:raise ValueError("Real coordinate VJP finite-difference discrepancy: "+str(errors))
+        def evaluate(offset):
+            value=objective(x.detach()+offset*direction)
+            return dict(value=float(value),identity=value_sha(fixed_assignment.detach().cpu().tolist()))
+        numerical=verify_derivative(evaluate,float(norm),reference_identity)
+    write(prefix/'VJP_FINITE_DIFFERENCE.json',numerical)
     if not equal(before,capture()):raise ValueError("VJP consumed sampling RNG")
     if any(p.requires_grad or p.grad is not None for p in model.parameters()):raise ValueError("Model parameters not frozen")
     for hook in hooks:hook.remove()
-    return dict(relative_errors=errors,tolerance=.05,input_gradient_norm=float(norm),
+    if not numerical['passed']:raise ValueError("Real coordinate VJP local finite-difference check failed: "+str(numerical))
+    return dict(relative_errors=[r['relative_error'] for r in numerical['probes'][-2:]],
+        tolerance=numerical['tolerance'],finite_difference=numerical,input_gradient_norm=float(norm),
         affinity_gradient_entered=False,sampling_rng_unchanged=True,model_parameters_frozen=True,
         assignment_policy=condition["assignment_policy"],
         source_checkpoint_sha256=sha(source),condition_sha256=condition["condition_sha256"])
