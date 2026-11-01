@@ -59,7 +59,8 @@ def validate_config(config):
     config=schedule_tasks(config)
     dynamics_policy(config)
     from .geometry_chemistry import policy as chemical_policy
-    config=dict(config,chemical_inpainting={"enabled":chemical_policy(config)["enabled"]})
+    chemical=chemical_policy(config)
+    config=dict(config,chemical_inpainting=dict(config.get("chemical_inpainting",{}),enabled=chemical["enabled"]))
     if config.get("agent_tools",{}).get("skill_release")!="2.3.0":
         raise ValueError("Summed component rewards require the 2.3.0 runtime skills and tools")
     from .geometry_calibration import plan

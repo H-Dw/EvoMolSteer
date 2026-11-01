@@ -30,7 +30,7 @@ def config(root):
 
 def test_six_window_overlay_and_exact_closed_boundaries(tmp_path):
     c=config(tmp_path/'new')
-    assert c['agent_tools']['skill_release']=='2.10.0' and len(assets(c))==4
+    assert c['agent_tools']['skill_release']=='2.10.1' and len(assets(c))==4
     assert c['guidance_control']['maximum_attempts_per_teacher']==500
     assert c['guidance_control']['initial_scales'][0]==0
     assert c['guidance_control']['search_minimum']==0

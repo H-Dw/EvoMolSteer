@@ -163,6 +163,9 @@ def advise(
         prefix_inpainting=config.get("prefix_inpainting", {"enabled": False}),
         atom_assignment_policy=config.get("atom_assignment_policy"),
     )
+    if config.get("chemical_inpainting",{}).get("activation"):
+        from .geometry_chemistry import policy as chemistry_policy
+        common["conditioning_protocol"]["chemical_inpainting"] = chemistry_policy(config)
     if domain.get("exploration_policy"):
         from .exploration import describe
 

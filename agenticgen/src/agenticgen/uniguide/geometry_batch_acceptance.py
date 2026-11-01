@@ -121,13 +121,18 @@ def run_teacher(model,config,teacher,condition,folder):
                 from .prefix_inpainting import verify_trace as verify_prefix
                 verify_prefix(source,config,condition)
             if config.get("chemical_inpainting",{"enabled":True})["enabled"]:
+                from .geometry_chemistry import policy as chemistry_policy
+                lo,hi=chemistry_policy(config)["step_bounds"]
+                for row in read(source/"steps.json"):
+                    if row["chemical_inpainting_applied"] != [lo<=row["step"]<=hi]*10:
+                        raise ValueError("Chemical inpainting activation differs from its declared phase")
                 chemical=read(source/"CHEMICAL_CONDITION.json");ids=chemical["generated_slots"]
                 dynamic_initial = not ids
                 if dynamic_initial:
-                    ids=a["assignment"][10:100]
+                    ids=a["assignment"][lo:hi+1]
                     if not dynamic_assignment(condition) and not (ids==ids[0:1]).all():raise ValueError("Initial assignment was not frozen")
                 for key,target in chemical["features"].items():
-                    actual=a["inpainted_chemical_"+key][10:100]
+                    actual=a["inpainted_chemical_"+key][lo:hi+1]
                     expected=np.array(target).argmax(-1)
                     if dynamic_initial:
                         if key=="bonds":

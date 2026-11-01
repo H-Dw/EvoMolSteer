@@ -16,15 +16,24 @@ STEP_FIELDS=("chemical_inpainting_applied",)+tuple(
 
 def policy(config):
     settings=config.get("chemical_inpainting",{"enabled":True})
-    if not isinstance(settings,dict) or set(settings)!={"enabled"} or type(settings["enabled"]) is not bool:
-        raise ValueError("chemical_inpainting accepts only the boolean enabled setting")
+    if (not isinstance(settings,dict) or "enabled" not in settings or set(settings)-{"enabled","activation"}
+            or type(settings["enabled"]) is not bool):
+        raise ValueError("chemical_inpainting requires boolean enabled and optional activation")
+    bounds = [10,99]
+    extra = {}
+    if "activation" in settings:
+        if settings["activation"] != "guidance_phase":
+            raise ValueError("Chemical activation must be guidance_phase")
+        from .guidance_endpoints import update_bounds
+        bounds = update_bounds(config)
+        extra = dict(activation="guidance_phase",activation_depends_on_scale=False)
     from .absolute_coordinate import POLICY as absolute_policy
     from .absolute_coordinate import DYNAMIC_ASSIGNMENT
     correspondence=("current_step_endpoint_hungarian_shared_with_coordinate_loss" if config.get("atom_assignment_policy")==DYNAMIC_ASSIGNMENT else
                     "initial_endpoint_hungarian_then_frozen_per_candidate" if config.get("protocol")==absolute_policy
                     else "frozen_condition_atom_to_generated_slot")
     return dict(policy=POLICY,enabled=settings["enabled"],scope="controlled_atoms_and_induced_bonds",
-        step_bounds=[10,99],stage="after_native_transition_and_coordinate_guidance",
+        step_bounds=bounds,stage="after_native_transition_and_coordinate_guidance",**extra,
         correspondence=correspondence,coordinates_replaced=False,
         self_conditioning_replaced=False,terminal_projection=False,
         native_categorical_rng_preserved=True)
@@ -89,11 +98,18 @@ class ChemicalStateInpainting:
         if (self.sampling_policy["chemical_inpainting"]["enabled"]
                 or getattr(self,"absolute_config",{}).get("prefix_inpainting",{}).get("enabled",False)):
             self.chemical_features,self.chemical_slots,self.chemical_binding=condition_features(self.model,self.geometry_condition)
+            settings=self.sampling_policy["chemical_inpainting"]
+            if "activation" in settings:
+                body={k:v for k,v in self.chemical_binding.items() if k!="chemical_condition_sha256"}
+                body.update(activation=settings["activation"],step_bounds=settings["step_bounds"],
+                            activation_depends_on_scale=settings["activation_depends_on_scale"])
+                self.chemical_binding=dict(body,chemical_condition_sha256=value_sha(body))
             frozen(self.folder/"CHEMICAL_CONDITION.json",self.chemical_binding)
 
     def apply_chemical_inpainting(self,state,step):
         n=len(state["mask"]);enabled=self.sampling_policy["chemical_inpainting"]["enabled"]
-        active=enabled and 10<=step<=99
+        lo,hi=self.sampling_policy["chemical_inpainting"]["step_bounds"]
+        active=enabled and lo<=step<=hi
         self.rows[-1]["chemical_inpainting_applied"]=[active]*n
         if not active:return state
         if getattr(self,"absolute_state",None) is not None:

@@ -13,11 +13,13 @@ paths. See [the implementation and validation plan](docs/experiments/20261101_op
 Historical explicit releases and frozen experiment roots are not migrated.
 
 The optional [six-window overlay](configs/uniguide_six_windows_zero_start.json)
-uses skills **2.10.0**, windows 0–10/11–20/21–30/31–40/41–50/51–99,
+uses skills **2.10.1**, windows 0–10/11–20/21–30/31–40/41–50/51–99,
 an actual zero-scale starting trial, and up to 500 calibration attempts per
 teacher. Its explicit endpoint policy applies gradient updates at steps 1–98:
 step 0 keeps the native transition, and step 99 returns the uncovered prediction
-without computing an unused VJP. The four-window default remains available.
+without computing an unused VJP. Chemical state inpainting shares the same
+1–98 phase through `activation: guidance_phase`; a zero scale only disables the
+extra coordinate gradient. The four-window default remains available.
 See [the endpoint and calibration contract](docs/experiments/20261101_six_window_zero_start/plan.zh-CN.md).
 
 The following describes the original conditional reconstruction campaign.

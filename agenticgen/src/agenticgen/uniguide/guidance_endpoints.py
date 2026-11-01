@@ -17,4 +17,14 @@ def policy(config):
 
 
 def apply(values, step, config):
-    return [0.0]*len(values) if policy(config) is not None and step in (0,99) else values
+    bounds = update_bounds(config) if policy(config) is not None else None
+    return [0.0]*len(values) if bounds and not bounds[0] <= step <= bounds[1] else values
+
+
+def update_bounds(config):
+    settings = policy(config)
+    if settings is not None:
+        return list(settings["gradient_update_steps"])
+    from .guidance_windows import windows
+    bounds = windows(config)
+    return [bounds[0][0],bounds[-1][1]]

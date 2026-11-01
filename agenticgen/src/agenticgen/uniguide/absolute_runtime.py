@@ -63,16 +63,17 @@ def validate_config(config):
     from .gradient_atom_scope import policy as scope_policy
     scope_policy(config)
     from .geometry_chemistry import policy as chemical_policy
-    config=dict(config,chemical_inpainting={"enabled":chemical_policy(config)["enabled"]})
+    chemical=chemical_policy(config)
+    config=dict(config,chemical_inpainting=dict(config.get("chemical_inpainting",{}),enabled=chemical["enabled"]))
     from .coordinate_statistics import policy as statistics_policy, CONFIG
     config = dict(config, **{CONFIG: statistics_policy(config)})
     from .linear_scale import enabled as linear_enabled
     declared_release=config.get("agent_tools",{}).get("skill_release")
-    required_release=((declared_release if declared_release in ("2.8.0","2.8.1","2.8.2","2.9.0","2.10.0") else "2.7.0") if config.get("guidance_exploration") else "2.6.0") if linear_enabled(config) else "2.5.0"
+    required_release=((declared_release if declared_release in ("2.8.0","2.8.1","2.8.2","2.9.0","2.10.0","2.10.1") else "2.7.0") if config.get("guidance_exploration") else "2.6.0") if linear_enabled(config) else "2.5.0"
     if config.get("agent_tools",{}).get("skill_release")!=required_release:
         raise ValueError("Coordinate control and runtime skill release differ")
     from .absolute_coordinate import ASSIGNMENT, DYNAMIC_ASSIGNMENT
-    expected_assignment=DYNAMIC_ASSIGNMENT if required_release in ("2.7.0","2.8.0","2.8.1","2.8.2","2.9.0","2.10.0") else ASSIGNMENT
+    expected_assignment=DYNAMIC_ASSIGNMENT if required_release in ("2.7.0","2.8.0","2.8.1","2.8.2","2.9.0","2.10.0","2.10.1") else ASSIGNMENT
     if config.get("atom_assignment_policy",expected_assignment)!=expected_assignment:
         raise ValueError("Coordinate assignment and skill contracts differ; use a new compatible release")
     from .geometry_calibration import plan
@@ -82,14 +83,18 @@ def validate_config(config):
     extended = (config.get("prefix_inpainting",{}).get("enabled")
         or config.get("checkpoint_learning",{}).get("enabled")
         or windows(config) != [list(w) for w in WINDOWS])
-    if extended and declared_release not in ("2.8.0","2.8.1","2.8.2","2.9.0","2.10.0"):
+    if extended and declared_release not in ("2.8.0","2.8.1","2.8.2","2.9.0","2.10.0","2.10.1"):
         raise ValueError("Optional prefix, variable windows and checkpoint learning require skills 2.8.x or 2.9.0")
-    if windows(config)[0][0] == 0 and declared_release != "2.10.0":
+    if windows(config)[0][0] == 0 and declared_release not in ("2.10.0","2.10.1"):
         raise ValueError("Zero-start gradient windows require the explicit skills 2.10.0 contract")
-    if declared_release == "2.10.0":
+    if declared_release in ("2.10.0","2.10.1"):
         from .guidance_windows import SIX
         if windows(config) != [list(pair) for pair in SIX]:
             raise ValueError("Skills 2.10.0 require the explicit six-window endpoint contract")
+    if declared_release == "2.10.1" and config["chemical_inpainting"].get("activation") != "guidance_phase":
+        raise ValueError("Skills 2.10.1 require chemistry synchronized with the guidance phase")
+    if declared_release == "2.10.0" and config["chemical_inpainting"].get("activation"):
+        raise ValueError("Use skills 2.10.1 for the synchronized chemical phase")
     if config.get("seeds",SEEDS)!=SEEDS:
         raise ValueError("Native sampling windows and random seeds are fixed")
     return dict(config,initials_root=str(source))

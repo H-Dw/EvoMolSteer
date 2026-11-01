@@ -101,7 +101,8 @@ def run(config):
         model=load_model(config,teacher)
         try:
             numerical=real_vjp(model,config,teacher,condition)
-            plain_prefix=dict(config,prefix_inpainting={"enabled":False})
+            plain_prefix=dict(config,prefix_inpainting={"enabled":False},
+                              chemical_inpainting=dict(config.get("chemical_inpainting",{}),enabled=False))
             off=scale_binding([0.]*len(windows(config)),1.,False,condition,window_bounds=windows(config))
             factory=functools.partial(GeometryControl,condition=condition,scale_binding=off)
             sample(model,plain_prefix,teacher,off["effective_guidance_scale_schedule"],out/"disabled",10,stop_step=3,
@@ -128,16 +129,18 @@ def run(config):
             if endpoint and any(any(v != 0 for v in s["gradient_norm"]+s["max_atom_increment_A"])
                                 for s in steps if s["step"] in (0,99)):
                 raise ValueError("An excluded endpoint calculated or applied guidance")
-            chemical_check={"enabled":config.get("chemical_inpainting",{"enabled":True})["enabled"]}
+            from .geometry_chemistry import policy as chemistry_policy
+            chemical_check=chemistry_policy(config)
             if chemical_check["enabled"]:
                 # Chemistry starts after the first gradient update; all native/coordinate
                 # operations through that update must equal a paired non-inpainting run.
-                plain=dict(config,chemical_inpainting={"enabled":False})
+                plain=dict(config,chemical_inpainting=dict(config.get("chemical_inpainting",{}),enabled=False))
                 sample(model,plain,teacher,active["effective_guidance_scale_schedule"],out/"without_chemistry_prefix",10,stop_step=12,
                     control_factory=factory,check_affinity=False)
                 with h5py.File(out/"continuous/trace.h5") as enabled_trace,h5py.File(out/"without_chemistry_prefix/trace.h5") as disabled_trace:
                     for key in disabled_trace:
-                        if not np.array_equal(enabled_trace[key][:11],disabled_trace[key][:11]):
+                        end=chemical_check["step_bounds"][0]+1
+                        if not np.array_equal(enabled_trace[key][:end],disabled_trace[key][:end]):
                             raise ValueError("Chemistry changed the pre-injection prefix: "+key)
                 enabled_state=load_pt(out/"continuous/checkpoint_012.pt.gz")
                 disabled_state=load_pt(out/"without_chemistry_prefix/checkpoint_012.pt.gz")
