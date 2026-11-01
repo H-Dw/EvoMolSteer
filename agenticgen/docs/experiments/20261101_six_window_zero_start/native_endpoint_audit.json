@@ -1,0 +1,57 @@
+{
+  "recorded_at": "2026-11-01T20:01:43.707864+08:00",
+  "mode": "read_only_local_source_audit",
+  "references": {
+    "FLOWR_MULTI_fixed_official": {
+      "file": "D:\\llm_controlled_generation\\tmp\\flowr_official\\fm_pocket.py",
+      "sha256": "4a31a222f70fc83f3e168f0c002a88b710e77574c651f102d14fc6ee4bb3fbd2",
+      "methods": {
+        "_generate": {
+          "line": 2018,
+          "end_line": 2216,
+          "source_sha256": "8d0d9120187bbdca50e2d109dfff15655a626876dc218fdab4e86d0ddf737acf"
+        }
+      },
+      "commit": "bbb8bfb4e8d8dd16bff1d56a7f96246920e643ba",
+      "source_url": "https://github.com/jule-c/flowr/blob/bbb8bfb4e8d8dd16bff1d56a7f96246920e643ba/flowr/models/fm_pocket.py"
+    },
+    "FLOWR_ROOT_local_snapshot": {
+      "file": "D:\\llm_controlled_generation\\tmp\\flowr_root_scnet_source\\flowr\\models\\fm_pocket.py",
+      "sha256": "e2d10a5789820bc7127e3dc3e3e144785b29db1098c4f739ad22647f5756a2b4",
+      "methods": {
+        "_get_times": {
+          "line": 707,
+          "end_line": 746,
+          "source_sha256": "b0393fd5d676d5e7a06b2e45a104ddb26fafccbd316130fa9c9cc38ed44521f8"
+        },
+        "_generate": {
+          "line": 1617,
+          "end_line": 1968,
+          "source_sha256": "cffb92d276c99f95ccd3d9348dd850bad43c19053a12e4457591ccc3a4272e4e"
+        },
+        "_generate_selective": {
+          "line": 1970,
+          "end_line": 2299,
+          "source_sha256": "3f9f3224599a04c124c5e57e44fa2599c1c8ca772e043aa5b8dd6d57d6e4d0c3"
+        }
+      },
+      "inpainting_builder_sha256": "f02910ba9f8fef6607e3398013d99016cc583dbe429ca6c1a3d95c2b8cd4afd3",
+      "integrator_sha256": "ce858a27d25fd268a855181f4434bceb1ad14150d03d401dd28b8cbb165cfc20"
+    }
+  },
+  "findings": {
+    "inpainting_is_projection_not_loss_vjp": true,
+    "multi_default_return": "last loop prediction before final integration/projection; corr_iters defaults 0",
+    "root_native_return": "has a final corrector prediction; current raw999 intentionally overrides this",
+    "selected_gradient_updates": [
+      1,
+      98
+    ],
+    "zero_reason": "old score-to-velocity formula divides by t; no arbitrary endpoint regularizer",
+    "final_reason": "step99 updates do not influence returned uncovered prediction",
+    "inpainting_not_enabled_by_new_overlay": true
+  },
+  "no_native_source_edits": true,
+  "no_models_loaded": true,
+  "no_provider_calls": true
+}

@@ -82,7 +82,7 @@ def run_teacher(model,config,teacher,condition,folder):
             chosen=weights(condition)
             if i and any(p["category"]=="controlled_neighborhood" for p in condition["pairs"]):
                 chosen["condition_outer_weight"]=1
-        schedule=(schedule+[.003])[:len(windows(config))]
+        schedule=(schedule+[.003]*(len(windows(config))-len(schedule)))[:len(windows(config))]
         scale=scale_binding(schedule,condition=condition,loss_weights=chosen,window_bounds=windows(config));unit=dict(id="fixture"+str(i),slots=slots,scale=scale)
         units.append(unit);out=folder/f"separate_{i}"
         factory=functools.partial(GeometryControl,condition=condition,scale_binding=scale)
@@ -103,6 +103,13 @@ def run_teacher(model,config,teacher,condition,folder):
             differences.extend(compare_trees(original[field],take(state[field],indices,20)))
         if tensor_digest(original["stream_states"])!=tensor_digest(state["stream_states"][i]):raise ValueError("Mixed RNG diverged")
         with h5py.File(source/"trace.h5","r") as a,h5py.File(out/"trace.h5","r") as b:
+            from .guidance_endpoints import policy as endpoint_policy
+            if endpoint_policy(config):
+                for step in (0,99):
+                    if np.any(a["input_gradient"][step]) or np.any(a["guidance_delta_A"][step]):
+                        raise ValueError("Excluded endpoint computed or applied a guidance gradient")
+                    if not np.array_equal(a["native_proposal"][step],a["guided_proposal"][step]):
+                        raise ValueError("Excluded endpoint changed the native proposal")
             for key in a:
                 left=a[key][:];right=b[key][:,indices]
                 if not np.array_equal(left,right):differences.append(dict(path="trace/"+key,maximum_absolute_error=float(np.max(np.abs(left.astype(float)-right.astype(float))))))
@@ -142,6 +149,8 @@ def run_teacher(model,config,teacher,condition,folder):
         independent_groups=2,mixed_batch_size=20,full_steps=100,external_rng_unchanged=True,
         fixture_is_not_calibration=True,engineering_trajectory_evaluations=40,
         raw999_coordinates_exact=True,chemical_state_inpainting_checked=bool(config.get("chemical_inpainting",{"enabled":True})["enabled"]))
+    if config.get("guidance_endpoints"):
+        receipt["endpoint_gradient_exclusion_full_100_steps_verified"] = True
     write(folder/"COMPARISON.json",receipt)
     if differences:raise ValueError("Mixed batches changed independent trajectories; see COMPARISON.json")
     sampler.sample(model,config,teacher,units[0]["scale"][EFFECTIVE],folder/"mixed_resumed",20,

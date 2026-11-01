@@ -89,12 +89,12 @@ def configure(config):
         "maximum_selected",
     ):
         integer(settings[name], name, minimum=0 if selected_policy == OPEN_POLICY and name in
-                ("range_evidence_attempts", "maximum_range_evidence_configurations") else 1)
+                ("search_minimum", "range_evidence_attempts", "maximum_range_evidence_configurations") else 1)
     if selected_policy == OPEN_POLICY and (settings["range_evidence_attempts"] or
                                           settings["maximum_range_evidence_configurations"]):
         raise ValueError("Open-domain actions use the formal budget; no separate frontier quota")
     if (
-        settings["maximum_attempts_per_teacher"] > 350
+        settings["maximum_attempts_per_teacher"] > (500 if selected_policy == OPEN_POLICY else 350)
         or settings["maximum_selected"] > 3
     ):
         raise ValueError("Linear guidance exceeds the declared scientific budget")
@@ -165,12 +165,12 @@ def grid(settings):
     if (
         type(lower) is not int
         or type(upper) is not int
-        or lower <= 0
+        or lower < 0 or (lower == 0 and settings.get("policy") != OPEN_POLICY)
         or upper < lower
         or lower % unit
         or upper % unit
     ):
-        raise ValueError("Search bounds must be positive grid multiples")
+        raise ValueError("Search bounds must be nonnegative grid multiples; zero requires open-domain control")
     return list(range(lower, upper + 1, unit))
 
 

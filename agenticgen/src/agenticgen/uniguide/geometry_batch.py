@@ -120,11 +120,11 @@ class CandidateControl(CandidateSafety, GeometryControl):
     def step_scales(self, step, count):
         if count != 10 * len(self.units):
             raise ValueError("Candidate scale layout differs")
-        return [
+        return self.endpoint_scales([
             values[step] if i not in self.failed_units else 0.0
             for i, values in enumerate(self.expanded)
             for _ in range(10)
-        ]
+        ],step)
 
     def checkpoint_metadata(self):
         return dict(
@@ -164,7 +164,7 @@ class CandidateControl(CandidateSafety, GeometryControl):
         ]
         self.rows[-1]["failed_units"] = copy.deepcopy(self.failed_units)
         if self.absolute_state is not None:
-            if not self.absolute_state.dynamic and step > 10 and any(self.rows[-1]["assignment_switch_fraction"]):
+            if not self.absolute_state.dynamic and step > self.absolute_state.first_guidance_step and any(self.rows[-1]["assignment_switch_fraction"]):
                 raise ValueError("Frozen candidate assignment changed")
             self.absolute_state.save_cache()
         result = self.apply_prefix_inpainting(result, step)

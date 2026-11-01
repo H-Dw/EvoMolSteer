@@ -252,7 +252,9 @@ def verify_assignment_trace(folder, condition):
     """Read-only acceptance of the assignments actually used at completed steps."""
     import h5py
     folder = Path(folder)
-    steps = [row["step"] for row in read(folder/"steps.json") if row["step"] >= 10]
+    output = read(folder/"OUTPUT_POLICY.json") if (folder/"OUTPUT_POLICY.json").exists() else {}
+    first_step = output.get("windows", [[10,99]])[0][0]
+    steps = [row["step"] for row in read(folder/"steps.json") if row["step"] >= first_step]
     if not steps:
         raise ValueError("No active assignment steps in the acceptance trace")
     with h5py.File(folder/"trace.h5","r") as trace:
@@ -280,6 +282,11 @@ class AssignmentState:
         self._assignments = {}
         self.dynamic = dynamic_assignment(self.objective.condition)
 
+    @property
+    def first_guidance_step(self):
+        from .guidance_windows import windows
+        return windows(getattr(self.control,"scale_binding",{}))[0][0]
+
     def restore(self):
         saved = (self.control.resume or {}).get("absolute_assignment_state", {})
         if self.control.resume and value_sha(saved) != self.control.resume.get("absolute_assignment_sha256"):
@@ -296,10 +303,10 @@ class AssignmentState:
 
     def rematch(self, endpoint, valid, ids):
         control = self.control
-        if control.resume and control.active_step > 10 and any(i not in self.rows for i in ids):
+        if control.resume and control.active_step > self.first_guidance_step and any(i not in self.rows for i in ids):
             raise ValueError("Missing dynamic assignment on recovery")
         slots = match(endpoint,self.objective.condition,valid)
-        if control.active_step >= 10:
+        if control.active_step >= self.first_guidance_step:
             for index,chosen in enumerate(slots.cpu().tolist()):
                 row_id = ids[index]
                 if row_id not in self.rows:
@@ -317,16 +324,16 @@ class AssignmentState:
         condition = self.objective.condition
         if self.dynamic:
             assignment = self.rematch(endpoint,valid,ids)
-        elif control.active_step < 10:
+        elif control.active_step < self.first_guidance_step:
             assignment = self.objective.bind(endpoint, valid, match(endpoint, condition, valid))
         else:
             missing=[j for j,i in enumerate(ids) if i not in self.rows]
             if missing:
-                if control.active_step != 10:
+                if control.active_step != self.first_guidance_step:
                     raise ValueError("Missing initial assignment on recovery; cannot rematch")
                 chosen=match(endpoint[missing],condition,valid[missing]).cpu().tolist()
                 for j,slots in zip(missing,chosen):
-                    self.rows[ids[j]]=dict(slots=slots,first_step=10,
+                    self.rows[ids[j]]=dict(slots=slots,first_step=self.first_guidance_step,
                         endpoint_sha256=value_sha(endpoint[j].detach().double().cpu().tolist()),
                         valid_sha256=value_sha(valid[j].detach().cpu().tolist()))
             key = (tuple(ids), endpoint.device)
@@ -342,7 +349,7 @@ class AssignmentState:
 
     def save_cache(self):
         c=self.control
-        if c.active_step != 10 or "sample_shards" not in c.folder.parts:
+        if c.active_step != self.first_guidance_step or "sample_shards" not in c.folder.parts:
             return
         from .protocol import SEEDS
         root=Path(c.absolute_config["root"])/"assignments"/c.teacher["target"]

@@ -32,12 +32,23 @@ def policy(config):
              limiter="candidate_uniform_direction_preserving_v1",limit_scope="guidance_increment_only"))
     from .prefix_inpainting import policy as prefix_policy
     prefix = prefix_policy(config)
+    early = bounds[0][0] == 0
+    from .guidance_endpoints import policy as endpoint_policy
+    endpoints = endpoint_policy(config)
+    if early:
+        if not absolute or endpoints is None:
+            raise ValueError("Step-zero windows require an explicit gradient endpoint policy")
+        if prefix["enabled"]:
+            raise ValueError("Step-zero gradient guidance cannot overlap coordinate prefix inpainting")
+    elif endpoints is not None:
+        raise ValueError("The new endpoint policy requires windows starting at step zero")
     return dict(output_policy="raw999",grid_end=.999,integration_intervals=100,
         intended_interval_width=.00999,windows=bounds,
         **restriction,
         output_source="step_99_prediction_before_update",last_effective_guidance_update=98,
         extra_terminal_forward=False,coordinate_projection=prefix["enabled"],chemical_projection=False,
         prefix_inpainting=prefix,coordinate_projection_step_bounds=[0,9] if prefix["enabled"] else None,
+        **(dict(guidance_endpoints=endpoints) if early else {}),
         chemical_state_projection=chemistry_policy(config)["enabled"],chemical_inpainting=chemistry_policy(config))
 
 

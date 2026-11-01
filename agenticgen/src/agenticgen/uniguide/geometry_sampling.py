@@ -168,6 +168,13 @@ class GeometryControl(PrefixInpainting, ChemicalStateInpainting, Raw999Sampling,
         )
         return result
 
+    def step_scales(self, step, count):
+        return self.endpoint_scales(super().step_scales(step,count),step)
+
+    def endpoint_scales(self, values, step):
+        from .guidance_endpoints import apply
+        return apply(values,step,getattr(self,"absolute_config",{}))
+
     def apply_guidance_atom_scope(self, gradient, pred, valid, assignment):
         from .gradient_atom_scope import apply, policy
         settings = policy(self.absolute_config)
@@ -180,6 +187,9 @@ class GeometryControl(PrefixInpainting, ChemicalStateInpainting, Raw999Sampling,
 
     def guidance_limit_diagnostics(self):
         result = dict(self.increment_audit)
+        if self.sampling_policy.get("guidance_endpoints"):
+            result["endpoint_gradient_skipped"] = self.active_step in (0,99)
+            result["applied_guidance_scales"] = self.step_scales(self.active_step,len(self.before))
         if getattr(self, "guidance_atom_mask", None) is not None:
             result["guidance_scope_selected_atoms"] = self.guidance_atom_mask.sum(-1).tolist()
             result["guidance_scope_outside_maximum_increment"] = (
@@ -240,7 +250,7 @@ class GeometryControl(PrefixInpainting, ChemicalStateInpainting, Raw999Sampling,
         self.rows[-1].update(self.scale_binding)
         self.rows[-1]["condition_sha256"] = self.geometry_condition["condition_sha256"]
         fixed = self.absolute_state is None or not self.absolute_state.dynamic
-        if fixed and (self.absolute_state is None or step > 10) and self.rows[-1]["assignment_switch_fraction"] != [0.0] * len(curr["coords"]):
+        if fixed and (self.absolute_state is None or step > self.absolute_state.first_guidance_step) and self.rows[-1]["assignment_switch_fraction"] != [0.0] * len(curr["coords"]):
             raise ValueError("Fixed correspondence changed")
         if self.absolute_state is not None:
             self.absolute_state.save_cache()
@@ -275,8 +285,8 @@ def scale_binding(
         from .guidance_windows import expand
         bounds = {"windows":window_bounds} if window_bounds else None
         expand(schedule,bounds)
-        if not enabled or any(x <= 0 for x in schedule):
-            raise ValueError("Calibration uses positive actual scales")
+        if not enabled:
+            raise ValueError("Actual-scale calibration uses explicit nonnegative strengths")
         return {
             NORMALIZED: None,
             EFFECTIVE: schedule,
@@ -320,6 +330,7 @@ def compatibility(config, teacher, condition, domain=None):
         "geometry_safety",
         "geometry_dynamics",
         "guidance_windows",
+        "guidance_endpoints",
         "prefix_inpainting",
         "geometry_chemistry",
         "chem_inpainting",
@@ -458,15 +469,20 @@ def terminal_records(model, output, condition, folder, count, slots=None):
     )
     from .absolute_coordinate import is_absolute, dynamic_assignment, match, metrics as coordinate_metrics
     if is_absolute(condition):
+        last_gradient_step = output_policy.get("guidance_endpoints",{}).get("gradient_update_steps",[10,99])[-1]
         with h5py.File(folder / "trace.h5", "r") as trace:
-            last_assignment = torch.as_tensor(trace["assignment"][99], device=output["coords"].device)
-            first_assignment = torch.as_tensor(trace["assignment"][10], device=output["coords"].device)
+            last_assignment = torch.as_tensor(trace["assignment"][last_gradient_step], device=output["coords"].device)
+            first_step = output_policy.get("windows", [[10,99]])[0][0]
+            first_assignment = torch.as_tensor(trace["assignment"][first_step], device=output["coords"].device)
         rematched = dynamic_assignment(condition)
         assignment = match(output["coords"],condition,output["mask"].bool()) if rematched else last_assignment
         values = coordinate_metrics(output["coords"],condition,output["mask"].bool(),assignment)
         correspondence = dict(assignment=assignment.cpu().tolist(),condition_sha256=condition["condition_sha256"],
             assignment_policy=condition["assignment_policy"],no_terminal_rematching=not rematched,
             terminal_rematched=rematched,coordinate_source="returned_raw999_uncovered_prediction")
+        if output_policy.get("guidance_endpoints"):
+            correspondence.update(first_observed_assignment_step=first_step,
+                                  last_gradient_assignment_step=last_gradient_step,terminal_prediction_step=99)
         if rematched:
             from .absolute_coordinate import RMSD
             diagnostic_coordinates=output["coords"].detach().cpu().double()
@@ -480,7 +496,7 @@ def terminal_records(model, output, condition, folder, count, slots=None):
                 terminal_to_last_guidance_switch_fraction=(assignment != last_assignment).float().mean(1).tolist(),
                 interpretation="Terminal RMSD measures geometric coverage; generated atom identity may change.")
         else:
-            correspondence["frozen_from_step"] = 10
+            correspondence["frozen_from_step"] = first_step
         write(folder/"COORDINATE_ASSIGNMENT.json",correspondence)
         geometry_diagnostics = [dict(protein_alignment_sha256=value_sha(condition["protein_alignment"]),
             fitted_protein_rmsd_angstrom=condition["protein_alignment"]["fitted_protein_rmsd_angstrom"],

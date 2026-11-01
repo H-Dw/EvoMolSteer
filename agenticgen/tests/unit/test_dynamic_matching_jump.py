@@ -272,7 +272,7 @@ def test_step_hooks_accept_dynamic_switches_but_reject_frozen_switches(
     monkeypatch.setattr(sampler.Control, "after", lambda self, state, step: state)
     kind = CandidateControl if candidate_batch else GeometryControl
     c = object.__new__(kind)
-    c.absolute_state = SimpleNamespace(dynamic=True, save_cache=lambda: None)
+    c.absolute_state = SimpleNamespace(dynamic=True, first_guidance_step=10, save_cache=lambda: None)
     c.geometry_condition = dict(condition_sha256="test")
     c.scale_binding = {}
     c.rows = [dict(assignment_switch_fraction=[0.5])]

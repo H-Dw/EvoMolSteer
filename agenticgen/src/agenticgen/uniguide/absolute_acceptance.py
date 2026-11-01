@@ -24,6 +24,27 @@ class UnguidedRaw999(Raw999Sampling,Control):
     def expand_schedule(self,schedule):return [0.]*100
 
 
+def actual_zero_scale(model,config,teacher,condition,folder):
+    """Full raw999 trajectory: actual scale zero, retaining normal chemistry."""
+    binding=scale_binding([0.]*len(windows(config)),window_bounds=windows(config))
+    factory=functools.partial(GeometryControl,condition=condition,scale_binding=binding)
+    before=capture()
+    sample(model,config,teacher,binding["effective_guidance_scale_schedule"],folder,10,
+           control_factory=factory,check_affinity=False)
+    if not equal(before,capture()):raise ValueError("Zero-scale sampling changed external RNG")
+    steps=read(folder/"steps.json")
+    if [s["step"] for s in steps]!=list(range(100)):
+        raise ValueError("Actual zero-scale acceptance did not complete 100 intervals")
+    with h5py.File(folder/"trace.h5","r") as trace:
+        if np.any(trace["input_gradient"][:]) or np.any(trace["guidance_delta_A"][:]):
+            raise ValueError("Actual zero scale computed or applied extra guidance")
+        if not np.array_equal(trace["native_proposal"][:],trace["guided_proposal"][:]):
+            raise ValueError("Actual zero scale changed native coordinate proposals")
+    return dict(actual_scale=0,full_intervals=100,extra_gradient_zero=True,
+                native_coordinate_proposals_exact=True,external_rng_unchanged=True,
+                chemical_state_inpainting=config.get("chemical_inpainting",{"enabled":True})["enabled"])
+
+
 def real_vjp(model,config,teacher,condition):
     prefix=Path(config["root"])/"acceptance"/teacher["target"]/"raw999_vjp_prefix"
     initial=initial_shard(config,teacher["target"],[0,1])
@@ -100,7 +121,13 @@ def run(config):
             if not all(resumed.values()):raise ValueError("Distance guidance resume changed numerical state")
             steps=read(out/"continuous/steps.json")
             assignment_check=verify_assignment_trace(out/"continuous",condition)
-            if any(not any(v>0 for v in s["gradient_norm"]) for s in steps if s["step"]>=10):raise ValueError("Normalized zero incorrectly disabled guidance")
+            from .guidance_endpoints import policy as endpoint_policy
+            endpoint = endpoint_policy(config)
+            active_steps = set(range(1,99)) if endpoint else set(range(windows(config)[0][0],100))
+            if any(not any(v>0 for v in s["gradient_norm"]) for s in steps if s["step"] in active_steps):raise ValueError("Active guidance has no input gradient")
+            if endpoint and any(any(v != 0 for v in s["gradient_norm"]+s["max_atom_increment_A"])
+                                for s in steps if s["step"] in (0,99)):
+                raise ValueError("An excluded endpoint calculated or applied guidance")
             chemical_check={"enabled":config.get("chemical_inpainting",{"enabled":True})["enabled"]}
             if chemical_check["enabled"]:
                 # Chemistry starts after the first gradient update; all native/coordinate
@@ -139,6 +166,9 @@ def run(config):
                 exact_native_slot_promotion=promotion,promoted_slot_resume=True,
                 fixed_correspondence=not dynamic_assignment(condition),assignment_validation=assignment_check,
                 normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
+            if endpoint:
+                checks[teacher["target"]]["guidance_endpoints"] = endpoint
+                checks[teacher["target"]]["actual_zero_scale"] = actual_zero_scale(model,config,teacher,condition,out/"actual_zero_scale")
             from .geometry_batch_acceptance import run_teacher
             checks[teacher["target"]]["candidate_batch_equivalence"]=run_teacher(model,config,teacher,condition,out/"candidate_batch")
         finally:

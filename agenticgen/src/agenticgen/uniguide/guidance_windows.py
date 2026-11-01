@@ -2,6 +2,7 @@
 
 DEFAULT = ((10, 25), (26, 50), (51, 75), (76, 99))
 FIVE = ((10, 20), (21, 30), (31, 40), (41, 50), (51, 99))
+SIX = ((0, 10), (11, 20), (21, 30), (31, 40), (41, 50), (51, 99))
 
 
 def windows(value=None):
@@ -9,7 +10,7 @@ def windows(value=None):
     result = source.get("guidance_windows", source.get("windows", DEFAULT))
     if not isinstance(result, (list, tuple)) or not 1 <= len(result) <= 10:
         raise ValueError("One to ten consecutive guidance windows required")
-    expected = 10
+    expected = 0 if result[0] in ([0, 10], (0, 10)) else 10
     output = []
     for pair in result:
         if (
@@ -20,7 +21,7 @@ def windows(value=None):
             raise ValueError("Integer closed window bounds required")
         lo, hi = pair
         if lo != expected or hi < lo or hi > 99:
-            raise ValueError("Windows must cover 10..99 exactly once without gaps")
+            raise ValueError("Windows must cover 10..99, or start with 0..10 and cover 0..99, without gaps")
         output.append([lo, hi])
         expected = hi + 1
     if expected != 100:

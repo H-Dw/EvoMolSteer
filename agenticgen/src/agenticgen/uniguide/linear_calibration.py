@@ -3,8 +3,16 @@
 from pathlib import Path
 
 from . import linear_scale as scale
-from .calibration_search import assess, best, SearchInsufficient
+from .calibration_search import assess as assess_positive, best as best_positive, SearchInsufficient
 from .io import read, write, frozen, value_sha, sha
+
+
+def assess(rows):
+    return assess_positive(rows,allow_zero=True)
+
+
+def best(rows):
+    return best_positive(rows,allow_zero=True)
 
 
 def plan(config, target):
@@ -164,18 +172,19 @@ def used(root, target):
 
 
 def ensure_limits(config, subject_count):
+    cap = config["guidance_control"].get("maximum_attempts_per_teacher",350)
     return frozen(
         Path(config["root"]) / "ATTEMPT_LIMITS.json",
         dict(
             policy=config["guidance_control"].get("policy",scale.POLICY),
             stage_caps=dict(
-                calibration=350 * subject_count,
+                calibration=cap * subject_count,
                 formal=50
                 * config["guidance_control"]["maximum_selected"]
                 * config["rounds"]
                 * subject_count,
             ),
-            per_teacher_stage_caps=dict(calibration=350),
+            per_teacher_stage_caps=dict(calibration=cap),
         ),
     )
 
@@ -339,6 +348,7 @@ class LinearSearch:
             # Avoid revisiting a complete but disqualified screening or promotion view.
             self.decisions.append(dict(operation="not_promoted", actual_scale=candidate))
             blocked.add(candidate)
+        self.persist("reference_search_complete")
         return derive_domain(list(self.rows.values()), self.target,
             self.binding["condition_sha256"], value_sha(self.binding), self.settings,
             self.config.get("guidance_exploration"), scale.windows(self.config))

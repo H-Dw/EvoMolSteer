@@ -20,10 +20,10 @@ class SearchLimits:
     log2_resolution: float = .5
 
 
-def strength(row):
+def strength(row, *, allow_zero=False):
     values = row[EFFECTIVE]
-    if not values or len(set(values)) != 1 or values[0] <= 0 or not math.isfinite(values[0]):
-        raise ValueError("Calibration requires positive finite constant profiles")
+    if not values or len(set(values)) != 1 or values[0] < 0 or (values[0] == 0 and not allow_zero) or not math.isfinite(values[0]):
+        raise ValueError("Calibration requires finite constant profiles; zero must be explicitly allowed")
     return values[0]
 
 
@@ -45,18 +45,19 @@ def displacement(row):
     return values
 
 
-def assess(rows):
+def assess(rows, *, allow_zero=False):
     """One fidelity at a time; report the observed connected usable component."""
     if len({r["attempts"] for r in rows}) > 1:
         raise ValueError("Do not compare different calibration populations")
     if len({len(r[EFFECTIVE]) for r in rows}) > 1:
         raise ValueError("Do not compare different calibration window layouts")
-    ordered = sorted(rows, key=strength)
-    if len({strength(r) for r in ordered}) != len(ordered):
+    level = lambda row: strength(row, allow_zero=allow_zero)
+    ordered = sorted(rows, key=level)
+    if len({level(r) for r in ordered}) != len(ordered):
         raise ValueError("Duplicate calibration configuration")
     curve, usable, previous, boundary = [], [], None, None
     for row in ordered:
-        entry = dict(source_id=row["id"], effective_scale=strength(row), complete=row["complete"],
+        entry = dict(source_id=row["id"], effective_scale=level(row), complete=row["complete"],
                      population=row["attempts"])
         reason = None
         if not row["complete"]:
@@ -66,28 +67,32 @@ def assess(rows):
         else:
             absolute = displacement(row)
             growth = {}
-            if previous is not None:
-                ratio = strength(row) / strength(previous)
+            if previous is not None and level(previous) > 0:
+                ratio = level(row) / level(previous)
                 prior = displacement(previous)
                 growth = {k: absolute[k] / max(prior[k] * ratio, 1e-12) for k in absolute}
                 if max(growth.values()) > GROWTH_LIMIT:
                     reason = "abrupt_displacement_growth"
+            elif previous is not None:
+                entry["growth_comparison"] = "zero_reference_has_no_multiplicative_ratio"
             entry.update(absolute_displacement=absolute, normalized_growth=growth)
             if reason is None and boundary is None:
                 usable.append(row)
                 previous = row
-        if reason is not None and boundary is None:
-            boundary = dict(source_id=row["id"], effective_scale=strength(row), reason=reason)
+        # Zero is an independent no-extra-guidance control, not a positive-scale
+        # stability boundary. Preserve its failure without excluding positive trials.
+        if reason is not None and boundary is None and (not allow_zero or level(row) > 0):
+            boundary = dict(source_id=row["id"], effective_scale=level(row), reason=reason)
         entry.update(eligible=row in usable,
                      status=reason or ("usable" if row in usable else "outside_observed_component"))
         curve.append(entry)
     return usable, curve, boundary
 
 
-def best(rows):
+def best(rows, *, allow_zero=False):
     if not rows:
         raise ValueError("No usable measured configuration")
-    return min(rows, key=lambda r: (score(r), strength(r), r["id"]))
+    return min(rows, key=lambda r: (score(r), strength(r,allow_zero=allow_zero), r["id"]))
 
 
 def next_probe(rows, limits=SearchLimits()):
