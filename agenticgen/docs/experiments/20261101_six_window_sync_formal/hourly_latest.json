@@ -1,24 +1,25 @@
 {
-  "timestamp": "2026-11-01T23:40:53.556081+08:00",
-  "observations_through": "2026-11-01T23:37:49.207731+08:00",
+  "timestamp": "2026-11-02T00:34:04.037712+08:00",
+  "observations_through": "2026-11-02T00:29:02.704960+08:00",
   "status": "healthy_running",
   "execution_commit": "1e2227cf5a789d4a52b68289714571077a2f39f6",
   "plan_sha256": "c574933d529a6fc6584ed93539f9cff5f84bc65e701b79dcaf1bbb2525a59179",
   "stage": {
-    "timestamp": "2026-11-01T23:30:14.815379+08:00",
+    "timestamp": "2026-11-02T00:03:46.402784+08:00",
     "job_id": "02_six_window_sync_3w54",
-    "stage": "calibrate",
+    "stage": "formal",
     "status": "running",
-    "child_pid": 36368,
+    "child_pid": 43362,
     "command": [
       "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
       "-u",
       "/workspace/uniguide_runs/six-window-sync-1e2227cf/agenticgen/scripts/run_uniguide_geometry.py",
       "--config",
       "/workspace/uniguide_runs/six-window-sync-1e2227cf-configs/02_six_window_sync_3w54.json",
-      "calibrate"
+      "run-version",
+      "GD01"
     ],
-    "log": "/workspace/agenticgen_six_window_sync_20261101_repair1/logs/02_six_window_sync_3w54/calibrate.log",
+    "log": "/workspace/agenticgen_six_window_sync_20261101_repair1/logs/02_six_window_sync_3w54/formal.log",
     "root": "/workspace/agenticgen_six_window_sync_20261101_repair1/jobs/02_six_window_sync_3w54/attempt_002"
   },
   "protected_files": 31911,
@@ -39,8 +40,8 @@
         0.0013140776075645597,
         0.005425195320010264
       ],
-      "actual_zero_scale_and_endpoint_chemistry_verified": true,
       "full_100_independent_mixed_capacity_resume_verified": true,
+      "actual_zero_scale_and_endpoint_chemistry_verified": true,
       "status": "completed",
       "attempts": {
         "calibration": 460,
@@ -51,11 +52,14 @@
       "actual_http_requests": 26,
       "actual_http_responses": 26,
       "native_submissions": 12,
-      "all_actual_requests_strict_and_claimed": true,
+      "all_actual_requests_strict": true,
+      "completed_response_claims_matched": true,
       "format_repairs": 0,
       "optimization_http_calls": 24,
       "final_analysis_http_calls": 2,
       "completion_tokens_all_roles_and_final_analysis": 67124,
+      "calibration_reference_scale": 50,
+      "boundary_status": "interior_supported",
       "actual_prompts_include_calibration_root": true,
       "rollback_prompt_rounds": [
         3,
@@ -83,6 +87,10 @@
       "quality_complete_groups": 15,
       "quality_failed_groups": 0,
       "cpu_worker_module_hashes_verified": true,
+      "gpu_hidden": true,
+      "numeric_threads": 1,
+      "cpu_worker_pending": 0,
+      "cpu_worker_active": 0,
       "quality_scope": "10/50 per real source group; no extrapolation",
       "cpu_worker_retained_until_suite_finalization": true
     },
@@ -98,48 +106,86 @@
         0.013967910282209228,
         0.01724663911903919
       ],
-      "actual_zero_scale_and_endpoint_chemistry_verified": true,
       "full_100_independent_mixed_capacity_resume_verified": true,
-      "status": "running_calibration",
+      "actual_zero_scale_and_endpoint_chemistry_verified": true,
+      "status": "running_formal",
       "attempts": {
-        "calibration": 100,
-        "formal": 0
+        "calibration": 460,
+        "formal": 350
       },
-      "completed_rounds": 0,
+      "completed_rounds": 2,
       "campaign_failed": false,
-      "actual_http_requests": 0,
-      "actual_http_responses": 0,
-      "native_submissions": 0
+      "actual_http_requests": 10,
+      "actual_http_responses": 10,
+      "native_submissions": 6,
+      "all_actual_requests_strict": true,
+      "completed_response_claims_matched": true,
+      "format_repairs": 0,
+      "optimization_http_calls": 10,
+      "final_analysis_http_calls": 0,
+      "completion_tokens_all_roles_and_final_analysis": 25633,
+      "calibration_reference_scale": 40,
+      "boundary_status": "interior_supported",
+      "actual_prompts_include_calibration_root": true,
+      "rollback_prompt_rounds": [],
+      "round_best_performance_A": [
+        0.5427710122615099,
+        0.4439960554242134
+      ],
+      "calibration_performance_A": 0.50515201613307,
+      "global_best_performance_A": 0.4439960554242134,
+      "best_source": "versions/GD01/3w54_RNB_A_504/iteration_002/action_003",
+      "best_actual_schedule": [
+        30,
+        40,
+        40,
+        40,
+        40,
+        50
+      ],
+      "improvement_from_calibration_A": 0.06115596070885665,
+      "quality_complete_groups": 6,
+      "quality_failed_groups": 0,
+      "cpu_worker_module_hashes_verified": true,
+      "gpu_hidden": true,
+      "numeric_threads": 1,
+      "cpu_worker_pending": 0,
+      "cpu_worker_active": 0,
+      "quality_scope": "10/50 per real source group; no extrapolation",
+      "cpu_worker_retained_until_suite_finalization": true
     }
   ],
   "scientific_totals": {
-    "calibration": 560,
-    "formal": 750
+    "calibration": 920,
+    "formal": 1100
   },
   "durable_mirror": {
-    "timestamp": "2026-11-01T23:30:36.158381+08:00",
+    "timestamp": "2026-11-02T00:25:56.777363+08:00",
     "status": "mirrored",
-    "files": 4411,
-    "bytes": 297243799,
+    "files": 6828,
+    "bytes": 468830669,
     "full_hdf5_included": false,
     "launcher_log_included": false
   },
+  "disk_free": {
+    "/workspace": 1067962810368,
+    "/root/private_data": 1447034880
+  },
   "archive": {
-    "timestamp": "2026-11-01T23:39:37.916105+08:00",
-    "archive": "D:\\llm_controlled_generation\\EvoMolSteer-uniguide\\agenticgen\\docs\\experiments\\20261101_six_window_sync_formal\\monitoring\\20261101_2331\\completed_increment.tar.gz",
-    "sha256": "c12729e3d3c03c2b538ed06eac530fc5a4639cb354f827539a08504449e1dc5c",
-    "bytes": 598473707,
-    "members_verified": 3333,
-    "hdf5_members": 137,
-    "compressed_tensor_members": 196,
-    "previous_verified_references": 1802,
+    "timestamp": "2026-11-02T00:32:01.764783+08:00",
+    "archive": "D:\\llm_controlled_generation\\EvoMolSteer-uniguide\\agenticgen\\docs\\experiments\\20261101_six_window_sync_formal\\monitoring\\20261102_0026\\completed_increment.tar.gz",
+    "sha256": "02389a4756aa1ff03a63993037138e2bfb06c8890bb2530f7a72b805345eb1b9",
+    "bytes": 633889799,
+    "members_verified": 2450,
+    "hdf5_members": 133,
+    "compressed_tensor_members": 195,
+    "previous_verified_references": 5132,
     "local_and_remote_member_hashes_verified": true,
-    "previous_archive_sha256": "98b4096ea3443f43b17b0830ffd2e7c87e7032572e7a77a6bc584d27d2a2229b",
-    "manifest_index": "D:\\llm_controlled_generation\\EvoMolSteer-uniguide\\agenticgen\\docs\\experiments\\20261101_six_window_sync_formal\\monitoring\\20261101_2331\\ARCHIVE_INDEX.json",
-    "selection_timestamp": "2026-11-01T23:34:45.514517+08:00",
+    "previous_archive_sha256": "c12729e3d3c03c2b538ed06eac530fc5a4639cb354f827539a08504449e1dc5c",
+    "manifest_index": "D:\\llm_controlled_generation\\EvoMolSteer-uniguide\\agenticgen\\docs\\experiments\\20261101_six_window_sync_formal\\monitoring\\20261102_0026\\ARCHIVE_INDEX.json",
+    "selection_timestamp": "2026-11-02T00:28:21.055494+08:00",
     "launcher_core_weights_included": false
   },
-  "previous_archive_required": "98b4096ea3443f43b17b0830ffd2e7c87e7032572e7a77a6bc584d27d2a2229b",
   "original_automation": {
     "status": "PAUSED",
     "interval_minutes": 35,
