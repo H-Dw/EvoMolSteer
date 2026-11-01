@@ -29,6 +29,8 @@ CPU质量仅每实际源组50中固定抽查10（五seed各slot0/1），构建�
 
 ## 每小时巡检和收尾
 
+首次985f9640部署预检为346通过、1失败：稀疏检出遗漏comparison8/run_suite.py测试依赖目录。未创建科学结果根、未生成候选、未调用API。修复仅补齐检出清单，以新固定提交独立检出后重验；原预检目录和DEPLOY_FAILED保留，不跳过测试、不改变科学源码或容差，不计科学预算。
+
 巡检调用固定目录inspect_suite.py --plan PLAN.json，保存Asia/Shanghai快照；核对真实命令/状态、全局/suite/任务executor与campaign锁、阶段安全日志、steps/progress、attempts、验收COMPLETE、标定域、五轮真实provider/工具回执、GLOBAL_BEST、初始根、质量队列及SUITE标记。逐文件核对SOURCE_PRESERVATION、固定提交、运行源码及配置SHA；不能仅凭PID/心跳/目录判健康。完整acceptance须真实包含全100步、零scale和端点/化学相位检查，不能拿CPU测试代替。
 
 完成/终止后实际读取两教师标定、各轮参数/prompt/选择与原始/过滤RMSD、loss、初始对应、pIC50/SA及已有抽样构象质量，明确不完整任务、总尝试和同初态配对限制，提交推送主GPT复盘。仅在队列空闲和进程/路径归属确认后停止本专项CPU worker；FINALIZED绑定真实复盘及源哈希，最后删除本专项心跳。远端不可达时只记录真实证据并保留巡检，不按旧PID重启或伪造完成。中文UTF-8，自动化创建/更新后JSON ensure_ascii=true读回并核对无Unicode替换字符。

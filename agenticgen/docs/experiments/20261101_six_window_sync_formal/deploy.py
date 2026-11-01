@@ -83,7 +83,8 @@ def deploy(commit,bundle=None,bundle_sha=None):
             transports.append(dict(transport='verified_pushed_only_bundle',sha256=bundle_sha))
         command(['git','sparse-checkout','init','--cone'],cwd=repo)
         command(['git','sparse-checkout','set','src','agenticgen/src','agenticgen/scripts','agenticgen/configs',
-                 'agenticgen/tests',DOC,'agenticgen/docs/experiments/20261031_guidance_comparison5'],cwd=repo)
+                 'agenticgen/tests',DOC,'agenticgen/docs/experiments/20261031_guidance_comparison5',
+                 'agenticgen/docs/experiments/20261031_guidance_comparison8'],cwd=repo)
         command(['git','checkout','-B','codex/uniguide-flowr-agent',commit],cwd=repo)
         if command(['git','rev-parse','HEAD'],cwd=repo).strip()!=commit:raise ValueError('Wrong execution commit')
         if sha(repo/DOC/'deploy.py')!=sha(__file__):raise ValueError('Deployment helper is not the pushed source')
