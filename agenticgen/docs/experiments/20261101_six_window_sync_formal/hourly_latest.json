@@ -1,124 +1,145 @@
 {
-  "timestamp": "2026-11-01T22:38:08.600041+08:00",
-  "observations_through": "2026-11-01T22:35:29.431314+08:00",
+  "timestamp": "2026-11-01T23:40:53.556081+08:00",
+  "observations_through": "2026-11-01T23:37:49.207731+08:00",
   "status": "healthy_running",
   "execution_commit": "1e2227cf5a789d4a52b68289714571077a2f39f6",
   "plan_sha256": "c574933d529a6fc6584ed93539f9cff5f84bc65e701b79dcaf1bbb2525a59179",
   "stage": {
-    "timestamp": "2026-11-01T22:25:39.572947+08:00",
-    "job_id": "01_six_window_sync_6pyy",
-    "stage": "formal",
+    "timestamp": "2026-11-01T23:30:14.815379+08:00",
+    "job_id": "02_six_window_sync_3w54",
+    "stage": "calibrate",
     "status": "running",
-    "child_pid": 13167,
+    "child_pid": 36368,
     "command": [
       "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
       "-u",
       "/workspace/uniguide_runs/six-window-sync-1e2227cf/agenticgen/scripts/run_uniguide_geometry.py",
       "--config",
-      "/workspace/uniguide_runs/six-window-sync-1e2227cf-configs/01_six_window_sync_6pyy.json",
-      "run-version",
-      "GD01"
+      "/workspace/uniguide_runs/six-window-sync-1e2227cf-configs/02_six_window_sync_3w54.json",
+      "calibrate"
     ],
-    "log": "/workspace/agenticgen_six_window_sync_20261101_repair1/logs/01_six_window_sync_6pyy/formal.log",
-    "root": "/workspace/agenticgen_six_window_sync_20261101_repair1/jobs/01_six_window_sync_6pyy/attempt_002"
+    "log": "/workspace/agenticgen_six_window_sync_20261101_repair1/logs/02_six_window_sync_3w54/calibrate.log",
+    "root": "/workspace/agenticgen_six_window_sync_20261101_repair1/jobs/02_six_window_sync_3w54/attempt_002"
   },
   "protected_files": 31911,
   "protected_files_changed": [],
   "runtime_source_changed": [],
+  "suite_lock": "held",
+  "global_executor_lock": "held",
   "teachers": [
     {
       "teacher": "6pyy_H7S_A_402",
+      "condition_verified": true,
       "acceptance_complete": true,
-      "calibration_attempts": 460,
-      "calibration_status": "ready",
-      "calibration_reference": 50,
+      "vjp_accepted_epsilons": [
+        0.01,
+        0.005
+      ],
+      "vjp_accepted_relative_errors": [
+        0.0013140776075645597,
+        0.005425195320010264
+      ],
+      "actual_zero_scale_and_endpoint_chemistry_verified": true,
+      "full_100_independent_mixed_capacity_resume_verified": true,
+      "status": "completed",
+      "attempts": {
+        "calibration": 460,
+        "formal": 750
+      },
+      "completed_rounds": 5,
+      "campaign_failed": false,
+      "actual_http_requests": 26,
+      "actual_http_responses": 26,
+      "native_submissions": 12,
+      "all_actual_requests_strict_and_claimed": true,
+      "format_repairs": 0,
+      "optimization_http_calls": 24,
+      "final_analysis_http_calls": 2,
+      "completion_tokens_all_roles_and_final_analysis": 67124,
+      "actual_prompts_include_calibration_root": true,
+      "rollback_prompt_rounds": [
+        3,
+        4
+      ],
+      "round_best_performance_A": [
+        0.5140741904079914,
+        0.5037227207422257,
+        0.5036739745736122,
+        0.499478078186512,
+        0.4925356878340244
+      ],
       "calibration_performance_A": 0.5034624545276165,
-      "boundary_status": "interior_supported",
-      "formal_reserved_attempts": 150,
-      "completed_rounds": 0,
-      "campaign_failed": false
+      "global_best_performance_A": 0.4925356878340244,
+      "best_source": "versions/GD01/6pyy_H7S_A_402/iteration_005/action_003",
+      "best_actual_schedule": [
+        50,
+        70,
+        70,
+        50,
+        50,
+        70
+      ],
+      "improvement_from_calibration_A": 0.010926766693592105,
+      "quality_complete_groups": 15,
+      "quality_failed_groups": 0,
+      "cpu_worker_module_hashes_verified": true,
+      "quality_scope": "10/50 per real source group; no extrapolation",
+      "cpu_worker_retained_until_suite_finalization": true
     },
     {
       "teacher": "3w54_RNB_A_504",
-      "status": "queued",
-      "acceptance_complete": false,
-      "calibration_attempts": 0,
-      "formal_reserved_attempts": 0,
-      "completed_rounds": 0
+      "condition_verified": true,
+      "acceptance_complete": true,
+      "vjp_accepted_epsilons": [
+        0.0025,
+        0.00125
+      ],
+      "vjp_accepted_relative_errors": [
+        0.013967910282209228,
+        0.01724663911903919
+      ],
+      "actual_zero_scale_and_endpoint_chemistry_verified": true,
+      "full_100_independent_mixed_capacity_resume_verified": true,
+      "status": "running_calibration",
+      "attempts": {
+        "calibration": 100,
+        "formal": 0
+      },
+      "completed_rounds": 0,
+      "campaign_failed": false,
+      "actual_http_requests": 0,
+      "actual_http_responses": 0,
+      "native_submissions": 0
     }
   ],
-  "actual_llm": {
-    "requests": 4,
-    "responses": 4,
-    "strict_accepted_submissions": 2,
-    "receipt_count": 2,
-    "claims_matched": true,
-    "calibration_root_in_actual_both_role_prompts": true
-  },
-  "cpu_quality": {
-    "worker_pid": 14660,
-    "module_hashes_verified": true,
-    "gpu_hidden": true,
-    "numeric_threads": 1,
-    "worker_lock": "held",
-    "pending": 0,
-    "checked_source_groups": [
-      {
-        "source": "versions/GD01/6pyy_H7S_A_402/iteration_001/action_001",
-        "population": 50,
-        "scope": "first_two_slots_per_seed_10_of_50",
-        "QUALITY_COMPLETE.json": {
-          "attempts": 50,
-          "checked_attempts": 10,
-          "not_selected": 40,
-          "coverage": 0.2,
-          "scope": "first_two_slots_per_seed_10_of_50"
-        }
-      },
-      {
-        "source": "versions/GD01/6pyy_H7S_A_402/iteration_001/action_002",
-        "population": 50,
-        "scope": "first_two_slots_per_seed_10_of_50",
-        "QUALITY_COMPLETE.json": {
-          "attempts": 50,
-          "checked_attempts": 10,
-          "not_selected": 40,
-          "coverage": 0.2,
-          "scope": "first_two_slots_per_seed_10_of_50"
-        }
-      }
-    ],
-    "does_not_extrapolate_to_population": true,
-    "worker_left_running_for_future_groups": true
+  "scientific_totals": {
+    "calibration": 560,
+    "formal": 750
   },
   "durable_mirror": {
-    "timestamp": "2026-11-01T22:23:49.639803+08:00",
+    "timestamp": "2026-11-01T23:30:36.158381+08:00",
     "status": "mirrored",
-    "files": 1698,
-    "bytes": 115977916,
+    "files": 4411,
+    "bytes": 297243799,
     "full_hdf5_included": false,
     "launcher_log_included": false
   },
   "archive": {
-    "timestamp": "2026-11-01T22:36:18.002302+08:00",
-    "archive": "D:\\llm_controlled_generation\\EvoMolSteer-uniguide\\agenticgen\\docs\\experiments\\20261101_six_window_sync_formal\\monitoring\\20261101_2225\\completed_artifacts.tar.gz",
-    "sha256": "98b4096ea3443f43b17b0830ffd2e7c87e7032572e7a77a6bc584d27d2a2229b",
-    "bytes": 332519143,
-    "members_verified": 1804,
-    "hdf5_members": 123,
-    "compressed_tensor_members": 202,
-    "remote_source_and_members_verified": true,
-    "local_members_verified": true,
-    "launcher_core_weights_included": false,
-    "scope": "sealed trees selected at 2026-11-01T22:27:58+08:00; later completions are for the next hourly collection"
+    "timestamp": "2026-11-01T23:39:37.916105+08:00",
+    "archive": "D:\\llm_controlled_generation\\EvoMolSteer-uniguide\\agenticgen\\docs\\experiments\\20261101_six_window_sync_formal\\monitoring\\20261101_2331\\completed_increment.tar.gz",
+    "sha256": "c12729e3d3c03c2b538ed06eac530fc5a4639cb354f827539a08504449e1dc5c",
+    "bytes": 598473707,
+    "members_verified": 3333,
+    "hdf5_members": 137,
+    "compressed_tensor_members": 196,
+    "previous_verified_references": 1802,
+    "local_and_remote_member_hashes_verified": true,
+    "previous_archive_sha256": "98b4096ea3443f43b17b0830ffd2e7c87e7032572e7a77a6bc584d27d2a2229b",
+    "manifest_index": "D:\\llm_controlled_generation\\EvoMolSteer-uniguide\\agenticgen\\docs\\experiments\\20261101_six_window_sync_formal\\monitoring\\20261101_2331\\ARCHIVE_INDEX.json",
+    "selection_timestamp": "2026-11-01T23:34:45.514517+08:00",
+    "launcher_core_weights_included": false
   },
-  "archive_utility": {
-    "original_ssh_read_timed_out_during_redundant_backward_gzip_verification": true,
-    "full_one_pass_verification_succeeded": true,
-    "original_readonly_verifier_pid": 13985,
-    "original_readonly_verifier_stopped_after_full_validation": true,
-    "scientific_processes_touched": false
-  },
+  "previous_archive_required": "98b4096ea3443f43b17b0830ffd2e7c87e7032572e7a77a6bc584d27d2a2229b",
   "original_automation": {
     "status": "PAUSED",
     "interval_minutes": 35,
@@ -129,8 +150,10 @@
     "interval_minutes": 60,
     "unicode_readback_valid": true
   },
+  "sampling_finished_all_teachers": false,
   "finalized": false,
   "scientific_restart": false,
+  "scientific_code_or_config_changes": false,
   "pure_documentation_not_deployed": true,
-  "scientific_code_or_config_changes": false
+  "same_seed_slots_are_paired_not_independent": true
 }
