@@ -16,6 +16,11 @@ def best(rows):
 
 
 def plan(config, target):
+    if config.get('box_exclusion',{}).get('enabled'):
+        from .box_exclusion import BACKGROUNDS
+        return dict(policy='negative-box-exclusion-v1',backgrounds=BACKGROUNDS[target],
+                    maximum_probe_profiles=29,populations=[10,20,50],reference_budget=500,
+                    full_backgrounds=2,maximum_confirmed_exclusions=2)
     settings = scale.teacher_settings(
         scale.configure(config)["guidance_control"], target
     )

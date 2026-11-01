@@ -272,9 +272,13 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                                 dict(tool_call_id=call["id"], call=call, result=result_error))
                             transcript.append(dict(role="tool", tool_call_id=call["id"],
                                 content=json.dumps(result_error, ensure_ascii=False)))
+                    control_help = ("For box exclusion, supply excluded_box_ids explicitly: [] for no exclusions, "
+                        "otherwise eligible box IDs. In the final stage also supply the matching confirmed_profile_id. "
+                        if "excluded_box_ids" in schema.get("properties", {}) else
+                        "For selection, supply selected explicitly: [] for hold, otherwise existing candidate IDs. ")
                     instruction = (f"Replace the complete arguments in one {FINAL_TOOL} call, alone. "
                         f"All fields are mandatory: {schema.get('required', [])}. "
-                        "For selection, supply selected explicitly: [] for hold, otherwise existing candidate IDs. "
+                        + control_help
                         if strict else "Replace the entire final JSON; ")
                     transcript.append(dict(role="user", content=instruction+
                         "preserve evidence and do not invent measurements. Validation: "+

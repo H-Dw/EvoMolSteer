@@ -473,6 +473,10 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
     binding = compatibility(config, teacher, condition)
     results = []
     for job in jobs:
+        from .box_gates import validate_profile, enabled as gates_enabled
+        from .linear_scale import effective as actual_ticks
+        if gates_enabled(config):
+            validate_profile(config, actual_ticks(job['schedule'],job['domain']) if job.get('domain') else job['schedule'])
         results.append(_execute_job(model, config, teacher, condition, job, binding,
                                     sample_fn or sampler.sample))
     return results

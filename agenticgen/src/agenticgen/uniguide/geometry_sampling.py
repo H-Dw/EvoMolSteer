@@ -173,7 +173,9 @@ class GeometryControl(PrefixInpainting, ChemicalStateInpainting, Raw999Sampling,
 
     def endpoint_scales(self, values, step):
         from .guidance_endpoints import apply
-        return apply(values,step,getattr(self,"absolute_config",{}))
+        config = getattr(self,"absolute_config",{})
+        from .box_gates import apply as gate_scales
+        return gate_scales(apply(values,step,config),step,config)
 
     def apply_guidance_atom_scope(self, gradient, pred, valid, assignment):
         from .gradient_atom_scope import apply, policy
@@ -395,6 +397,10 @@ def compatibility(config, teacher, condition, domain=None):
         result["coordinate_statistics_policy"] = statistics_policy(config)
         result["scientific_sources"]["coordinate_statistics"] = sha(package / "coordinate_statistics.py")
     from . import linear_scale
+    from .box_gates import enabled as gates_enabled, mask as gate_mask
+    if gates_enabled(config):
+        result["guidance_box_mask"] = gate_mask(config)
+        result["scientific_sources"]["box_gates"] = sha(package / "box_gates.py")
     if linear_scale.enabled(config):
         result["guidance_scale_protocol"] = dict(policy=config["guidance_control"]["policy"],
             **{linear_scale.UNIT:config["guidance_control"][linear_scale.UNIT]})
@@ -807,6 +813,10 @@ def execute(
 
     if count not in (10, 20, 50):
         raise ValueError("Supported promotion populations are ten, twenty and fifty")
+    from .box_gates import validate_profile, enabled as gates_enabled
+    from .linear_scale import effective as actual_ticks
+    if gates_enabled(config):
+        validate_profile(config, actual_ticks(schedule,domain) if domain else schedule)
     if domain is None and stage != "calibration":
         from .fixed_scope import validate_fixed_call
         validate_fixed_call(config, teacher, condition, schedule, stage)

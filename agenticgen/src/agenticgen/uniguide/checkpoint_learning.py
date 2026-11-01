@@ -179,7 +179,7 @@ def decision_path(history, domain, best, completed_rounds=()):
         node = dict(node_summary(current),parent_source_id=parent,
                     decision_summary=decisions.get(current["id"]),
                     saved_proposal_summary=({k:proposal[k] for k in
-                        ("anchor_id","updates","exploration_tier","improvement_reason","uncertainty","evidence_ids")
+                        ("anchor_id","updates","target_scale_schedule","exploration_tier","improvement_reason","uncertainty","evidence_ids")
                         if k in proposal} if proposal else None))
         path.append(node)
         if parent is None:

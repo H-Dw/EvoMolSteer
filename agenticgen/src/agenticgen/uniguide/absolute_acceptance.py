@@ -179,6 +179,9 @@ def run(config):
                 checks[teacher["target"]]["actual_zero_scale"] = actual_zero_scale(model,config,teacher,condition,out/"actual_zero_scale")
             from .geometry_batch_acceptance import run_teacher
             checks[teacher["target"]]["candidate_batch_equivalence"]=run_teacher(model,config,teacher,condition,out/"candidate_batch")
+            if config.get('box_exclusion',{}).get('enabled'):
+                from .box_gate_acceptance import run_teacher as check_box_gates
+                checks[teacher['target']]['box_gates']=check_box_gates(model,config,teacher,condition,out/'box_gates')
         finally:
             del model
             torch.cuda.empty_cache()

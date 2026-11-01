@@ -27,6 +27,13 @@ def history(config, teacher, condition, domain):
         identity = claim["identity"]
         if identity["compatibility"]["teacher_id"] != teacher["target"]:
             continue
+        if domain.get('box_exclusion_policy'):
+            other_mask=identity['compatibility'].get('guidance_box_mask')
+            verified=compatibility(dict(config,guidance_box_mask=other_mask),teacher,condition)
+            if value_sha(verified)!=value_sha(identity['compatibility']):
+                raise ValueError('Exclusion profile source belongs to another sampling protocol')
+            if other_mask!=domain['guidance_box_mask']:
+                continue  # Kept in Selection evidence; never a compatible Guidance anchor.
         if value_sha(identity["compatibility"]) != expected:
             raise ValueError(
                 "Incompatible historical measurement; do not mix scale/sampling protocols"
@@ -180,12 +187,14 @@ def promotion_evidence(config, reference_folder, candidate_folder):
     )
 
 
-def remaining_profile_cost(root, target, actual):
+def remaining_profile_cost(root, target, actual, box_mask=None):
     """Promotions reuse complete raw measurements; failed claims never count as reusable slots."""
     populations = [0]
     for path in (Path(root) / "measurement_registry").glob("*.json"):
         claim = read(path)
         identity = claim["identity"]
+        if box_mask is not None and identity['compatibility'].get('guidance_box_mask')!=box_mask:
+            continue
         if (
             identity["compatibility"]["teacher_id"] != target
             or identity[scale.EFFECTIVE] != actual
@@ -358,6 +367,8 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
     for subject in subjects:
         teacher, condition = subject["teacher"], subject["condition"]
         target = teacher["target"]
+        if domain_mask := domains[target].get('guidance_box_mask'):
+            config=dict(config,guidance_box_mask=domain_mask)
         domain = verify_frozen(
             root, domains[target], compatibility(config, teacher, condition)
         )
@@ -549,7 +560,7 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                             domain = scale.revise(domain, row)
                     else:
                         required = remaining_profile_cost(
-                            root, target, resolved[scale.EFFECTIVE]
+                            root, target, resolved[scale.EFFECTIVE], domain.get('guidance_box_mask')
                         )
                         if formal_allowance(config) < required:
                             events.append(

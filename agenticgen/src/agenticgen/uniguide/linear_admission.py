@@ -46,7 +46,7 @@ def audit_actions(config, history, domain, actions, failures=(), learning=None, 
                     target['path_relation'] != 'redirect_from_reviewed_best'):
                     raise ValueError('Rollback must redirect from the reviewed measured best node')
             try:
-                cost = remaining_profile_cost(config['root'],domain['teacher_id'],resolved[scale.EFFECTIVE])
+                cost = remaining_profile_cost(config['root'],domain['teacher_id'],resolved[scale.EFFECTIVE],domain.get('guidance_box_mask'))
             except ValueError as error:
                 from .analysis_tools import EvidenceIntegrityError
                 raise EvidenceIntegrityError('Measured admission source changed: '+str(error)) from error
@@ -78,10 +78,19 @@ def audit_actions(config, history, domain, actions, failures=(), learning=None, 
     batch_ok = (all_valid and total_formal<=state['remaining_formal_attempts']
                 and total_range<=state['range_evidence_allowance']['remaining_attempts']
                 and total_configurations<=state['range_evidence_allowance']['remaining_configurations'])
+    diversity_error=None
+    if portfolio and domain.get('box_exclusion_policy'):
+        from .profile_diversity import bank, require_portfolio
+        try:
+            suggestions=bank(history,domain,learning['best_checkpoint_actual_schedule'],failures)
+            require_portfolio(actions,domain,learning['best_checkpoint_actual_schedule'],suggestions,state['remaining_formal_attempts'])
+        except ValueError as error:
+            batch_ok=False;diversity_error=str(error)
     return dict(status='complete',actions=results,budget_state=state,
                 evaluation_scope='selected_portfolio' if portfolio else 'independent_alternatives',
                 batch_admission=dict(executable_now=batch_ok,formal_new_attempts=total_formal,
-                                     calibration_new_attempts=total_range,frontier_configurations=total_configurations),
+                                     calibration_new_attempts=total_range,frontier_configurations=total_configurations,
+                                     **({'diversity_error':diversity_error} if diversity_error else {})),
                 new_molecular_attempts=0)
 
 

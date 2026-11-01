@@ -52,6 +52,7 @@ def history_view(row):
             for k in (
                 "anchor_id",
                 "updates",
+                "target_scale_schedule",
                 "exploration_tier",
                 "improvement_reason",
                 "uncertainty",
@@ -159,6 +160,18 @@ def advise(
                         "assignment_diagnostics_not_used_for_ranking"):
                 row.pop(key,None)
     common["allowed_anchor_ids"] = list(anchors)
+    diversity_bank=[]
+    if domain.get('box_exclusion_policy'):
+        from .profile_diversity import bank
+        diversity_bank=bank(history,domain,learning['best_checkpoint_actual_schedule'],failures)
+        common['box_exclusion_contract']=dict(guidance_box_mask=domain['guidance_box_mask'],
+            selection_sha256=domain['selection_sha256'],excluded_boxes_native_only=True,
+            allowed_scale_zero_retains_chemistry=True)
+        common['coverage_profile_suggestions']=diversity_bank
+        common['portfolio_diversity']=dict(distance_reference='current_global_best',
+            focused_ticks=[1,2],expanded_ticks=[3,6],bold_ticks=[7,12],minimum_pairwise_ticks=3,
+            minimum_differing_boxes=2,bold_required_when_executable=True,
+            suggestions_are_not_measured=True,coverage_bank_is_not_entire_domain=True)
     common["conditioning_protocol"] = dict(
         prefix_inpainting=config.get("prefix_inpainting", {"enabled": False}),
         atom_assignment_policy=config.get("atom_assignment_policy"),
@@ -224,6 +237,10 @@ def advise(
                 )
         if len({p["id"] for p in proposed}) != len(proposed):
             raise jsonschema.ValidationError("Repeated proposal identity")
+        if domain.get('box_exclusion_policy') and not final:
+            from .profile_diversity import require_portfolio
+            require_portfolio(proposed,domain,learning['best_checkpoint_actual_schedule'],
+                              diversity_bank,common['remaining_formal_attempts'],pairwise=False)
         if scale.open_domain(domain):
             from .linear_admission import audit_actions, require_executable
             try:
@@ -325,6 +342,10 @@ def advise(
             )
         if any(identifier not in candidates for identifier in result["selected"]):
             raise jsonschema.ValidationError("Unknown selected proposal")
+        if domain.get('box_exclusion_policy') and not final:
+            from .profile_diversity import require_portfolio
+            require_portfolio([candidates[i] for i in result['selected']],domain,
+                learning['best_checkpoint_actual_schedule'],diversity_bank,common['remaining_formal_attempts'])
         if result["decision"] == "request_domain_evidence" and any(
             scale.resolve_action(candidates[i], anchors, domain, history, failures)[
                 "task_type"

@@ -109,7 +109,8 @@ class ChemicalStateInpainting:
     def apply_chemical_inpainting(self,state,step):
         n=len(state["mask"]);enabled=self.sampling_policy["chemical_inpainting"]["enabled"]
         lo,hi=self.sampling_policy["chemical_inpainting"]["step_bounds"]
-        active=enabled and lo<=step<=hi
+        from .box_gates import step_enabled
+        active=enabled and lo<=step<=hi and step_enabled(getattr(self,"absolute_config",{}),step)
         self.rows[-1]["chemical_inpainting_applied"]=[active]*n
         if not active:return state
         if getattr(self,"absolute_state",None) is not None:

@@ -100,7 +100,7 @@ def configure(config):
         raise ValueError("Linear guidance exceeds the declared scientific budget")
     if settings["maximum_confirmation_levels"] > settings["maximum_screening_levels"]:
         raise ValueError("More confirmation levels than screening levels")
-    if settings["maximum_window_tick_change"] > 4 or settings["maximum_proposals"] > 6:
+    if settings["maximum_window_tick_change"] > (12 if config.get("box_exclusion",{}).get("enabled") else 4) or settings["maximum_proposals"] > 6:
         raise ValueError("Action limits exceed the linear JSON interface")
     if settings["maximum_selected"] > settings["maximum_proposals"]:
         raise ValueError("More selections than proposals")
@@ -326,11 +326,20 @@ def action_schema(anchor_ids, domain=None):
             path_relation=dict(enum=["new_joint_region", "frontier_jump", "redirect_from_reviewed_best"]),
         ))
         schema["required"].append("optimization_target")
+    if domain and domain.get("box_exclusion_policy"):
+        schema["properties"].pop("updates")
+        schema["required"].remove("updates")
+        schema["properties"]["target_scale_schedule"] = dict(type="array",minItems=6,maxItems=6,
+            items=dict(type="integer",enum=grid(domain["control_settings"])))
+        schema["required"].append("target_scale_schedule")
     return schema
 
 
 def resolve_action(action, anchors, domain, seen=(), failures=()):
     validate_domain(domain)
+    if domain.get("box_exclusion_policy"):
+        from .profile_diversity import resolve
+        return resolve(action,anchors,domain,seen,failures)
     if action.get("anchor_id") not in anchors:
         raise ValueError("Unknown completed measured anchor")
     if any(
