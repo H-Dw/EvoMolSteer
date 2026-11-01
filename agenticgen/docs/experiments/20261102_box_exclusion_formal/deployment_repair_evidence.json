@@ -1,0 +1,29 @@
+{
+  "failed_execution_commit": "6e9b1ad8623a2130bf1f6659db687f258ca7ffc2",
+  "audit_directory": "/root/private_data/uniguide_box_exclusion_20261102/audits/box-exclusion-6e9b1ad8-transport2",
+  "failure": {
+    "timestamp": "2026-11-02T04:35:56.788778+08:00",
+    "error_type": "ImportError",
+    "error": "libgalaxyhip.so.5: cannot open shared object file: No such file or directory",
+    "preserved": true,
+    "automatic_restart": false
+  },
+  "remote_regression": {
+    "timestamp": "2026-11-02T04:35:03.080728+08:00",
+    "returncode": 0,
+    "cpu_only": true,
+    "scientific_attempts": 0,
+    "llm_calls": 0,
+    "tests": 375,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actual_scientific_attempts": 0,
+  "actual_llm_calls": 0,
+  "scientific_source_config_skill_changes": false,
+  "root_cause": "DTK activation was scoped only to CPU regression child; parent imported torch during config validation without the runtime library path",
+  "fix": "Run configuration validation with JSON stdin in a child bash that explicitly sources the same DTK runtime and hides GPUs",
+  "cumulative_scientific_repair_allowance_consumed": false,
+  "original_failed_receipts_preserved": true
+}

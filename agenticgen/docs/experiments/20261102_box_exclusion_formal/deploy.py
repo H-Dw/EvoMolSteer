@@ -50,6 +50,17 @@ def command(args,cwd=None,timeout=120):
     return result.stdout
 
 
+def validate_runtime_config(repo, config, environment):
+    """Keep torch/DTK imports inside the explicitly activated runtime, never the launcher."""
+    script=('import json,sys; from agenticgen.uniguide.absolute_runtime import validate_config; '
+            'print(json.dumps(validate_config(json.load(sys.stdin)),ensure_ascii=True))')
+    result=subprocess.run(['bash','-c',environment+shlex.join([PYTHON,'-c',script])],
+        cwd=repo,input=json.dumps(config,ensure_ascii=True),capture_output=True,text=True,timeout=120)
+    if result.returncode:
+        raise RuntimeError('Activated runtime configuration validation failed: '+result.stderr[-800:])
+    return json.loads(result.stdout)
+
+
 def deploy(commit,bundle=None,bundle_sha=None,repair_from=None):
     if repair_from: raise ValueError('Scientific repair requires the audited single-teacher repair launcher; never restart an entire healthy suite')
     if re.fullmatch('[0-9a-f]{40}',commit) is None:raise ValueError('Exact pushed commit required')
@@ -148,10 +159,7 @@ def deploy(commit,bundle=None,bundle_sha=None,repair_from=None):
             c['conditions']=[r for r in c['conditions'] if r['teacher_id']==target]
             for name in ('postprocessing_recovery','experiment_mode','gradient_atom_scope','initial_selection'):c.pop(name,None)
             c['llm']=dict(c['llm'],final_response_mode='strict_tool_v1',attempts=3,max_format_repairs=1)
-            import sys
-            sys.path.insert(0,str(repo/'agenticgen/src'))
-            from agenticgen.uniguide.absolute_runtime import validate_config
-            checked=validate_config(c)
+            checked=validate_runtime_config(repo,c,cpu)
             if (checked['rounds']!=5 or checked['chemical_inpainting'].get('activation')!='guidance_phase'
                 or checked['guidance_control']['maximum_attempts_per_teacher']!=500 or not checked['box_exclusion']['enabled'] or checked['agent_tools']['skill_release']!='2.11.0'):
                 raise ValueError('The deployment does not match the authorized six-window configuration')

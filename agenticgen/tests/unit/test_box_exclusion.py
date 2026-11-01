@@ -242,3 +242,23 @@ def test_selection_native_tool_and_one_complete_field_repair(tmp_path,monkeypatc
     receipt=read(out/'decision.receipt.json')
     assert receipt['interface_repairs']==1 and receipt['final_response_mode']=='strict_tool_v1'
     assert read(out/'decision.session/step_0001/TOOL_00.json')['result']['evidence_id']==result['evidence_ids'][0]
+
+
+@pytest.mark.parametrize('returncode',[0,1])
+def test_deployment_configuration_validation_activates_dtk_outside_parent(tmp_path,monkeypatch,returncode):
+    import importlib.util
+    path=Path(__file__).resolve().parents[2]/'docs/experiments/20261102_box_exclusion_formal/deploy.py'
+    spec=importlib.util.spec_from_file_location('box_deployment_fixture',path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    value=dict(root='/workspace/isolated_fixture',rounds=5);checked=dict(value,validated=True)
+    environment='source /opt/MolSteer/scripts/scnet/activate_dtk.sh >/dev/null 2>&1\nexport CUDA_VISIBLE_DEVICES=\n'
+    def run(args,**kwargs):
+        assert args[:2]==['bash','-c'] and args[2].startswith(environment)
+        assert 'absolute_runtime import validate_config' in args[2]
+        assert json.loads(kwargs['input'])==value and kwargs['cwd']==tmp_path
+        return SimpleNamespace(returncode=returncode,stdout=json.dumps(checked),stderr='runtime library unavailable')
+    monkeypatch.setattr(module.subprocess,'run',run)
+    if returncode:
+        with pytest.raises(RuntimeError,match='Activated runtime'):module.validate_runtime_config(tmp_path,value,environment)
+    else:
+        assert module.validate_runtime_config(tmp_path,value,environment)==checked
