@@ -1,0 +1,98 @@
+{
+  "agent_tools": {
+    "mode": "readonly_tools_v1",
+    "skill_release": "2.13.0",
+    "max_model_calls_per_round": 30,
+    "max_output_tokens_per_round": 491520
+  },
+  "rounds": 5,
+  "calibration": {
+    "search_policy": "linear-open-domain-v2"
+  },
+  "guidance_control": {
+    "policy": "linear-open-domain-v2",
+    "guidance_scale_grid_unit": 1,
+    "search_minimum": 0,
+    "search_maximum": 400,
+    "initial_scales": [
+      0,
+      1,
+      2,
+      5,
+      10,
+      20,
+      30,
+      50,
+      100,
+      200,
+      250,
+      320,
+      400
+    ],
+    "maximum_attempts_per_teacher": 500,
+    "maximum_screening_levels": 14,
+    "maximum_confirmation_levels": 9,
+    "maximum_window_tick_change": 43,
+    "maximum_total_tick_change": 283,
+    "maximum_proposals": 5,
+    "maximum_selected": 5
+  },
+  "guidance_exploration": {
+    "policy": "three-intensity-jump-search-v1",
+    "focused_maximum_total_ticks": 2,
+    "expanded_maximum_total_ticks": 8,
+    "bold_maximum_total_ticks": 283
+  },
+  "box_search": {
+    "policy": "coverage-aware-five-branch-v1",
+    "early_guidance_shape": "constant"
+  },
+  "box_exclusion": {
+    "enabled": true,
+    "policy": "negative-box-exclusion-v2"
+  },
+  "windows": [
+    [
+      0,
+      10
+    ],
+    [
+      11,
+      20
+    ],
+    [
+      21,
+      30
+    ],
+    [
+      31,
+      40
+    ],
+    [
+      41,
+      50
+    ],
+    [
+      51,
+      75
+    ],
+    [
+      76,
+      99
+    ]
+  ],
+  "guidance_endpoints": {
+    "policy": "native-zero-uncovered-last-v1"
+  },
+  "prefix_inpainting": {
+    "enabled": false
+  },
+  "checkpoint_learning": {
+    "enabled": true
+  },
+  "atom_assignment_policy": "per_step_and_terminal_endpoint_hungarian",
+  "chemical_inpainting": {
+    "enabled": true,
+    "activation": "guidance_phase"
+  }
+}

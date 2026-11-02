@@ -75,7 +75,7 @@ def bank(history,domain,best,failures=()):
                     .15+.1*shift if pattern=='balanced_low' else .65+.1*shift)
                 p[i]=values[i][min(n,round(fraction*n))]
             add(p,'diverse_complete_profile')
-    # 24 suggestions: reserve visibility for each window, each intensity and global shapes.
+    # Reserve visibility for each window, each intensity and global shapes.
     result=[]
     def choose(options):
         options=[p for p in options if p not in result]
@@ -96,7 +96,7 @@ def bank(history,domain,best,failures=()):
         choose([r for r in all_rows if r['exploration_tier']==tier])
     for opportunity in ('early_dose','joint_frontier','diverse_complete_profile'):
         for _ in range(2):choose([r for r in all_rows if r['search_opportunity']==opportunity])
-    return result[:24]
+    return result[:24+2*max(0,len(values)-6)]
 
 
 def require_portfolio(actions,domain,best,suggestions,remaining,*,pairwise=True):

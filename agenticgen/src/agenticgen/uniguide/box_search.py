@@ -4,6 +4,7 @@ import math
 POLICY = "negative-box-exclusion-v2"
 SEARCH_POLICY = "coverage-aware-five-branch-v1"
 RELEASE = "2.12.0"
+SPLIT_RELEASE = "2.13.0"
 
 
 def enabled(value):
@@ -17,11 +18,13 @@ def configure(config):
             raise ValueError("Expanded box search requires its explicit new protocol")
         return config
     maximum = config["guidance_control"].get("search_maximum")
+    from .guidance_windows import windows
+    count=len(windows(config))
     if type(maximum) is not int or maximum<10 or maximum%10:
         raise ValueError('Declare a finite expanded search maximum on the later-window grid')
     defaults = dict(policy=SEARCH_POLICY,
         window_grids=[[0,1,2,5,*range(10,maximum+1,10)],
-                      *[list(range(0,maximum+1,10)) for _ in range(5)]],
+                      *[list(range(0,maximum+1,10)) for _ in range(count-1)]],
         teacher_window_grids={}, early_guidance_shape="constant")
     settings = dict(defaults, **config.get("box_search", {}))
     if set(settings) != set(defaults) or settings["policy"] != SEARCH_POLICY:
@@ -31,13 +34,13 @@ def configure(config):
     if not isinstance(settings["teacher_window_grids"], dict):
         raise ValueError("Teacher grids must be explicit mappings")
     for target in [None, *settings["teacher_window_grids"]]:
-        validate_grids(settings["teacher_window_grids"].get(target, settings["window_grids"]), maximum)
+        validate_grids(settings["teacher_window_grids"].get(target, settings["window_grids"]), maximum,count)
     return dict(config, box_search=settings)
 
 
-def validate_grids(values, maximum):
-    if not isinstance(values, list) or len(values) != 6:
-        raise ValueError("Six explicit window grids required")
+def validate_grids(values, maximum, count=6):
+    if not isinstance(values, list) or len(values) != count:
+        raise ValueError("One explicit grid per declared guidance window required")
     for grid in values:
         if (not isinstance(grid, list) or len(grid) < 2
                 or any(type(x) is not int or not 0 <= x <= maximum for x in grid)
@@ -53,7 +56,7 @@ def grids(value, teacher=None):
 
 
 def validate_profile(actual, domain):
-    if (not isinstance(actual, (list, tuple)) or len(actual) != 6
+    if (not isinstance(actual, (list, tuple)) or len(actual) != len(grids(domain))
             or any(type(x) is not int or x not in grid for x,grid in zip(actual,grids(domain)))):
         raise ValueError("Actual integer scales must belong to each declared window grid")
 

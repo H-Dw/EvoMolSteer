@@ -14,10 +14,11 @@ from .io import read,frozen,sha
 def run_teacher(model,config,teacher,condition,folder):
     folder=Path(folder)
     shape=early_shape(config)
-    binding=scale_binding([50]*6,window_bounds=config['windows'],early_shape=shape)
+    actual=[50]*len(config['windows'])
+    binding=scale_binding(actual,window_bounds=config['windows'],early_shape=shape)
     factory=functools.partial(GeometryControl,condition=condition,scale_binding=binding)
-    sample(model,config,teacher,[50]*6,folder,10,control_factory=factory,check_affinity=False)
-    expected=expand([50]*6,binding);rows=read(folder/'steps.json')
+    sample(model,config,teacher,actual,folder,10,control_factory=factory,check_affinity=False)
+    expected=expand(actual,binding);rows=read(folder/'steps.json')
     if [r['step'] for r in rows]!=list(range(100)):
         raise ValueError('Configured early dose acceptance did not complete all intervals')
     with h5py.File(folder/'trace.h5','r') as trace:

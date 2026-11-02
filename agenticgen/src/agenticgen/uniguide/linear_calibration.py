@@ -17,12 +17,13 @@ def best(rows):
 
 def plan(config, target):
     if config.get('box_exclusion',{}).get('enabled'):
-        from .box_exclusion import BACKGROUNDS,EXPANDED_BACKGROUNDS
+        from .box_exclusion import BACKGROUNDS,search_backgrounds
         from .box_search import enabled
         if enabled(config):
-            return dict(policy=config['box_exclusion']['policy'],backgrounds=EXPANDED_BACKGROUNDS[target],
-                        maximum_probe_profiles=38,populations=[10,20,50],reference_budget=500,
-                        full_backgrounds=2,maximum_confirmed_exclusions=2,
+            count=len(scale.windows(config))
+            return dict(policy=config['box_exclusion']['policy'],backgrounds=search_backgrounds(target,count),
+                        maximum_probe_profiles=4*count+14,populations=[10,20,50],reference_budget=500,
+                        full_backgrounds=2,maximum_confirmed_exclusions=1 if count==7 else 2,
                         coverage_probes_use_only_remaining_budget=True,early_low_dose_grid=[0,1,2,5,10,20])
         return dict(policy='negative-box-exclusion-v1',backgrounds=BACKGROUNDS[target],
                     maximum_probe_profiles=29,populations=[10,20,50],reference_budget=500,
@@ -197,7 +198,7 @@ def ensure_limits(config, subject_count):
             ),
             per_teacher_stage_caps=dict(calibration=cap,
                 **(dict(formal=50*config['guidance_control']['maximum_selected']*config['rounds'])
-                   if config.get('agent_tools',{}).get('skill_release')=='2.12.0' else {})),
+                   if config.get('agent_tools',{}).get('skill_release') in ('2.12.0','2.13.0') else {})),
         ),
     )
 

@@ -1,5 +1,5 @@
 """Optional time-box gates: native-only means no gradient AND no chemical overlay."""
-from .guidance_windows import windows, SIX
+from .guidance_windows import windows, SIX, SEVEN
 
 POLICY = "negative-box-exclusion-v1"
 
@@ -18,22 +18,23 @@ def mask(config):
 
 
 def configure(config):
-    from .box_search import enabled as expanded_search, RELEASE
+    from .box_search import enabled as expanded_search, RELEASE, SPLIT_RELEASE
     if 'box_search' in config and not expanded_search(config):
         raise ValueError('Window-specific search settings require the explicit new protocol')
     if not enabled(config):
         if 'guidance_box_mask' in config:
             raise ValueError('Box gates require the opt-in exclusion protocol')
-        if config.get('agent_tools',{}).get('skill_release') in ('2.11.0', RELEASE):
+        if config.get('agent_tools',{}).get('skill_release') in ('2.11.0', RELEASE, SPLIT_RELEASE):
             raise ValueError('Box-selection skills require explicit negative box exclusion')
         return config
     new_search=expanded_search(config)
     from .box_search import POLICY as new_policy, grids
     if config["box_exclusion"] != dict(enabled=True, policy=new_policy if new_search else POLICY):
         raise ValueError("Unknown box exclusion settings")
-    if windows(config) != [list(p) for p in SIX] or config["rounds"] != 5:
-        raise ValueError("Box exclusion requires six boxes and exactly five rounds")
-    if config["agent_tools"]["skill_release"] != (RELEASE if new_search else "2.11.0"):
+    split=config['agent_tools']['skill_release']==SPLIT_RELEASE
+    if windows(config) != [list(p) for p in (SEVEN if split else SIX)] or config["rounds"] != 5:
+        raise ValueError("Box exclusion requires its released window layout and exactly five rounds")
+    if config["agent_tools"]["skill_release"] != ((SPLIT_RELEASE if split else RELEASE) if new_search else "2.11.0"):
         raise ValueError("Box exclusion and its immutable skill release must use the same protocol")
     if config["guidance_control"]["maximum_attempts_per_teacher"] != 500:
         raise ValueError("Box pre-experiment cap remains 500")
@@ -47,9 +48,10 @@ def configure(config):
             raise ValueError('Expanded search needs five fully executable branches and a fully reachable declared grid')
         if config['guidance_exploration']['bold_maximum_total_ticks'] != settings['maximum_total_tick_change']:
             raise ValueError('Expanded jump distances differ from admission')
-        from .box_exclusion import EXPANDED_BACKGROUNDS, profiles
+        from .box_exclusion import EXPANDED_BACKGROUNDS, profiles, search_backgrounds
         from .box_search import validate_profile
-        for teacher, backgrounds in EXPANDED_BACKGROUNDS.items():
+        for teacher in EXPANDED_BACKGROUNDS:
+            backgrounds=search_backgrounds(teacher,len(windows(config)))
             domain={'search_grids':grids(config,teacher)}
             for spec in profiles(teacher,backgrounds).values():
                 validate_profile(spec['actual'],domain)

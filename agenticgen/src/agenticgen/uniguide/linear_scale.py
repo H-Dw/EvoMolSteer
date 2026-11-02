@@ -226,7 +226,7 @@ def validate_domain(
     settings = domain["control_settings"]
     from .box_search import enabled as expanded_search,validate_grids,apply_shape
     if expanded_search(domain):
-        validate_grids(domain.get('search_grids'),settings['search_maximum'])
+        validate_grids(domain.get('search_grids'),settings['search_maximum'],len(windows(domain)))
         if domain.get(UNIT)!=1 or not isinstance(domain.get('early_guidance_shape'),dict):
             raise ValueError('Expanded search serializes actual integer scale units')
         apply_shape([0]*100,domain.get('early_guidance_shape'))
@@ -342,7 +342,7 @@ def action_schema(anchor_ids, domain=None):
     if domain and domain.get("box_exclusion_policy"):
         schema["properties"].pop("updates")
         schema["required"].remove("updates")
-        schema["properties"]["target_scale_schedule"] = dict(type="array",minItems=6,maxItems=6,
+        schema["properties"]["target_scale_schedule"] = dict(type="array",minItems=count,maxItems=count,
             items=dict(type="integer",enum=(sorted({v for g in domain['search_grids'] for v in g})
                 if 'search_grids' in domain else grid(domain["control_settings"]))))
         schema["required"].append("target_scale_schedule")

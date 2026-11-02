@@ -21,24 +21,33 @@ EXPANDED_BACKGROUNDS = {
 }
 
 
+def search_backgrounds(target, count=6):
+    """Split only the historical parameter design; never import measurements."""
+    if count not in (6,7):raise ValueError('Expanded backgrounds support the six/seven-window releases')
+    return {name:list(actual)+(actual[-1:] if count==7 else [])
+            for name,actual in EXPANDED_BACKGROUNDS[target].items()}
+
+
 def profiles(target, backgrounds=None):
     backgrounds=backgrounds or BACKGROUNDS[target]
+    count=len(next(iter(backgrounds.values())))
+    if any(len(actual)!=count for actual in backgrounds.values()):raise ValueError('Background dimensions differ')
     result = {}
     def add(name, actual, gates=None):
-        result[name] = dict(name=name, actual=list(actual), guidance_box_mask=gates or [True]*6)
-    add("NativeControl", [0]*6, [False]*6)
-    add("ChemistryOnly", [0]*6)
+        result[name] = dict(name=name, actual=list(actual), guidance_box_mask=gates or [True]*count)
+    add("NativeControl", [0]*count, [False]*count)
+    add("ChemistryOnly", [0]*count)
     for label, actual in backgrounds.items():
         add(label, actual)
-        for i in range(6):
-            off=list(actual);off[i]=0;gates=[True]*6;gates[i]=False
+        for i in range(count):
+            off=list(actual);off[i]=0;gates=[True]*count;gates[i]=False
             add(f"{label}_NativeOff_{i}", off, gates)
             lower=list(actual);lower[i]=max(10,actual[i]-20)
             add(f"{label}_LowerRescue_{i}", lower)
     first=next(iter(backgrounds))
     extra=list(backgrounds[first]);extra[0]+=10
     add(first+"_EarlyUpperRescue", extra)
-    assert len(result)==29
+    assert len(result)==4*count+5
     return result
 
 
@@ -106,8 +115,10 @@ def select(config, folder, data, sources, budget, phase, provider=None):
     from .tool_runtime import assets
     registry=ExclusionEvidence(Path(folder)/'calculations',data,sources)
     eligible=data['eligible_box_ids']
-    properties=dict(excluded_box_ids=dict(type="array",uniqueItems=True,maxItems=2,
-        items=dict(type="integer",minimum=0,maximum=5)),
+    count=len(config['windows'])
+    maximum=data.get('maximum_confirmed_exclusions',2)
+    properties=dict(excluded_box_ids=dict(type="array",uniqueItems=True,maxItems=maximum,
+        items=dict(type="integer",minimum=0,maximum=count-1)),
         evidence_ids=dict(type="array",minItems=1,maxItems=4,uniqueItems=True,
                           items=dict(type="string",enum=sorted(registry.receipt_ids))),
         reason=dict(type="string",minLength=1,maxLength=3000))
@@ -123,7 +134,7 @@ def select(config, folder, data, sources, budget, phase, provider=None):
     instruction=assets(config)['box_selection.md'].read_text(encoding='utf-8')
     import json
     messages=[dict(role='system',content=instruction),dict(role='user',content=json.dumps(
-        dict(phase=phase,evidence=registry.data,maximum_excluded=2,
+        dict(phase=phase,evidence=registry.data,maximum_excluded=maximum,
              no_sampling_tools=True,empty_exclusion_is_valid=True),ensure_ascii=False))]
     frozen(Path(folder)/'prompt_source.json',dict(messages=messages,response_schema=schema))
     return (provider or call_with_tools)(messages,schema,Path(folder)/'decision.json',registry=registry,
@@ -137,7 +148,8 @@ class Search:
         self.folder=self.root/'box_exclusion'/self.target
         from .box_search import enabled
         self.expanded=enabled(config)
-        self.backgrounds=(EXPANDED_BACKGROUNDS if self.expanded else BACKGROUNDS)[self.target]
+        self.count=len(config['windows'])
+        self.backgrounds=search_backgrounds(self.target,self.count) if self.expanded else BACKGROUNDS[self.target]
         self.labels=list(self.backgrounds)
         self.rows={};self.specs=profiles(self.target,self.backgrounds);self.provider=provider
 
@@ -194,7 +206,7 @@ class Search:
         if not backgrounds:raise ValueError("No eligible complete background; teacher needs evidence")
         primary=min(backgrounds,key=lambda n:primary_score(self.rows[n,50]))
         contrasts={}
-        for i in range(6):
+        for i in range(self.count):
             effects=[]
             for background in self.labels:
                 off=f'{background}_NativeOff_{i}'
@@ -205,10 +217,14 @@ class Search:
                 effects.append(dict(retained=first+'_EarlyUpperRescue',native_off=first+'_NativeOff_0',
                                     effect=self.effect(first+'_EarlyUpperRescue',first+'_NativeOff_0')))
             contrasts[str(i)]=effects
-        candidates=[i for i in range(6) if len(backgrounds)==2 and all(coarse_support(r['effect']) for r in contrasts[str(i)])]
+        candidates=[i for i in range(self.count) if len(backgrounds)==2 and all(coarse_support(r['effect']) for r in contrasts[str(i)])]
         candidates.sort(key=lambda i:(-min(r['effect']['raw_retention_cost']/r['effect']['material_threshold']
                                           for r in contrasts[str(i)]),i))
-        candidates=candidates[:2]
+        # Reserve full confirmations and a possible joint gate before claiming exclusions.
+        # Seven boxes cost 410 before confirmations, so the 500 cap admits one two-background proof.
+        remaining=500-used(self.root,self.target)
+        maximum_confirmed=(2 if remaining>=130 else 1 if remaining>=80 else 0)
+        candidates=candidates[:maximum_confirmed]
         confirmed={}
         for i in candidates:
             contexts=backgrounds if len(candidates)==1 else [primary]
@@ -237,6 +253,9 @@ class Search:
             coarse_contrasts=contrasts,full_contrasts=confirmed,eligible_box_ids=eligible,
             default='not excluded; no benefit proof required',max_attempts=500,
             statistics_scope='paired fixed initial states, no independent validation')
+        if self.count==7:
+            evidence.update(guidance_windows=self.config['windows'],maximum_confirmed_exclusions=maximum_confirmed,
+                confirmation_budget_policy='reserve complete paired proofs before selection; missing evidence retains boxes')
         if self.expanded:
             evidence.update(box_exclusion_policy=self.config['box_exclusion']['policy'],coverage_probes=coverage_probes,
                 early_low_dose_support=early_low_support,
@@ -246,7 +265,7 @@ class Search:
         proposed=select(self.config,self.folder/'proposal',evidence,self.sources(),budget,'proposal',self.provider)
         excluded=sorted(proposed['excluded_box_ids'])
         if len(excluded)>1:
-            gates=[i not in excluded for i in range(6)]
+            gates=[i not in excluded for i in range(self.count)]
             actual=[v if gates[i] else 0 for i,v in enumerate(self.backgrounds[primary])]
             self.specs['CombinedExclusion']=dict(name='CombinedExclusion',actual=actual,guidance_box_mask=gates)
             self.measure('CombinedExclusion',50)
@@ -263,7 +282,7 @@ class Search:
         final_evidence=dict(evidence,proposed_exclusions=excluded,confirmed_options=options,
             confirmed_profiles={n:self.rows[n,50] for n in options})
         final=select(self.config,self.folder/'final',final_evidence,self.sources(),budget,'final',self.provider)
-        gates=[i not in final['excluded_box_ids'] for i in range(6)]
+        gates=[i not in final['excluded_box_ids'] for i in range(self.count)]
         compatible=[r for (n,c),r in self.rows.items() if c==50 and r.get('complete') and ranking_eligible(r)
                     and self.specs[n]['guidance_box_mask']==gates]
         winner=min(compatible,key=primary_score)
@@ -290,7 +309,7 @@ class Search:
                 actual=list(self.backgrounds[label]);actual[0]=dose
                 if dose in grids(self.config,self.target)[0]:extra.append((f'{label}_EarlyDose_{dose}',actual))
         actual=list(self.backgrounds[primary])
-        for i in (4,5):
+        for i in range(4,self.count):
             choices=[v for v in grids(self.config,self.target)[i] if v>max(200,actual[i])]
             if choices:actual[i]=next((v for v in choices if v>=250),choices[-1])
         if actual!=self.backgrounds[primary]:extra.append(('JointFrontier',actual))
@@ -298,7 +317,7 @@ class Search:
         for name,actual in extra:
             if available()<10:break
             if any(s['actual']==actual and all(s['guidance_box_mask']) for s in self.specs.values()):continue
-            self.specs[name]=dict(name=name,actual=actual,guidance_box_mask=[True]*6)
+            self.specs[name]=dict(name=name,actual=actual,guidance_box_mask=[True]*self.count)
             row=self.measure(name,10);measured.append(dict(name=name,row=row))
         full=[r for r in measured if r['row'].get('complete') and ranking_eligible(r['row'])]
         if full and available()>=40:

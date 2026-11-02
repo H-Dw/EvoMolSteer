@@ -55,7 +55,7 @@ def install_executor(root,monkeypatch,score=None,fail=None):
             complete=True,attempts=count,built=count,connected=count,unique_smiles=1,
             compatibility_sha256=value_sha(identity['compatibility']),fingerprint=fingerprint,
             **{scale.EFFECTIVE:actual,RMSD:error,MAX_ERROR:error*2},**aggregate_fields(records,c),
-            window_diagnostics=[dict(increment_vector_rms_A=1,max_atom_increment_A=1) for _ in range(6)])
+            window_diagnostics=[dict(increment_vector_rms_A=1,max_atom_increment_A=1) for _ in actual])
         write(folder/'records.json',records);write(folder/'aggregate.json',row)
         write(folder/'manifest.json',dict(identity=identity));write(folder/'steps.json',[])
         write(folder/'COMPLETE.json',dict(files={n:sha(folder/n) for n in ['records.json','aggregate.json','manifest.json','steps.json']}))
@@ -63,12 +63,12 @@ def install_executor(root,monkeypatch,score=None,fail=None):
     return executor,calls,binding
 
 
-def prepared(tmp_path,monkeypatch,fail=None):
-    c=config(tmp_path)
+def prepared(tmp_path,monkeypatch,fail=None,*,config_factory=config,baseline_actual=None):
+    c=config_factory(tmp_path)
     executor,calls,binding=install_executor(tmp_path,monkeypatch,fail=fail)
     s=dict(teacher=dict(target='6pyy_H7S_A_402'),condition=dict(condition_sha256='condition_fixture'))
     calibration.ensure_limits(c,1);write(tmp_path/'BUDGET_SCOPE.json',dict(stage='calibration',teacher_id=s['teacher']['target']))
-    base=executor(None,c,s['teacher'],s['condition'],[50,100,40,40,30,50],tmp_path/'baseline','calibration')
+    base=executor(None,c,s['teacher'],s['condition'],baseline_actual or [50,100,40,40,30,50],tmp_path/'baseline','calibration')
     protocol=value_sha(binding(c,s['teacher'],s['condition']))
     body=dict(scale_policy=scale.OPEN_POLICY,teacher_id=s['teacher']['target'],condition_sha256='condition_fixture',
         sampling_protocol_sha256=protocol,calibration_key=value_sha([s['teacher']['target'],'condition_fixture',protocol]),
@@ -78,7 +78,7 @@ def prepared(tmp_path,monkeypatch,fail=None):
         confirmed_profiles=[dict(source_id=base['id'],actual_schedule=base[scale.EFFECTIVE])],
         source_rows_sha256=value_sha([base]),evidence_revision=0,
         exploration_policy=c['guidance_exploration'],initial_calibration_performance=base[RANKING],
-        box_exclusion_policy=box_search.POLICY,guidance_box_mask=[True]*6,selection_sha256='fixture',
+        box_exclusion_policy=box_search.POLICY,guidance_box_mask=[True]*len(c['windows']),selection_sha256='fixture',
         search_grids=box_search.grids(c),early_guidance_shape=box_search.early_shape(c),execute_all_proposed=True)
     d=scale.seal(body);scale.validate_domain(d)
     dest=tmp_path/'calibration/frozen'/d['calibration_key'];write(dest/'domain.json',d)

@@ -10,7 +10,7 @@ def context(config,history,domain,best):
     actual=best[scale.EFFECTIVE]
     coverage=[]
     for i,grid in enumerate(grids(domain)):
-        same=[r for r in history if all(r[scale.EFFECTIVE][j]==actual[j] for j in range(6) if j!=i)]
+        same=[r for r in history if all(r[scale.EFFECTIVE][j]==actual[j] for j in range(len(actual)) if j!=i)]
         levels=sorted({r[scale.EFFECTIVE][i] for r in same})
         coverage.append(dict(window_id=i,allowed=domain['guidance_box_mask'][i],declared_grid=grid,
             observed_levels_any_background=sorted({r[scale.EFFECTIVE][i] for r in history}),
