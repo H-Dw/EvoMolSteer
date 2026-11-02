@@ -1,0 +1,23 @@
+接续本对话Box负面排除专项的备份收尾，仅处理本专项。先读D:/llm_controlled_generation/EvoMolSteer-uniguide/agenticgen/docs/experiments/20261102_box_exclusion_formal/plan.zh-CN.md、launch_audit.json、monitoring/MONITOR_STATE.json、ARCHIVE_STATUS.json、SCIENCE_REVIEW_COMPLETE.json、review.zh-CN.md及后续用户回复。只在codex/uniguide-flowr-agent操作，不动其他自动化、归档分支或其他聊天。原uniguide-flowr保持PAUSED、35分钟且原TOML SHA不变。原八轮已取消，不恢复它或其他已结束任务。
+
+2026-11-02 08:26–08:55（Asia/Shanghai）实际确认：两教师各完整GPU验收、370预实验、Selection真实两阶段（均无排除box）、GD01五轮各750正式均已结束。科学总2240=740+1500，没有科学修复重跑或待修复工程终止。34个实际完整源组的CPU10/50共340检查已结束；队列无待处理/失败请求。两个本专项空闲CPU worker及归属明确的空闲子进程08:30已停止，worker/executor/campaign/suite/全局锁释放。不得重新启动科学、LLM或worker；不得运行第6轮/GD02/UG05、补样、清零或删除claim。仅剩完整本地原始备份与最终收尾。
+
+科学固定commit c79627ad35670862694fb6dd59dab7272a9e7c9d；固定目录/workspace/uniguide_runs/box-exclusion-c79627ad；配置为同路径-configs；审计/root/private_data/uniguide_box_exclusion_20261102/audits/box-exclusion-c79627ad；结果根/workspace/agenticgen_box_exclusion_20261102。PLAN SHA256 654a4c09fce09520773bd8c4a3ea50d8d200ca945edc37f37017e46f354d7cdd。08:49固定inspect_suite.py真实复查：检出干净、源码/配置未变、41346项保护文件逐SHA不变，无所属采样或质量worker活进程。旧HEARTBEAT.child_alive是结束前陈旧字段，不能据此重启或判断仍在运行。持久镜像8502文件/543092920字节不含全量HDF5，不能称完整备份。
+
+真实主GPT复盘、RMSD/pIC50/标准SA/化学保持/抽样PoseB与PLIP、30动作、负面证据、实际prompt/回执/账本和同教师历史比较已提交推送6e7f444c2adde5ce0c317e4239a69bd09f468917。纯后处理提交不部署固定科学目录。最优6pyy第4轮[50,100,40,40,30,50]，排名RMSD0.46163221061229703（标定0.4925356878340244）；3w54第5轮[30,40,110,110,200,200]，0.27634393408894536（标定0.4089668371528387）。固定自适应面板，不称独立验证或历史全局最佳。文字解释的父链/数值局限已记录，不冒充工程缺陷重跑。两位教师真实请求29/32、接受终结回执各14；6pyy两次格式拒绝均按原唯一修正后接受。10轮checkpoint、history_snapshot、真实prompt与源回执逐SHA和语义核验见downloads/20261102_0850/ROUND_BINDING_AUDIT.json。domain_sha256是规范化内容摘要，不是JSON文件字节SHA，勿混淆造成假告警。
+
+远端root@ssh.zzai.scnet.cn:11741，仅用本对话授权凭据及D:/llm_controlled_generation/tmp/uniguide_ops.py JSON stdin。凭据不打印、不写仓库或自动化。所有包含launcher.log的文件和轮转副本、deployment/api_probe启动日志、core原文留远端，不打印或下载；模型权重不归档。实验checkpoint_010.pt.gz、checkpoint_100.pt.gz及terminal.pt.gz保留。API无需再次调用。不要按旧PID启动、结束或重采任何任务。
+
+最终归档已在08:51:28完成且逐成员、硬链接目标、源size/mtime/SHA和整包SHA核验通过：/workspace/uniguide_audits/box-exclusion-final-20261102_0850_archive/completed_increment.tar.gz；1334638387字节；SHA256 68d262a6975fe45f908fc35229c4caed4062c27891b05300ed08f102f46e3f11；7208成员/305个HDF5，另外引用2525个已本地核验旧文件。源/root/private_data当前约795869184字节，未移动至private，也未删除任何原始或旧归档。ARCHIVE_CLAIM/PROCESS/COMPLETE已存在，不盲目重打包。正式结果与安全部署审计/配置均在当前归档及前包引用链内，launcher/core/权重排除。
+
+首包363777660字节、SHA ccaa817e95fa80c08ec9174365ce394264230d40c569e09868848b251f50cb39已下载并逐成员本地核验，位于本专项目录downloads/20261102_0534/completed_increment.tar.gz，INDEX_LOCALLY_VERIFIED.json的远端副本仍是next_increment_previous_index。最终包原始tar.gz尚未下载或本地核验。最终清单/回执和小审计已安全下载并SHA核验至downloads/20261102_0850；本地原始prompt/机器读数已收集、压缩提交。
+
+此前已询问用户扩容或提供其他本地目录，尚无回复；后续回复优先。08:55 D盘仅209915904字节，最终包加64MiB余量需1401747251字节，缺1191831347。不得删除旧文件腾空间、擅自换盘、减少结果范围或把远端已验证误称本地备份。相同容量阻塞且无新证据时DONT_NOTIFY，不重复提问。每小时只核实际连接/原始路径和归档存在性、容量与用户回复；若D盘已恢复足够空间，可直接完成原授权下载。若用户给出新目录，先确认归属及空间足够，再下载同一最终包。用户授权变更范围或停止时优先照办并记录真实状态。
+
+可避免重复下载旧pending包：downloads/20261102_0850/SUPERSESSION_COVERAGE.json已逐路径/SHA证明，最终包+首个本地核验index覆盖06:26包2582/2584、07:30包5886/5888，其余各2项是已经本地逐SHA核验的ACCOUNTING_SNAPSHOT/PREVIOUS_ARCHIVE_REFERENCES元数据别名。只有最终覆盖包真实下载并逐成员及整包核验后，才能跳过旧pending原始包下载。保留全部远端旧包、首包与4项元数据别名及归档链；不得提前将pending标locally verified或更新next_increment_previous_index。核验后合并首index、最终manifest及别名形成新累计INDEX_LOCALLY_VERIFIED.json并上传安全审计。
+
+容量允许后完成上述备份、更新真实机器清单/ARCHIVE_STATUS及复盘收尾commit/push；以实际复盘SHA、科学源码、完整本地备份SHA/清单写专项根FINALIZED（不是版本内已有FINALIZED），上传并读回校验。SCIENCE_REVIEW_COMPLETE已绑定实际推送复盘，但当前专项未FINALIZED。确认所属进程已退出/锁释放，向本对话通知实际完成和路径后，仅删除当前box-exclusion-guidance-hourly，其他自动化不动。不要因SUITE_FINISHED就跳过剩余备份。
+
+每次仍先调用固定目录agenticgen/docs/experiments/20261102_box_exclusion_formal/inspect_suite.py --plan /workspace/agenticgen_box_exclusion_20261102/PLAN.json，保存Asia/Shanghai真实快照，并核对SOURCE_PRESERVATION逐文件、固定commit/源码/配置SHA、真实所属进程/锁及完成回执；不能凭PID、心跳或nonfinite_isolation预期夹具判断。只做只读核验，不修改科学代码/skills/配置/条件。SSH不可达只记真实证据，不伪造快照、源哈希或FINALIZED；新连接故障通知一次，同一故障无新证据不重复通知。
+
+巡检1小时，健康/同一容量阻塞/无实质变化DONT_NOTIFY，不额外进度；仅通知真实完成、实质异常或需要处理的新问题。中文UTF-8，自动化更新后JSON ensure_ascii=true读回，确认无Unicode替换字符。所有记录Asia/Shanghai。GitHub故障按直连、ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc，最后才用已推送且验证的bundle。
