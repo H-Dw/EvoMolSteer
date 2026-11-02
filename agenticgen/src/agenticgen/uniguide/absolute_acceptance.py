@@ -16,6 +16,7 @@ from .random_streams import capture,equal
 from .geometry_shards import initial_shard
 from .geometry_dynamics import Raw999Sampling
 from .sampler import Control
+from .box_search import early_shape
 from .guidance_windows import windows
 
 
@@ -26,7 +27,7 @@ class UnguidedRaw999(Raw999Sampling,Control):
 
 def actual_zero_scale(model,config,teacher,condition,folder):
     """Full raw999 trajectory: actual scale zero, retaining normal chemistry."""
-    binding=scale_binding([0.]*len(windows(config)),window_bounds=windows(config))
+    binding=scale_binding([0.]*len(windows(config)),window_bounds=windows(config),early_shape=early_shape(config))
     factory=functools.partial(GeometryControl,condition=condition,scale_binding=binding)
     before=capture()
     sample(model,config,teacher,binding["effective_guidance_scale_schedule"],folder,10,
@@ -48,7 +49,7 @@ def actual_zero_scale(model,config,teacher,condition,folder):
 def real_vjp(model,config,teacher,condition):
     prefix=Path(config["root"])/"acceptance"/teacher["target"]/"raw999_vjp_prefix"
     initial=initial_shard(config,teacher["target"],[0,1])
-    disabled=scale_binding([0.]*len(windows(config)),1.,False,condition,window_bounds=windows(config))
+    disabled=scale_binding([0.]*len(windows(config)),1.,False,condition,window_bounds=windows(config),early_shape=early_shape(config))
     factory=functools.partial(GeometryControl,condition=condition,scale_binding=disabled)
     sample(model,config,teacher,disabled["effective_guidance_scale_schedule"],prefix,10,
         stop_step=10,control_factory=factory,check_affinity=False,initial_override=initial)
@@ -108,7 +109,7 @@ def run(config):
             numerical=real_vjp(model,config,teacher,condition)
             plain_prefix=dict(config,prefix_inpainting={"enabled":False},
                               chemical_inpainting=dict(config.get("chemical_inpainting",{}),enabled=False))
-            off=scale_binding([0.]*len(windows(config)),1.,False,condition,window_bounds=windows(config))
+            off=scale_binding([0.]*len(windows(config)),1.,False,condition,window_bounds=windows(config),early_shape=early_shape(config))
             factory=functools.partial(GeometryControl,condition=condition,scale_binding=off)
             sample(model,plain_prefix,teacher,off["effective_guidance_scale_schedule"],out/"disabled",10,stop_step=3,
                 control_factory=factory,check_affinity=False)
@@ -116,7 +117,7 @@ def run(config):
             a,b=(load_pt(out/name/"checkpoint_003.pt.gz") for name in ("disabled","native_prefix"))
             disabled={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states")}
             if not all(disabled.values()):raise ValueError("Disabled distance guidance differs from native prefix")
-            active=scale_binding([0.]*len(windows(config)),1.,True,condition,window_bounds=windows(config))  # Test fixture only, NOT a fitted lambda.
+            active=scale_binding([0.]*len(windows(config)),1.,True,condition,window_bounds=windows(config),early_shape=early_shape(config))  # Test fixture only, NOT a fitted lambda.
             factory=functools.partial(GeometryControl,condition=condition,scale_binding=active)
             sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"continuous",10,stop_step=12,
                 control_factory=factory,check_affinity=False)
@@ -182,6 +183,10 @@ def run(config):
             if config.get('box_exclusion',{}).get('enabled'):
                 from .box_gate_acceptance import run_teacher as check_box_gates
                 checks[teacher['target']]['box_gates']=check_box_gates(model,config,teacher,condition,out/'box_gates')
+                from .box_search import enabled as expanded_search
+                if expanded_search(config):
+                    from .early_shape_acceptance import run_teacher as check_early_shape
+                    checks[teacher['target']]['early_guidance_shape']=check_early_shape(model,config,teacher,condition,out/'early_shape')
         finally:
             del model
             torch.cuda.empty_cache()

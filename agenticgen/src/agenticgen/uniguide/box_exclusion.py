@@ -15,23 +15,29 @@ BACKGROUNDS = {
     "6pyy_H7S_A_402": {"UniformRef": [50]*6, "BestCombo": [50,70,70,50,50,70]},
     "3w54_RNB_A_504": {"UniformRef": [40]*6, "BestCombo": [30,40,40,40,60,80]},
 }
+EXPANDED_BACKGROUNDS = {
+    '6pyy_H7S_A_402': {'ReferenceCombo':[50,70,70,50,50,70], 'IncumbentCombo':[50,100,40,40,30,50]},
+    '3w54_RNB_A_504': {'ReferenceCombo':[30,40,40,40,60,80], 'IncumbentCombo':[30,40,110,110,200,200]},
+}
 
 
-def profiles(target):
+def profiles(target, backgrounds=None):
+    backgrounds=backgrounds or BACKGROUNDS[target]
     result = {}
     def add(name, actual, gates=None):
         result[name] = dict(name=name, actual=list(actual), guidance_box_mask=gates or [True]*6)
     add("NativeControl", [0]*6, [False]*6)
     add("ChemistryOnly", [0]*6)
-    for label, actual in BACKGROUNDS[target].items():
+    for label, actual in backgrounds.items():
         add(label, actual)
         for i in range(6):
             off=list(actual);off[i]=0;gates=[True]*6;gates[i]=False
             add(f"{label}_NativeOff_{i}", off, gates)
             lower=list(actual);lower[i]=max(10,actual[i]-20)
             add(f"{label}_LowerRescue_{i}", lower)
-    extra=list(BACKGROUNDS[target]["UniformRef"]);extra[0]+=10
-    add("UniformRef_EarlyUpperRescue", extra)
+    first=next(iter(backgrounds))
+    extra=list(backgrounds[first]);extra[0]+=10
+    add(first+"_EarlyUpperRescue", extra)
     assert len(result)==29
     return result
 
@@ -79,7 +85,7 @@ class ExclusionEvidence:
     """Only frozen, source-verified calculations can be submitted as evidence."""
     def __init__(self, folder, data, sources):
         self.folder=Path(folder);self.folder.mkdir(parents=True,exist_ok=True)
-        self.binding=dict(policy=POLICY,data_sha256=value_sha(data),sources=sources)
+        self.binding=dict(policy=data.get('box_exclusion_policy',POLICY),data_sha256=value_sha(data),sources=sources)
         self.identifier="ev_"+value_sha(self.binding)[:20]
         self.receipt_ids={self.identifier}
         self.data=dict(evidence_id=self.identifier,**data)
@@ -129,7 +135,11 @@ class Search:
         self.config,self.subject,self.model,self.executor=config,subject,model,executor
         self.target=subject['teacher']['target'];self.root=Path(config['root'])
         self.folder=self.root/'box_exclusion'/self.target
-        self.rows={};self.specs=profiles(self.target);self.provider=provider
+        from .box_search import enabled
+        self.expanded=enabled(config)
+        self.backgrounds=(EXPANDED_BACKGROUNDS if self.expanded else BACKGROUNDS)[self.target]
+        self.labels=list(self.backgrounds)
+        self.rows={};self.specs=profiles(self.target,self.backgrounds);self.provider=provider
 
     def measure(self,name,count):
         from .linear_calibration import evaluate, used
@@ -176,23 +186,24 @@ class Search:
         from .linear_calibration import used
         for name in self.specs:
             row=self.measure(name,10)
-            if name in ('UniformRef','BestCombo'):
+            if name in self.labels:
                 for count in (20,50):
                     if not row.get('complete') or not ranking_eligible(row):break
                     row=self.measure(name,count)
-        backgrounds=[n for n in ('UniformRef','BestCombo') if self.rows.get((n,50),{}).get('complete') and ranking_eligible(self.rows[n,50])]
+        backgrounds=[n for n in self.labels if self.rows.get((n,50),{}).get('complete') and ranking_eligible(self.rows[n,50])]
         if not backgrounds:raise ValueError("No eligible complete background; teacher needs evidence")
         primary=min(backgrounds,key=lambda n:primary_score(self.rows[n,50]))
         contrasts={}
         for i in range(6):
             effects=[]
-            for background in ('UniformRef','BestCombo'):
+            for background in self.labels:
                 off=f'{background}_NativeOff_{i}'
                 for retained in (background,f'{background}_LowerRescue_{i}'):
                     effects.append(dict(retained=retained,native_off=off,effect=self.effect(retained,off)))
             if i==0:
-                effects.append(dict(retained='UniformRef_EarlyUpperRescue',native_off='UniformRef_NativeOff_0',
-                                    effect=self.effect('UniformRef_EarlyUpperRescue','UniformRef_NativeOff_0')))
+                first=self.labels[0]
+                effects.append(dict(retained=first+'_EarlyUpperRescue',native_off=first+'_NativeOff_0',
+                                    effect=self.effect(first+'_EarlyUpperRescue',first+'_NativeOff_0')))
             contrasts[str(i)]=effects
         candidates=[i for i in range(6) if len(backgrounds)==2 and all(coarse_support(r['effect']) for r in contrasts[str(i)])]
         candidates.sort(key=lambda i:(-min(r['effect']['raw_retention_cost']/r['effect']['material_threshold']
@@ -209,18 +220,34 @@ class Search:
                 proofs.append(self.effect(background,name,50))
             confirmed[str(i)]=proofs
         eligible=[i for i in candidates if all(full_support(r) for r in confirmed[str(i)])]
-        evidence=dict(teacher_id=self.target,backgrounds=BACKGROUNDS[self.target],
+        coverage_probes=[]
+        if self.expanded:
+            # The widened first-box grid cannot be excluded using only the old coarse doses.
+            # Missing low-dose evidence is unknown, never converted into permission to exclude.
+            coverage_probes=self.coverage_tail(primary,50 if len(eligible)>1 else 0)
+            early_low_support=all(coarse_support(self.effect(f'{label}_EarlyDose_{dose}',f'{label}_NativeOff_0'))
+                for label in self.labels for dose in (0,1,2,5))
+            if 0 in eligible and not early_low_support:
+                eligible.remove(0)
+                # A no-longer-admissible joint mask must not strand a reserved 50.
+                if len(eligible)<2:
+                    coverage_probes+=self.coverage_tail(primary,0)
+        evidence=dict(teacher_id=self.target,backgrounds=self.backgrounds,
             background_full50={n:self.rows[n,50] for n in backgrounds},primary_background=primary,
             coarse_contrasts=contrasts,full_contrasts=confirmed,eligible_box_ids=eligible,
             default='not excluded; no benefit proof required',max_attempts=500,
             statistics_scope='paired fixed initial states, no independent validation')
+        if self.expanded:
+            evidence.update(box_exclusion_policy=self.config['box_exclusion']['policy'],coverage_probes=coverage_probes,
+                early_low_dose_support=early_low_support,
+                early_exclusion_status='eligible' if 0 in eligible else 'retained: negative evidence incomplete or contradicted')
         frozen(self.folder/'NEGATIVE_EVIDENCE.json',evidence)
         budget=RoundBudget(self.folder/'model_budget',30,491520)
         proposed=select(self.config,self.folder/'proposal',evidence,self.sources(),budget,'proposal',self.provider)
         excluded=sorted(proposed['excluded_box_ids'])
         if len(excluded)>1:
             gates=[i not in excluded for i in range(6)]
-            actual=[v if gates[i] else 0 for i,v in enumerate(BACKGROUNDS[self.target][primary])]
+            actual=[v if gates[i] else 0 for i,v in enumerate(self.backgrounds[primary])]
             self.specs['CombinedExclusion']=dict(name='CombinedExclusion',actual=actual,guidance_box_mask=gates)
             self.measure('CombinedExclusion',50)
         options={}
@@ -252,6 +279,33 @@ class Search:
         frozen(self.folder/'SELECTION_FROZEN.json',selection)
         return selection,compatible
 
+    def coverage_tail(self,primary,reserve):
+        """Spend only the remaining 500 cap; preserve already charged negative confirmations."""
+        from .linear_calibration import used
+        from .box_search import grids
+        available=lambda:500-used(self.root,self.target)-reserve
+        extra=[]
+        for dose in (0,1,2,5):
+            for label in self.labels:
+                actual=list(self.backgrounds[label]);actual[0]=dose
+                if dose in grids(self.config,self.target)[0]:extra.append((f'{label}_EarlyDose_{dose}',actual))
+        actual=list(self.backgrounds[primary])
+        for i in (4,5):
+            choices=[v for v in grids(self.config,self.target)[i] if v>max(200,actual[i])]
+            if choices:actual[i]=next((v for v in choices if v>=250),choices[-1])
+        if actual!=self.backgrounds[primary]:extra.append(('JointFrontier',actual))
+        measured=[]
+        for name,actual in extra:
+            if available()<10:break
+            if any(s['actual']==actual and all(s['guidance_box_mask']) for s in self.specs.values()):continue
+            self.specs[name]=dict(name=name,actual=actual,guidance_box_mask=[True]*6)
+            row=self.measure(name,10);measured.append(dict(name=name,row=row))
+        full=[r for r in measured if r['row'].get('complete') and ranking_eligible(r['row'])]
+        if full and available()>=40:
+            winner=min(full,key=lambda r:primary_score(r['row']))
+            row=self.measure(winner['name'],50);measured.append(dict(name=winner['name'],row=row))
+        return measured
+
 
 def run(config,subjects,model_loader,executor):
     import torch
@@ -263,7 +317,7 @@ def run(config,subjects,model_loader,executor):
         target=subject['teacher']['target'];folder=root/'box_exclusion'/target
         if (folder/'SEARCH_CLAIM.json').exists():
             raise RuntimeError("Exclusion attempt already claimed; inspect rather than restart")
-        frozen(folder/'SEARCH_CLAIM.json',dict(policy=POLICY,config_sha256=value_sha(config)))
+        frozen(folder/'SEARCH_CLAIM.json',dict(policy=config['box_exclusion']['policy'],config_sha256=value_sha(config)))
         model=model_loader(config,subject['teacher'])
         try:
             selection,rows=Search(config,subject,model,executor).run()
@@ -275,8 +329,8 @@ def run(config,subjects,model_loader,executor):
         winner=next(r for r in rows if r['id']==selection['initial_source'])
         body=dict(scale_policy=scale.OPEN_POLICY,teacher_id=target,condition_sha256=subject['condition']['condition_sha256'],
             sampling_protocol_sha256=protocol,calibration_key=key,control_settings=config['guidance_control'],
-            calibrated_guidance_reference_scale=0,guidance_scale_grid_unit=10,
-            initial_source=winner['id'],initial_guidance_scale_tick_schedule=[int(x//10) for x in winner[scale.EFFECTIVE]],
+            calibrated_guidance_reference_scale=0,guidance_scale_grid_unit=config['guidance_control'][scale.UNIT],
+            initial_source=winner['id'],initial_guidance_scale_tick_schedule=[int(x//config['guidance_control'][scale.UNIT]) for x in winner[scale.EFFECTIVE]],
             guidance_windows=config['windows'],bootstrap_sources=[r['id'] for r in rows],
             confirmed_effective_levels=sorted({v for r in rows for v in r[scale.EFFECTIVE]}),
             confirmed_profiles=[dict(source_id=r['id'],actual_schedule=r[scale.EFFECTIVE]) for r in rows],
@@ -284,8 +338,12 @@ def run(config,subjects,model_loader,executor):
             risk_boundary=None,evidence_revision=0,boundary_status='profile_scoped_evidence',
             stability_guarantee=False,global_optimum_claimed=False,source_rows_sha256=value_sha(rows),
             exploration_policy=config['guidance_exploration'],initial_calibration_performance=primary_score(winner),
-            box_exclusion_policy=POLICY,guidance_box_mask=selection['guidance_box_mask'],
+            box_exclusion_policy=config['box_exclusion']['policy'],guidance_box_mask=selection['guidance_box_mask'],
             selection_sha256=value_sha(selection),admission_policy='declared_grid_and_actual_budget; fixed_native_gates')
+        from .box_search import enabled as expanded_search, grids, early_shape
+        if expanded_search(config):
+            body.update(search_grids=grids(config,target),early_guidance_shape=early_shape(config),
+                        execute_all_proposed=True,distance_unit='per_window_grid_index')
         domain=scale.seal(body);scale.validate_domain(domain)
         dest=root/'calibration/frozen'/key
         frozen(dest/'domain.json',domain)

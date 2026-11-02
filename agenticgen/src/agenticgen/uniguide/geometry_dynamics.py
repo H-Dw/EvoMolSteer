@@ -43,8 +43,11 @@ def policy(config):
     elif endpoints is not None:
         raise ValueError("The new endpoint policy requires windows starting at step zero")
     from .box_gates import enabled as gates_enabled, mask as gate_mask
+    from .box_search import early_shape
+    shape=early_shape(config)
     return dict(output_policy="raw999",grid_end=.999,integration_intervals=100,
         **(dict(guidance_box_mask=gate_mask(config),native_only_excluded_boxes=True) if gates_enabled(config) else {}),
+        **(dict(early_guidance_shape=shape) if shape is not None else {}),
         intended_interval_width=.00999,windows=bounds,
         **restriction,
         output_source="step_99_prediction_before_update",last_effective_guidance_update=98,

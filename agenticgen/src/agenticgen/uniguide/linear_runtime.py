@@ -313,6 +313,10 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
     from .geometry_calibration import verify_frozen
 
     root = Path(config["root"])
+    from .box_search import enabled as expanded_search
+    expanded=expanded_search(config)
+    if expanded and version!='GD01':
+        raise ValueError('Expanded five-round search only runs GD01; no additional optimization version')
     if not (
         version.startswith("GD")
         and version[2:].isdigit()
@@ -378,6 +382,10 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
             raise ValueError(
                 "Linear search rules differ from the frozen domain; an explicit new binding is required"
             )
+        if expanded:
+            from .box_search import grids,early_shape
+            if domain['search_grids']!=grids(config,target) or domain['early_guidance_shape']!=early_shape(config):
+                raise ValueError('Window grids or early dose shape differ from the frozen domain')
         if domain.get("exploration_policy") != config.get("guidance_exploration"):
             raise ValueError(
                 "Jump exploration hypotheses differ from the frozen experiment contract"
@@ -563,6 +571,8 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                             root, target, resolved[scale.EFFECTIVE], domain.get('guidance_box_mask')
                         )
                         if formal_allowance(config) < required:
+                            if expanded:
+                                raise ValueError('An admitted hypothesis lost its required budget; do not silently down-select')
                             events.append(
                                 dict(
                                     action_id=action["id"],
@@ -576,6 +586,7 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                             root / "BUDGET_SCOPE.json",
                             dict(stage="formal", teacher_id=target),
                         )
+                        before_budget=formal_allowance(config)
                         row = evaluate(
                             model,
                             config,
@@ -589,6 +600,14 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                             executor,
                         )
                         if isinstance(row, Exception):
+                            if expanded and isinstance(row,FloatingPointError):
+                                note=action_folder/'HYPOTHESIS_FAILED.json'
+                                frozen(note,dict(action_id=action['id'],error_type=type(row).__name__,error=str(row),
+                                    requested_population=50,charged_attempts=before_budget-formal_allowance(config),
+                                    no_retry=True,no_replacement=True))
+                                events.append(dict(action_id=action['id'],status='hypothesis_failed',
+                                    failure_files={note.relative_to(root).as_posix():sha(note)}))
+                                continue
                             raise row
                         receipts[row["id"]] = sha(root / row["id"] / "COMPLETE.json")
                     if row is not None:
@@ -620,6 +639,13 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                         for p in call_folder.glob("*.json")
                     },
                 )
+                if expanded:
+                    failed_ids={e['action_id'] for e in events if e.get('status')=='hypothesis_failed'}
+                    if len(measured)+len(failed_ids)!=len(actions):
+                        raise ValueError('Each proposed hypothesis needs a complete population or a preserved failure')
+                    saved['hypothesis_execution']=dict(execute_all_proposed=True,requested_ids=[a['id'] for a in actions],
+                        complete_source_ids=[r['id'] for r in measured],failed_ids=sorted(failed_ids),
+                        all_hypotheses_attempted=True,complete=not failed_ids)
                 if learning:
                     saved["checkpoint"] = checkpoint(measured, incumbent,baseline=baseline)
                     saved["checkpoint_learning"] = learning
@@ -667,7 +693,7 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 representative=winner["id"],
                 best_formal_group=formal_best,
                 **{k: winner[k] for k in (*METRICS, RANKING) if k in winner},
-                complete=True,
+                complete=not any(r.get('hypothesis_execution',{}).get('failed_ids') for r in rounds if r['teacher_id']==target),
                 domain_sha256=domain["domain_sha256"],
                 calibration_reference=domain[scale.REFERENCE],
                 domain_path=(
@@ -698,7 +724,7 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
         rounds=rounds,
         strategy_contexts=contexts,
         manifest_sha256=sha(folder / "manifest.json"),
-        complete=not missing,
+        complete=not missing and all(s['complete'] for s in summaries.values()),
         missing_teachers=missing,
         all_available_teachers_processed=True,
         configured_rounds=config["rounds"],

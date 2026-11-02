@@ -171,7 +171,7 @@ class EvidenceTools:
         specs=[("summarize_population","Read measured full-population geometry, robust center, failures and tail identities.",object_schema(dict(run_id=ids))),
             ("compare_paired_runs","Compare measured candidate to reference on identical seed/slot and sampling protocol; no unmeasured score.",object_schema(dict(reference_id=ids,candidate_id=ids))),
             ("inspect_interval_evidence","Inspect measured windows, counterexample context and tail sample step diagnostics; associations are not causal effects.",object_schema(dict(run_id=ids))),
-            ("audit_action_batch","Check original integer action constraints and measured duplicate identity; never sample.",object_schema(dict(actions=dict(type="array",minItems=1,maxItems=6,items=action))))]
+            ("audit_action_batch","Check original integer action constraints and measured duplicate identity; never sample.",object_schema(dict(actions=dict(type="array",minItems=1,maxItems=domain.get('control_settings',{}).get('maximum_proposals',6),items=action))))]
         if domain.get("exploration_policy"):
             descriptions={
                 "inspect_interval_evidence":"Read an existing run's numerical anomalies and step records to choose useful future jumps; never request mechanism or ablation experiments.",
@@ -355,11 +355,13 @@ class EvidenceTools:
         from . import linear_scale
         if linear_scale.open_domain(self.domain):
             from .linear_admission import audit_actions
+            from .box_search import enabled as expanded_search
             config=getattr(self,"action_config",None)
             if config is None:
                 config=read(self.root/"GEOMETRY_CONFIG.json")
             return audit_actions(config,list(self.history.values()),self.domain,actions,
-                                 getattr(self,"action_failures",()),getattr(self,"action_learning",None))
+                                 getattr(self,"action_failures",()),getattr(self,"action_learning",None),
+                                 portfolio=expanded_search(self.domain))
         if linear_scale.enabled(self.domain):
             seen=list(self.history.values());results=[]
             for action in actions:

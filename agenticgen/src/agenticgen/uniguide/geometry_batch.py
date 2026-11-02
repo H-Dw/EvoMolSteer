@@ -3,6 +3,7 @@
 Promotion shards retain candidate identities and measurements. Different
 configurations never share an integration call; failures are never retried.
 """
+from .box_search import early_shape as search_early_shape
 from .guidance_windows import expand as expand_windows
 
 import copy
@@ -326,7 +327,7 @@ def compile_units(config, teacher, condition, jobs, *, _compatibility=None):
             job.get("enabled", True),
             condition,
             job.get("loss_weights"),
-            window_bounds=config.get("windows"),
+            window_bounds=config.get("windows"), early_shape=search_early_shape(config),
         )
         for start in range(0, count // 5, 2):
             slots = [start, start + 1]
@@ -450,7 +451,7 @@ def _execute_job(model, config, teacher, condition, job, binding, sample_fn):
     if failed:
         error = FloatingPointError("Nonfinite candidate units: " + ", ".join(failed))
         scale = scale_binding(job["schedule"], sampling_reference(job.get("domain")),
-                              job.get("enabled", True), condition, job.get("loss_weights"), window_bounds=config.get("windows"))
+                              job.get("enabled", True), condition, job.get("loss_weights"), window_bounds=config.get("windows"), early_shape=search_early_shape(config))
         identity = dict(compatibility=binding, **candidate_identity(scale),
                         population=job.get("count", 50), logical_slots_per_seed=job.get("count", 50) // 5)
         run_id = Path(job["folder"]).relative_to(root).as_posix()

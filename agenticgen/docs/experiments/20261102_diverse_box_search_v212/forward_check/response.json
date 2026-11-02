@@ -1,0 +1,131 @@
+{
+  "decision": "propose",
+  "proposals": [
+    {
+      "id": "weak_first_window_1",
+      "anchor_id": "baseline",
+      "evidence_ids": [
+        "ev_4b03f4e6b8c48d29021b"
+      ],
+      "improvement_reason": "提出完整配置[1,100,40,40,30,50]，寻求排名RMSD严格低于baseline的0.3031。首窗在其余五窗固定为[100,40,40,30,50]的当前背景仅测过50，明确声明的弱剂量1仍有未测机会。该方向相对global best为7个网格索引ticks，属于expanded。",
+      "uncertainty": "首窗1未测，不能从缺测推断早弱更优，也没有收益或稳定保证。保留的五窗并未证明最优；只有该完整配置的50候选测量才能决定是否更新最佳。首窗执行冻结形状。",
+      "exploration_tier": "expanded",
+      "optimization_target": {
+        "calibration_source_id": "baseline",
+        "incumbent_source_id": "baseline",
+        "reviewed_path_sha256": "a1bd607b14f58032ba016bb4d6c815abd4c960e728fd378367a39ed1de2d21ad",
+        "purpose": "seek_potential_global_improvement",
+        "path_relation": "frontier_jump"
+      },
+      "target_scale_schedule": [
+        1,
+        100,
+        40,
+        40,
+        30,
+        50
+      ]
+    },
+    {
+      "id": "ascending_weak_early_strong_late",
+      "anchor_id": "baseline",
+      "evidence_ids": [
+        "ev_4b03f4e6b8c48d29021b"
+      ],
+      "improvement_reason": "提出[5,20,60,120,240,360]的递增完整落点，联合重分配六窗，覆盖早段弱剂量与后段超过旧200的合法区域。当前只有baseline一个完整组合，这一早弱晚强区域仍有超过0.3031的未知机会。索引距离75 ticks，属于多窗bold。",
+      "uncertainty": "六窗联合背景尚未测量，早弱晚强只是潜在更优的完整配置假设。240和360均在本次声明域内，但没有稳定或改善保证；联合结果只能支持整个配置，不能归因到某一窗。",
+      "exploration_tier": "bold",
+      "optimization_target": {
+        "calibration_source_id": "baseline",
+        "incumbent_source_id": "baseline",
+        "reviewed_path_sha256": "a1bd607b14f58032ba016bb4d6c815abd4c960e728fd378367a39ed1de2d21ad",
+        "purpose": "seek_potential_global_improvement",
+        "path_relation": "new_joint_region"
+      },
+      "target_scale_schedule": [
+        5,
+        20,
+        60,
+        120,
+        240,
+        360
+      ]
+    },
+    {
+      "id": "descending_front_loaded",
+      "anchor_id": "baseline",
+      "evidence_ids": [
+        "ev_4b03f4e6b8c48d29021b"
+      ],
+      "improvement_reason": "提出[160,120,80,40,20,10]的递减完整配置，改变第1、2、3、5、6窗，保留第4窗40，进入前强后弱的另一组合区域。较高首窗160仍是未测机会，本轮同时保留这种完整落点，不预设早弱必胜。索引距离22 ticks，属于多窗bold，目标仍为超过baseline。",
+      "uncertainty": "在任意背景和当前背景中，都没有这些改变剂量的完整测量。首窗增强及末段减弱不提供改善证据；第4窗40也未证明最优。该配置的50候选排名RMSD与稳定性均待测。",
+      "exploration_tier": "bold",
+      "optimization_target": {
+        "calibration_source_id": "baseline",
+        "incumbent_source_id": "baseline",
+        "reviewed_path_sha256": "a1bd607b14f58032ba016bb4d6c815abd4c960e728fd378367a39ed1de2d21ad",
+        "purpose": "seek_potential_global_improvement",
+        "path_relation": "new_joint_region"
+      },
+      "target_scale_schedule": [
+        160,
+        120,
+        80,
+        40,
+        20,
+        10
+      ]
+    },
+    {
+      "id": "alternating_high_low",
+      "anchor_id": "baseline",
+      "evidence_ids": [
+        "ev_4b03f4e6b8c48d29021b"
+      ],
+      "improvement_reason": "采用建议中的合法未测完整配置[340,60,340,60,340,60]，进入高低交错的非均匀组合区域，同时保留较高首窗机会。六窗共同变化，相对global best的索引距离97 ticks，属于多窗bold；寻求完整排名RMSD低于0.3031。",
+      "uncertainty": "建议的performance=null，仅表示一个合法未测落点。340在声明域内，不代表已有收益证据；交错分配的效果及稳定性未知。只有完整50测量能评价该配置，不从剂量大小推定窗口有害或有效。",
+      "exploration_tier": "bold",
+      "optimization_target": {
+        "calibration_source_id": "baseline",
+        "incumbent_source_id": "baseline",
+        "reviewed_path_sha256": "a1bd607b14f58032ba016bb4d6c815abd4c960e728fd378367a39ed1de2d21ad",
+        "purpose": "seek_potential_global_improvement",
+        "path_relation": "new_joint_region"
+      },
+      "target_scale_schedule": [
+        340,
+        60,
+        340,
+        60,
+        340,
+        60
+      ]
+    },
+    {
+      "id": "middle_pair_250_frontier",
+      "anchor_id": "baseline",
+      "evidence_ids": [
+        "ev_4b03f4e6b8c48d29021b"
+      ],
+      "improvement_reason": "采用建议中的[50,100,250,250,30,50]完整配置，只联合改变第3、4窗至250，覆盖不同改变窗口集合的中段前沿区域。当前首窗50也保留在本轮组合中。该配置未测，仍有超过baseline的机会；相对global best为42 ticks，属于多窗bold。",
+      "uncertainty": "两窗250及其联合背景均未测；建议performance=null不等于测量成绩。其余四窗保留baseline剂量不证明它们最优。完整50候选结果可能改善、持平、退步或失败，不估计改善幅度。",
+      "exploration_tier": "bold",
+      "optimization_target": {
+        "calibration_source_id": "baseline",
+        "incumbent_source_id": "baseline",
+        "reviewed_path_sha256": "a1bd607b14f58032ba016bb4d6c815abd4c960e728fd378367a39ed1de2d21ad",
+        "purpose": "seek_potential_global_improvement",
+        "path_relation": "frontier_jump"
+      },
+      "target_scale_schedule": [
+        50,
+        100,
+        250,
+        250,
+        30,
+        50
+      ]
+    }
+  ],
+  "reason": "本合成离线上下文中，标定根和global best均为baseline：[50,100,40,40,30,50]，完整50候选，原始及排名RMSD均为0.3031；attempts、built、connected、排名保留分母均为50，排除数0。最佳父链只有无父节点的初始标定根，保存的提案理由和决策摘要为空；未提供当轮新增测量、回滚坏旁支或失败记录。对六窗分别固定另外五窗为baseline时，任意背景及该当前背景的已测剂量均分别仅为[50]、[100]、[40]、[40]、[30]、[50]，其余域内剂量缺测，没有任何窗已证明最优；更新诊断不可用。当前最佳各窗不是声明边界值，域外未知，预算结束也不能据此宣布收敛。选择5个不同的完整方向，覆盖弱首窗、递增、递减、交错及双窗高档区域，包含4个真实多窗bold，并保留首窗当前或较高剂量。所有参数均为实际非负整数，逐窗属于声明网格；按网格索引相对global best计算距离为7/75/22/97/42 ticks，满足单窗43、总243的限制。五项均未测且不重复baseline，拟全部在同一轮执行，每项完整50，累计新增250次，满足每轮250及剩余正式1250次预算；建议记录的new_attempts=0不替代正式执行成本。范围补证预算为0，本组全部为域内正式方向。执行沿用冻结首窗形状、box门控和化学协议，有效阶段1–98、首窗1–10，原生端点0/99保持原生。只有完整50排名RMSD严格低于0.3031才更新global best。本请求没有实际科学工具环境，未调用audit_action_batch整组准入审计，也未生成或重评分候选；上述为输入合同的静态核对，未冒称审计回执或实测收益。"
+}

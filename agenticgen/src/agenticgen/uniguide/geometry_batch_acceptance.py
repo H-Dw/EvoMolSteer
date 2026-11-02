@@ -11,6 +11,7 @@ from .geometry_sampling import GeometryControl, scale_binding
 from .geometry_shards import initial_shard
 from .geometry_protocol import EFFECTIVE
 from .geometry_reward import weights
+from .box_search import early_shape
 from .guidance_windows import windows
 from .native_tools import load_pt,tensor_digest
 from .batching import take
@@ -83,7 +84,7 @@ def run_teacher(model,config,teacher,condition,folder):
             if i and any(p["category"]=="controlled_neighborhood" for p in condition["pairs"]):
                 chosen["condition_outer_weight"]=1
         schedule=(schedule+[.003]*(len(windows(config))-len(schedule)))[:len(windows(config))]
-        scale=scale_binding(schedule,condition=condition,loss_weights=chosen,window_bounds=windows(config));unit=dict(id="fixture"+str(i),slots=slots,scale=scale)
+        scale=scale_binding(schedule,condition=condition,loss_weights=chosen,window_bounds=windows(config),early_shape=early_shape(config));unit=dict(id="fixture"+str(i),slots=slots,scale=scale)
         units.append(unit);out=folder/f"separate_{i}"
         factory=functools.partial(GeometryControl,condition=condition,scale_binding=scale)
         sampler.sample(model,config,teacher,schedule,out,10,control_factory=factory,check_affinity=False,
@@ -199,7 +200,7 @@ def run_teacher(model,config,teacher,condition,folder):
     # Legacy distance protocols retain their own historical radius acceptance.
     # Force only the second candidate unit across the radius; the first must
     # remain identical to its separately executed low-strength trajectory.
-    stress=[copy.deepcopy(units[0]),dict(id="limited_fixture",slots=[6,7],scale=scale_binding([1e6]*len(windows(config)),condition=condition,window_bounds=windows(config)))]
+    stress=[copy.deepcopy(units[0]),dict(id="limited_fixture",slots=[6,7],scale=scale_binding([1e6]*len(windows(config)),condition=condition,window_bounds=windows(config),early_shape=early_shape(config)))]
     limited=folder/"candidate_local_limit"
     factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],units=stress,physical_rows=20)
     sampler.sample(model,config,teacher,stress[0]["scale"][EFFECTIVE],limited,20,control_factory=factory,
@@ -229,7 +230,7 @@ def verify_uncapped_guidance(model,config,teacher,condition,folder,units,separat
     first_step=update_bounds(config)[0]
     stop_step=first_step+1
     stress=[copy.deepcopy(units[0]),dict(id="uncapped_fixture",slots=[6,7],
-        scale=scale_binding([1e6]*len(windows(config)),condition=condition,window_bounds=windows(config)))]
+        scale=scale_binding([1e6]*len(windows(config)),condition=condition,window_bounds=windows(config),early_shape=early_shape(config)))]
     destination=folder/"uncapped_large_increment"
     factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],
         units=stress,physical_rows=20)

@@ -16,6 +16,10 @@ def classify(actual, best):
 
 
 def resolve(action, anchors, domain, seen, failures):
+    from .box_search import enabled
+    if enabled(domain):
+        from .diverse_profiles import resolve as expanded_resolve
+        return expanded_resolve(action,anchors,domain,seen,failures)
     source = anchors.get(action.get("anchor_id"))
     if source is None:
         raise ValueError("Unknown compatible measured anchor")
@@ -51,6 +55,10 @@ def resolve(action, anchors, domain, seen, failures):
 
 def bank(history, domain, best, failures=()):
     """Finite, deterministic coverage suggestions; never claim global exhaustion."""
+    from .box_search import enabled
+    if enabled(domain):
+        from .diverse_profiles import bank as expanded_bank
+        return expanded_bank(history,domain,best,failures)
     active = [i for i, on in enumerate(domain["guidance_box_mask"]) if on]
     bad=[r for r in failures if r.get('failure') or r.get('error') or
          r.get('evidence_status') in ('statistics_ineligible','measured_displacement_growth')]
@@ -87,6 +95,10 @@ def bank(history, domain, best, failures=()):
 
 
 def require_portfolio(actions, domain, best, suggestions, remaining, *, pairwise=True):
+    from .box_search import enabled
+    if enabled(domain):
+        from .diverse_profiles import require_portfolio as expanded_require
+        return expanded_require(actions,domain,best,suggestions,remaining,pairwise=pairwise)
     profiles = [a["target_scale_schedule"] for a in actions]
     active = sum(domain["guidance_box_mask"])
     if remaining >= 50 and any(p["exploration_tier"] == "bold" for p in suggestions):

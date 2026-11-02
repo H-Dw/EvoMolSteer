@@ -93,14 +93,17 @@ def configure(config):
     if selected_policy == OPEN_POLICY and (settings["range_evidence_attempts"] or
                                           settings["maximum_range_evidence_configurations"]):
         raise ValueError("Open-domain actions use the formal budget; no separate frontier quota")
+    from .box_search import enabled as expanded_search
+    new_search = expanded_search(config)
     if (
         settings["maximum_attempts_per_teacher"] > (500 if selected_policy == OPEN_POLICY else 350)
-        or settings["maximum_selected"] > 3
+        or settings["maximum_selected"] > (5 if new_search else 3)
     ):
         raise ValueError("Linear guidance exceeds the declared scientific budget")
     if settings["maximum_confirmation_levels"] > settings["maximum_screening_levels"]:
         raise ValueError("More confirmation levels than screening levels")
-    if settings["maximum_window_tick_change"] > (12 if config.get("box_exclusion",{}).get("enabled") else 4) or settings["maximum_proposals"] > 6:
+    if ((not new_search and settings["maximum_window_tick_change"] > (12 if config.get("box_exclusion",{}).get("enabled") else 4))
+            or settings["maximum_proposals"] > (5 if new_search else 6)):
         raise ValueError("Action limits exceed the linear JSON interface")
     if settings["maximum_selected"] > settings["maximum_proposals"]:
         raise ValueError("More selections than proposals")
@@ -221,6 +224,12 @@ def validate_domain(
     ):
         raise ValueError("Exponent protocol cannot enter the linear interface")
     settings = domain["control_settings"]
+    from .box_search import enabled as expanded_search,validate_grids,apply_shape
+    if expanded_search(domain):
+        validate_grids(domain.get('search_grids'),settings['search_maximum'])
+        if domain.get(UNIT)!=1 or not isinstance(domain.get('early_guidance_shape'),dict):
+            raise ValueError('Expanded search serializes actual integer scale units')
+        apply_shape([0]*100,domain.get('early_guidance_shape'))
     check_strength(domain[REFERENCE], settings)
     if domain[UNIT] != settings[UNIT] or not domain["confirmed_effective_levels"]:
         raise ValueError("Missing linear confirmation evidence")
@@ -234,6 +243,9 @@ def encode(actual, domain):
         raise ValueError("Actual strengths must match the configured windows")
     for value in actual:
         check_strength(value, domain["control_settings"])
+    from .box_search import enabled as expanded_search, validate_profile
+    if expanded_search(domain):
+        validate_profile(actual, domain)
     return [int(round((value - domain[REFERENCE]) / domain[UNIT])) for value in actual]
 
 
@@ -263,6 +275,7 @@ def binding(ticks, domain, guidance_enabled=True):
         "scale_mode": "linear_reference_ticks",
         "guidance_enabled": guidance_enabled,
         "guidance_windows": windows(domain),
+        **({"early_guidance_shape":domain["early_guidance_shape"]} if "early_guidance_shape" in domain else {}),
     }
 
 
@@ -330,7 +343,8 @@ def action_schema(anchor_ids, domain=None):
         schema["properties"].pop("updates")
         schema["required"].remove("updates")
         schema["properties"]["target_scale_schedule"] = dict(type="array",minItems=6,maxItems=6,
-            items=dict(type="integer",enum=grid(domain["control_settings"])))
+            items=dict(type="integer",enum=(sorted({v for g in domain['search_grids'] for v in g})
+                if 'search_grids' in domain else grid(domain["control_settings"]))))
         schema["required"].append("target_scale_schedule")
     return schema
 
@@ -440,6 +454,13 @@ def resolve_action(action, anchors, domain, seen=(), failures=()):
 
 
 def boundary_status(domain, incumbent):
+    if 'search_grids' in domain:
+        return [dict(window_id=i,current_strength=v,declared_grid=grid,
+                     working_interval=[grid[max(0,grid.index(v)-2)],grid[min(len(grid)-1,grid.index(v)+2)]],
+                     upper_status=('native_only_frozen' if not domain['guidance_box_mask'][i] else
+                                   'declared_limit' if v==grid[-1] else 'unmeasured_outward_opportunity'),
+                     boundary_unresolved=domain['guidance_box_mask'][i] and v==grid[-1],global_optimum_claimed=False)
+                for i,(v,grid) in enumerate(zip(incumbent[EFFECTIVE],domain['search_grids']))]
     settings = domain["control_settings"]
     levels = set(domain["confirmed_effective_levels"])
     return [

@@ -40,4 +40,5 @@ def expand(schedule, value=None):
     result = [0.0] * 100
     for strength, (lo, hi) in zip(schedule, bounds):
         result[lo : hi + 1] = [strength] * (hi - lo + 1)
-    return result
+    from .box_search import apply_shape
+    return apply_shape(result,(value or {}).get('early_guidance_shape'))

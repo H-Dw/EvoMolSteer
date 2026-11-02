@@ -160,6 +160,14 @@ def advise(
                         "assignment_diagnostics_not_used_for_ranking"):
                 row.pop(key,None)
     common["allowed_anchor_ids"] = list(anchors)
+    from .box_search import enabled as expanded_search
+    expanded=expanded_search(domain)
+    if expanded:
+        from .window_evidence import context as window_context
+        common['window_evidence']=window_context(config,history,domain,incumbent)
+        frozen(folder/'WINDOW_EVIDENCE.json',common['window_evidence'])
+        common['execution_contract'].update(execute_all_proposed=True,maximum_proposals=5,
+            maximum_selected=5,distance_unit='per_window_grid_index',declared_window_grids=domain['search_grids'])
     diversity_bank=[]
     if domain.get('box_exclusion_policy'):
         from .profile_diversity import bank
@@ -172,6 +180,13 @@ def advise(
             focused_ticks=[1,2],expanded_ticks=[3,6],bold_ticks=[7,12],minimum_pairwise_ticks=3,
             minimum_differing_boxes=2,bold_required_when_executable=True,
             suggestions_are_not_measured=True,coverage_bank_is_not_entire_domain=True)
+        if expanded:
+            common['portfolio_diversity']=dict(distance_reference='current_global_best',distance_unit='per_window_grid_index',
+                focused_ticks=[1,domain['exploration_policy']['focused_maximum_total_ticks']],
+                expanded_ticks=[domain['exploration_policy']['focused_maximum_total_ticks']+1,domain['exploration_policy']['expanded_maximum_total_ticks']],
+                bold_ticks=[domain['exploration_policy']['expanded_maximum_total_ticks']+1,domain['exploration_policy']['bold_maximum_total_ticks']],
+                maximum_hypotheses=5,execute_all_proposed=True,same_background_dose_brackets_allowed=True,
+                suggestions_are_not_measured=True,coverage_bank_is_not_entire_domain=True)
     common["conditioning_protocol"] = dict(
         prefix_inpainting=config.get("prefix_inpainting", {"enabled": False}),
         atom_assignment_policy=config.get("atom_assignment_policy"),
@@ -244,7 +259,7 @@ def advise(
         if scale.open_domain(domain):
             from .linear_admission import audit_actions, require_executable
             try:
-                require_executable(audit_actions(config,history,domain,proposed,failures,learning),portfolio=False)
+                require_executable(audit_actions(config,history,domain,proposed,failures,learning,portfolio=expanded),portfolio=expanded)
             except ValueError as error:
                 raise jsonschema.ValidationError(str(error)) from error
 
@@ -313,7 +328,7 @@ def advise(
     candidate_admission = None
     if scale.open_domain(domain):
         from .linear_admission import audit_actions
-        candidate_admission = audit_actions(config,history,domain,list(candidates.values()),failures,learning)
+        candidate_admission = audit_actions(config,history,domain,list(candidates.values()),failures,learning,portfolio=expanded)
     synthesis_schema = object_schema(
         dict(
             decision=dict(enum=decisions),
@@ -342,6 +357,8 @@ def advise(
             )
         if any(identifier not in candidates for identifier in result["selected"]):
             raise jsonschema.ValidationError("Unknown selected proposal")
+        if expanded and set(result['selected'])!=set(candidates):
+            raise jsonschema.ValidationError('Every proposed hypothesis must execute; synthesis may not down-select')
         if domain.get('box_exclusion_policy') and not final:
             from .profile_diversity import require_portfolio
             require_portfolio([candidates[i] for i in result['selected']],domain,

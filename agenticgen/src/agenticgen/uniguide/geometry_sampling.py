@@ -1,4 +1,5 @@
 """Internal-distance control using the unchanged native integrator and full input VJP."""
+from .box_search import early_shape as search_early_shape
 from .geometry_protocol import sampling_reference
 
 import functools
@@ -269,12 +270,14 @@ class GeometryControl(PrefixInpainting, ChemicalStateInpainting, Raw999Sampling,
 
 
 def scale_binding(
-    schedule, multiplier=None, enabled=True, condition=None, loss_weights=None, window_bounds=None
+    schedule, multiplier=None, enabled=True, condition=None, loss_weights=None, window_bounds=None, early_shape=None
 ):
     from . import linear_scale
     if isinstance(multiplier,dict) and linear_scale.enabled(multiplier):
         if loss_weights is not None:
             raise ValueError("Linear absolute guidance has one coordinate objective")
+        if early_shape is not None and multiplier.get('early_guidance_shape')!=early_shape:
+            raise ValueError('Early dose shape differs from the frozen domain')
         return linear_scale.binding(schedule,multiplier,enabled)
     extra = (
         {WEIGHTS: weights(condition, loss_weights)}
@@ -296,6 +299,7 @@ def scale_binding(
             "guidance_enabled": True,
             "scale_mode": "pre_experiment_actual_scale",
             **({"guidance_windows":window_bounds} if window_bounds else {}),
+            **({"early_guidance_shape":early_shape} if early_shape is not None else {}),
             **extra,
         }
     return {
@@ -305,6 +309,7 @@ def scale_binding(
         "guidance_enabled": enabled,
         "scale_mode": "normalized_log2",
         **({"guidance_windows":window_bounds} if window_bounds else {}),
+        **({"early_guidance_shape":early_shape} if early_shape is not None else {}),
         **extra,
     }
 
@@ -401,6 +406,9 @@ def compatibility(config, teacher, condition, domain=None):
     if gates_enabled(config):
         result["guidance_box_mask"] = gate_mask(config)
         result["scientific_sources"]["box_gates"] = sha(package / "box_gates.py")
+        from .box_search import enabled as expanded_search
+        if expanded_search(config):
+            result['scientific_sources']['box_search']=sha(package/'box_search.py')
     if linear_scale.enabled(config):
         result["guidance_scale_protocol"] = dict(policy=config["guidance_control"]["policy"],
             **{linear_scale.UNIT:config["guidance_control"][linear_scale.UNIT]})
@@ -654,7 +662,7 @@ def execute_shard(
         enabled,
         condition,
         loss_weights,
-        window_bounds=config.get("windows"),
+        window_bounds=config.get("windows"), early_shape=search_early_shape(config),
     )
     identity = dict(
         compatibility=binding,
@@ -833,7 +841,7 @@ def execute(
         enabled,
         condition,
         loss_weights,
-        window_bounds=config.get("windows"),
+        window_bounds=config.get("windows"), early_shape=search_early_shape(config),
     )
     identity = dict(
         compatibility=binding,

@@ -19,7 +19,9 @@ def budget_state(config, domain):
                 attempts_sha256=sha(ledger) if ledger.exists() else None,
                 limits_sha256=sha(root/'ATTEMPT_LIMITS.json'),
                 scalar_confirmation_is_admission_whitelist=not scale.open_domain(domain),
-                declared_grid=scale.grid(domain['control_settings']),
+                declared_grid=(sorted({v for g in domain['search_grids'] for v in g}) if 'search_grids' in domain else scale.grid(domain['control_settings'])),
+                **(dict(declared_window_grids=domain['search_grids'],distance_unit='per_window_grid_index',
+                    execute_all_proposed=True) if 'search_grids' in domain else {}),
                 confirmation_evidence_levels=domain['confirmed_effective_levels'],
                 unknown_configuration_stability='unmeasured; no safety or improvement guarantee')
 
@@ -60,6 +62,9 @@ def audit_actions(config, history, domain, actions, failures=(), learning=None, 
             if learning:
                 changes=[abs(a-b)/domain[scale.UNIT] for a,b in zip(
                     resolved[scale.EFFECTIVE],learning['best_checkpoint_actual_schedule'])]
+                if 'search_grids' in domain:
+                    from .box_search import changes as grid_changes
+                    changes=grid_changes(resolved[scale.EFFECTIVE],learning['best_checkpoint_actual_schedule'],domain)
                 admission['distance_from_global_best_ticks']=dict(total=sum(changes),maximum_window=max(changes))
             results.append(dict(action=action,status='executable_unmeasured' if allowed else 'not_executable',
                                 resolved=resolved,admission=admission,observed_performance=None))

@@ -18,21 +18,43 @@ def mask(config):
 
 
 def configure(config):
+    from .box_search import enabled as expanded_search, RELEASE
+    if 'box_search' in config and not expanded_search(config):
+        raise ValueError('Window-specific search settings require the explicit new protocol')
     if not enabled(config):
         if 'guidance_box_mask' in config:
             raise ValueError('Box gates require the opt-in exclusion protocol')
-        if config.get('agent_tools',{}).get('skill_release')=='2.11.0':
-            raise ValueError('Skills 2.11.0 require explicit negative box exclusion')
+        if config.get('agent_tools',{}).get('skill_release') in ('2.11.0', RELEASE):
+            raise ValueError('Box-selection skills require explicit negative box exclusion')
         return config
-    if config["box_exclusion"] != dict(enabled=True, policy=POLICY):
+    new_search=expanded_search(config)
+    from .box_search import POLICY as new_policy, grids
+    if config["box_exclusion"] != dict(enabled=True, policy=new_policy if new_search else POLICY):
         raise ValueError("Unknown box exclusion settings")
     if windows(config) != [list(p) for p in SIX] or config["rounds"] != 5:
         raise ValueError("Box exclusion requires six boxes and exactly five rounds")
-    if config["agent_tools"]["skill_release"] != "2.11.0":
-        raise ValueError("Box exclusion requires skills 2.11.0")
+    if config["agent_tools"]["skill_release"] != (RELEASE if new_search else "2.11.0"):
+        raise ValueError("Box exclusion and its immutable skill release must use the same protocol")
     if config["guidance_control"]["maximum_attempts_per_teacher"] != 500:
         raise ValueError("Box pre-experiment cap remains 500")
     settings=config['guidance_control']
+    if new_search:
+        variants=[grids(config),*config['box_search']['teacher_window_grids'].values()]
+        if (settings['search_minimum']!=0 or settings['guidance_scale_grid_unit']!=1 or settings['teacher_overrides']
+                or settings['maximum_proposals']!=5 or settings['maximum_selected']!=5
+                or settings['maximum_window_tick_change'] < max(len(g)-1 for v in variants for g in v)
+                or settings['maximum_total_tick_change'] < max(sum(len(g)-1 for g in v) for v in variants)):
+            raise ValueError('Expanded search needs five fully executable branches and a fully reachable declared grid')
+        if config['guidance_exploration']['bold_maximum_total_ticks'] != settings['maximum_total_tick_change']:
+            raise ValueError('Expanded jump distances differ from admission')
+        from .box_exclusion import EXPANDED_BACKGROUNDS, profiles
+        from .box_search import validate_profile
+        for teacher, backgrounds in EXPANDED_BACKGROUNDS.items():
+            domain={'search_grids':grids(config,teacher)}
+            for spec in profiles(teacher,backgrounds).values():
+                validate_profile(spec['actual'],domain)
+        mask(config)
+        return config
     if any(settings[name]!=value for name,value in dict(search_minimum=0,search_maximum=200,
         guidance_scale_grid_unit=10,maximum_window_tick_change=12,maximum_total_tick_change=12).items()) or settings['teacher_overrides']:
         raise ValueError('Box exclusion requires the declared absolute 0..200 grid and twelve-tick search distance')
