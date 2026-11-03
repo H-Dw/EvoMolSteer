@@ -50,6 +50,7 @@ def executor_fixture(root, monkeypatch, fail=None):
             raise FloatingPointError("injected nonfinite")
         mean = .1 + sum(actual)/10000
         records = [dict(node_id=f"{seed}_{slot}", logical_seed=seed, logical_slot=slot,
+                        condition_evaluation=dict(policy=fitted.POLICY),
                         build_success=False, **{RMSD:2-mean, MAX_ERROR:3., fitted.METRIC:mean, fitted.POSE:2-mean})
                    for seed in range(5) for slot in range(10)]
         row = dict(id=identifier, teacher_id=t["target"], condition_sha256=k["condition_sha256"],
@@ -390,3 +391,65 @@ def test_native_shards_combine_all_fifty_condition_fits(tmp_path,monkeypatch,dyn
     records=read(tmp_path/'population/records.json')
     assert len(records)==50 and all(r[fitted.METRIC]<1e-12 for r in records)
     assert calls==[50] and sum(r['count'] for r in read(tmp_path/'attempts.json').values())==50
+
+
+def test_real_retention_ranks_candidates_without_population_fields(tmp_path,monkeypatch):
+    from agenticgen.uniguide import absolute_runtime
+    monkeypatch.setattr(absolute_runtime,'built_molecules',lambda path:{})
+    groups=[]
+    for identifier,aligned,pose in [('a',.1,2.),('b',.2,.01)]:
+        group=scored(identifier,[aligned]*50,pose);groups.append(group)
+        records=[dict(node_id=f'{seed}_{slot}',logical_seed=seed,logical_slot=slot,
+            condition_evaluation=dict(policy=fitted.POLICY),**{fitted.METRIC:aligned,RMSD:pose})
+            for seed in range(5) for slot in range(10)]
+        write(tmp_path/identifier/'records.json',records)
+        for filename in ['terminal.pt.gz','trace.h5']:(tmp_path/identifier/filename).write_bytes(b'fixture')
+    absolute_runtime.retain(tmp_path,groups,groups[0],tmp_path/'retention')
+    retained=read(tmp_path/'retention/per_slot_top1.json')
+    assert len(retained)==50 and {r['source_group'] for r in retained}=={'a'}
+    assert all('attempts' not in r and fitted.MEAN not in r for r in retained)
+    # Population ranking still requires its strict complete-50 statistics.
+    with pytest.raises(ValueError):primary_score(retained[0])
+    broken=read(tmp_path/'a/records.json');broken[0].pop(fitted.METRIC)
+    write(tmp_path/'a/records.json',broken)
+    with pytest.raises(ValueError,match='finite candidate'):
+        absolute_runtime.retain(tmp_path,groups,groups[0],tmp_path/'invalid')
+
+
+def test_saved_round_recovery_writes_separate_outputs_without_budget_changes(tmp_path,monkeypatch):
+    import importlib.util
+    import sys
+    from agenticgen.uniguide import absolute_runtime
+    c,s,d,h,_,executor,_=setup(tmp_path,monkeypatch)
+    monkeypatch.setattr(absolute_runtime,'calibrated',lambda cfg:[s])
+    monkeypatch.setattr(linear_runtime,'source_binding',lambda:{'fixture':'retention-recovery'})
+    monkeypatch.setattr(absolute_runtime,'built_molecules',lambda path:{})
+    def advisor(cfg,history,domain,folder,skills,failures=(),final=False):
+        learning=cfg['guidance_checkpoint_context']
+        actions=[] if final else five(cfg,history,domain,int(folder.name[-3:]),learning)
+        focus=dict(window_id=0,operation='refine' if learning['search_path_context']['previous_focus'] else 'start',source_id=choose(history)['id'])
+        write(folder/'proposal.json',dict(proposals=actions))
+        return dict(decision='hold' if final else 'propose',actions=actions,search_focus=focus,reason='Fixture.')
+    def failed_retainer(*args):raise ValueError('Injected postprocessing failure')
+    with pytest.raises(ValueError,match='postprocessing'):
+        linear_runtime.run_version(c,'GD01',lambda *a:None,executor,advisor,failed_retainer)
+    for path in (tmp_path/'measurement_registry').glob('*.json'):
+        source=tmp_path/read(path)['source_group']
+        for name in ['terminal.pt.gz','trace.h5']:(source/name).write_bytes(b'fixture')
+    identifier='teacher';suite=tmp_path/'suite'
+    write(suite/'job_results'/f'{identifier}.json',dict(status='failed_skipped'))
+    log=suite/'logs'/identifier/'formal.log';log.parent.mkdir(parents=True)
+    log.write_text('retainer(root, current, winner\nNo complete eligible finite geometry measurements')
+    write(tmp_path/'CAMPAIGN_FAILED.json',dict(error='Injected retention error'))
+    before=sha(tmp_path/'attempts.json')
+    monkeypatch.setitem(sys.modules,'fcntl',SimpleNamespace())
+    path=Path(__file__).resolve().parents[2]/'scripts/recover_guidance_214_retention.py'
+    spec=importlib.util.spec_from_file_location('retention_recovery_fixture',path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    output=suite/'recovered'
+    result=module.recover_job(dict(root=str(suite)),dict(id=identifier,root=str(tmp_path),teacher=s['teacher']['target']),output)
+    assert result['complete'] and result['formal_groups']==25 and result['measured_populations']==35
+    assert result['new_sampling_attempts']==result['new_model_calls']==0
+    assert sha(tmp_path/'attempts.json')==before and (tmp_path/'CAMPAIGN_FAILED.json').exists()
+    assert not (tmp_path/'versions/GD01/FINALIZED.json').exists()
+    assert len(read(output/'retention/per_slot_top1.json'))==50

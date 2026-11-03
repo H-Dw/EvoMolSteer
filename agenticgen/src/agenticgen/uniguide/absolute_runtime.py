@@ -208,13 +208,23 @@ def history(config,teacher,condition,domain):
 
 def retain(root,groups,winner,folder):
     from rdkit import Chem
+    from . import condition_evaluation as fitted
+    aligned = fitted.enabled(winner)
+    if any(fitted.enabled(group) != aligned for group in groups):
+        raise ValueError('Retention cannot mix population evaluation policies')
     folder.mkdir(parents=True,exist_ok=True);pool={}
     for group in {g["id"]:g for g in groups}.values():
         for row in read(root/group["id"]/"records.json"):
             pool.setdefault((row["logical_seed"],row["logical_slot"]),[]).append(dict(row,
                 source_group=group["id"],id=group["id"]+"/"+row["node_id"],complete=True,**{EFFECTIVE:group[EFFECTIVE]},
                 **({WEIGHTS:group[WEIGHTS]} if WEIGHTS in group else {})))
-    winners=[choose(v) for _,v in sorted(pool.items())]
+    def candidate_key(row):
+        value = row.get(fitted.METRIC)
+        if (not fitted.enabled(row) or type(value) not in (int,float)
+                or not math.isfinite(value) or value < 0):
+            raise ValueError('Retention requires a finite candidate condition-aligned RMSD')
+        return value, max(row[EFFECTIVE]), row['id']
+    winners=[min(v,key=candidate_key) if aligned else choose(v) for _,v in sorted(pool.items())]
     if len(winners)!=50:raise ValueError("Incomplete per-slot geometry retention")
     frozen(folder/"per_slot_top1.json",winners)
     with Chem.SDWriter(str(folder/"per_slot_top1_built.sdf")) as writer:
