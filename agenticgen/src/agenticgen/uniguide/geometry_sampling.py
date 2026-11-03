@@ -399,7 +399,9 @@ def compatibility(config, teacher, condition, domain=None):
     from .absolute_coordinate import is_absolute
     if is_absolute(condition):
         from .coordinate_statistics import policy as statistics_policy
-        result["coordinate_statistics_policy"] = statistics_policy(config)
+        from . import condition_evaluation as fitted
+        result["coordinate_statistics_policy"] = (dict(policy=fitted.POLICY,method='unfiltered_arithmetic_mean',population=50)
+            if fitted.enabled(config) else statistics_policy(config))
         result["scientific_sources"]["coordinate_statistics"] = sha(package / "coordinate_statistics.py")
     from . import linear_scale
     from .box_gates import enabled as gates_enabled, mask as gate_mask
@@ -409,6 +411,11 @@ def compatibility(config, teacher, condition, domain=None):
         from .box_search import enabled as expanded_search
         if expanded_search(config):
             result['scientific_sources']['box_search']=sha(package/'box_search.py')
+    from . import condition_evaluation as fitted
+    if fitted.enabled(config):
+        result[fitted.CONFIG] = config[fitted.CONFIG]
+        result["scientific_sources"]["condition_evaluation"] = sha(package / "condition_evaluation.py")
+        result["scientific_sources"]["box_search"] = sha(package / "box_search.py")
     if linear_scale.enabled(config):
         result["guidance_scale_protocol"] = dict(policy=config["guidance_control"]["policy"],
             **{linear_scale.UNIT:config["guidance_control"][linear_scale.UNIT]})
@@ -475,7 +482,7 @@ def reserve_group(
     return fingerprint, None
 
 
-def terminal_records(model, output, condition, folder, count, slots=None):
+def terminal_records(model, output, condition, folder, count, slots=None, config=None):
     output_policy = (
         read(folder / "OUTPUT_POLICY.json")
         if (folder / "OUTPUT_POLICY.json").exists()
@@ -511,6 +518,12 @@ def terminal_records(model, output, condition, folder, count, slots=None):
                 interpretation="Terminal RMSD measures geometric coverage; generated atom identity may change.")
         else:
             correspondence["frozen_from_step"] = first_step
+        from . import condition_evaluation as fitted
+        if fitted.enabled(config or {}):
+            from .absolute_coordinate import RMSD
+            values[fitted.METRIC], fits = fitted.evaluate(output["coords"], condition, assignment)
+            values[fitted.POSE] = values[RMSD]
+            correspondence["condition_evaluation"] = dict(policy=fitted.POLICY, correspondence="fixed terminal assignment", fits=fits)
         write(folder/"COORDINATE_ASSIGNMENT.json",correspondence)
         geometry_diagnostics = [dict(protein_alignment_sha256=value_sha(condition["protein_alignment"]),
             fitted_protein_rmsd_angstrom=condition["protein_alignment"]["fitted_protein_rmsd_angstrom"],
@@ -557,6 +570,8 @@ def terminal_records(model, output, condition, folder, count, slots=None):
                 row["condition_generated_slots"] = assignment[index].cpu().tolist()
                 row["assignment_policy"] = condition["assignment_policy"]
                 row["terminal_rematched"] = rematched
+                from . import condition_evaluation as fitted
+                if fitted.enabled(config or {}): row[fitted.CONFIG] = dict(policy=fitted.POLICY)
             row["geometry_diagnostics_not_used_for_ranking"] = geometry_diagnostics[
                 index
             ]
@@ -715,7 +730,7 @@ def execute_shard(
             )
         else:
             output = _materialized
-        rows = terminal_records(model, output, condition, folder, count, slots)
+        rows = terminal_records(model, output, condition, folder, count, slots, config=config)
         write(folder / "records.json", rows)
         aggregate = dict(
             id=run_id,

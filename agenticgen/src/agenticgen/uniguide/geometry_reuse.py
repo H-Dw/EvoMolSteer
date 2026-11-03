@@ -18,6 +18,8 @@ def tree_hashes(path):
 
 
 def select_initial(config,schedules,scale_units="ticks"):
+    from .path_search import enabled as path_search
+    if path_search(config): raise ValueError('Path search uses its deterministic measured calibration root')
     root=Path(config["root"]);domains=read(root/"calibration/domains.json")
     if set(schedules)!=set(domains):raise ValueError("Provide four normalized window values for every teacher")
     selected={}
@@ -69,6 +71,8 @@ def verify_initial(root,domains):
 
 
 def reuse(config,sources,schedules,scale_units="ticks"):
+    from .path_search import enabled as path_search
+    if path_search(config): raise ValueError('Path search requires fresh two-background calibration')
     from .absolute_coordinate import POLICY as absolute_policy
     from . import absolute_runtime, geometry_runtime
     runtime=absolute_runtime if config.get("protocol")==absolute_policy else geometry_runtime

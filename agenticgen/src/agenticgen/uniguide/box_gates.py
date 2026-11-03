@@ -12,7 +12,10 @@ def mask(config):
     value = config.get("guidance_box_mask", [True] * len(windows(config)))
     if not isinstance(value, list) or len(value) != len(windows(config)) or any(type(x) is not bool for x in value):
         raise ValueError("One explicit boolean per guidance box required")
-    if not enabled(config) and "guidance_box_mask" in config:
+    from .path_search import enabled as path_search
+    if path_search(config) and value != [True] * 6:
+        raise ValueError("Path-search boxes cannot be excluded")
+    if not enabled(config) and not path_search(config) and "guidance_box_mask" in config:
         raise ValueError("Box gates require the opt-in exclusion protocol")
     return list(value)
 
@@ -21,6 +24,8 @@ def configure(config):
     from .box_search import enabled as expanded_search, RELEASE, SPLIT_RELEASE
     if 'box_search' in config and not expanded_search(config):
         raise ValueError('Window-specific search settings require the explicit new protocol')
+    from .path_search import enabled as path_search, validate_config as validate_path
+    if path_search(config): return validate_path(config)
     if not enabled(config):
         if 'guidance_box_mask' in config:
             raise ValueError('Box gates require the opt-in exclusion protocol')

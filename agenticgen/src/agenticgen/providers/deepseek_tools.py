@@ -275,6 +275,8 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                     control_help = ("For box exclusion, supply excluded_box_ids explicitly: [] for no exclusions, "
                         "otherwise eligible box IDs. In the final stage also supply the matching confirmed_profile_id. "
                         if "excluded_box_ids" in schema.get("properties", {}) else
+                        "For proposals, supply proposals explicitly: [] for hold, otherwise complete action objects. "
+                        if "proposals" in schema.get("properties", {}) else
                         "For selection, supply selected explicitly: [] for hold, otherwise existing candidate IDs. ")
                     instruction = (f"Replace the complete arguments in one {FINAL_TOOL} call, alone. "
                         f"All fields are mandatory: {schema.get('required', [])}. "

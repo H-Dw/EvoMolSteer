@@ -26,8 +26,9 @@ def budget_state(config, domain):
                 unknown_configuration_stability='unmeasured; no safety or improvement guarantee')
 
 
-def audit_actions(config, history, domain, actions, failures=(), learning=None, *, portfolio=False):
+def audit_actions(config, history, domain, actions, failures=(), learning=None, *, portfolio=False, evidence_ids=()):
     from .linear_runtime import remaining_profile_cost
+    from .path_search import enabled as path_search
     state = budget_state(config,domain)
     available = state['remaining_formal_attempts']
     frontier = dict(state['range_evidence_allowance'])
@@ -37,13 +38,21 @@ def audit_actions(config, history, domain, actions, failures=(), learning=None, 
     total_formal, total_range, total_configurations = 0, 0, 0
     for action in actions:
         try:
+            if path_search(domain):
+                import jsonschema
+                try: jsonschema.validate(action, scale.action_schema(anchors, domain))
+                except jsonschema.ValidationError as error: raise ValueError(error.message) from error
+                if not action['evidence_ids'] or set(action['evidence_ids']) - (set(anchors) | set(evidence_ids)):
+                    raise ValueError('Use measured history or verified observed evidence receipts')
+                if sum(a.get('id') == action['id'] for a in actions) > 1:
+                    raise ValueError('Repeated proposal identity')
             resolved = scale.resolve_action(action,anchors,domain,seen,failures)
             if scale.open_domain(domain):
                 target = action['optimization_target']
                 if (target['incumbent_source_id'] != learning['best_checkpoint_id'] or
                     target['reviewed_path_sha256'] != learning['best_path_sha256']):
                     raise ValueError('Optimization target does not bind the current measured best decision path')
-                if learning['rebase_from_best_checkpoint'] and (
+                if learning['rebase_from_best_checkpoint'] and not path_search(domain) and (
                     action['anchor_id'] != learning['best_checkpoint_id'] or
                     target['path_relation'] != 'redirect_from_reviewed_best'):
                     raise ValueError('Rollback must redirect from the reviewed measured best node')
@@ -84,14 +93,20 @@ def audit_actions(config, history, domain, actions, failures=(), learning=None, 
                 and total_range<=state['range_evidence_allowance']['remaining_attempts']
                 and total_configurations<=state['range_evidence_allowance']['remaining_configurations'])
     diversity_error=None
-    if portfolio and domain.get('box_exclusion_policy'):
+    early_audit = None
+    if portfolio and all_valid and (domain.get('box_exclusion_policy') or path_search(domain)):
         from .profile_diversity import bank, require_portfolio
         try:
             suggestions=bank(history,domain,learning['best_checkpoint_actual_schedule'],failures)
-            require_portfolio(actions,domain,learning['best_checkpoint_actual_schedule'],suggestions,state['remaining_formal_attempts'])
+            if actions or not path_search(domain):
+                require_portfolio(actions,domain,learning['best_checkpoint_actual_schedule'],suggestions,state['remaining_formal_attempts'])
+            if path_search(domain):
+                from .path_search import audit_early
+                early_audit = audit_early(actions, history, domain, failures, state['remaining_formal_attempts'])
         except ValueError as error:
             batch_ok=False;diversity_error=str(error)
     return dict(status='complete',actions=results,budget_state=state,
+                **(dict(early_direction_audit=early_audit) if path_search(domain) else {}),
                 evaluation_scope='selected_portfolio' if portfolio else 'independent_alternatives',
                 batch_admission=dict(executable_now=batch_ok,formal_new_attempts=total_formal,
                                      calibration_new_attempts=total_range,frontier_configurations=total_configurations,

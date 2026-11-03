@@ -67,6 +67,14 @@ def summarize(values, settings=None, identities=None):
 
 def aggregate_fields(records, config):
     from .absolute_coordinate import RMSD
+    from . import condition_evaluation as fitted
+    if fitted.enabled(config):
+        result = fitted.summarize([r.get(fitted.METRIC) for r in records])
+        mean = result["arithmetic_mean"]
+        return {fitted.CONFIG: config[fitted.CONFIG], fitted.MEAN: mean, fitted.METRIC: mean,
+                RANKING: mean if result["ranking_eligible"] else None, SUMMARY: result,
+                **({fitted.POSE:float(np.mean([r[RMSD] for r in records]))}
+                   if all(RMSD in r for r in records) else {})}
     identities = [{k:r.get(k) for k in ("node_id", "logical_seed", "logical_slot")} for r in records]
     result = summarize([r.get(RMSD) for r in records], policy(config), identities)
     return {RANKING: result["upper_tail_filtered_mean"] if result["ranking_eligible"] else None,
@@ -74,7 +82,18 @@ def aggregate_fields(records, config):
 
 
 def ranking_eligible(row):
+    from . import condition_evaluation as fitted
+    if fitted.CONFIG in row or fitted.MEAN in row:
+        try: fitted.score(row)
+        except ValueError: return False
+        return True
     return row.get(SUMMARY, {}).get("ranking_eligible", True)
+
+
+def displacement_eligible(row):
+    """Under 2.14 finite update magnitude is diagnostic, never an objective surrogate."""
+    from .condition_evaluation import enabled
+    return enabled(row) or row.get('stability_status') != 'large_finite_displacement_growth'
 
 
 def descriptive(values):

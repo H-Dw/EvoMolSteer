@@ -51,6 +51,9 @@ def choose(rows):
     from .coordinate_statistics import ranking_eligible
     if not rows or any(not r.get("complete") for r in rows):
         raise ValueError("Selection requires completed measurements")
+    from .condition_evaluation import CONFIG
+    if len({str(r.get(CONFIG)) for r in rows}) > 1:
+        raise ValueError("Cannot rank mixed evaluation protocols")
     eligible = [r for r in rows if ranking_eligible(r)]
     if not eligible or any(not math.isfinite(primary_score(r)) for r in eligible):
         raise ValueError("No complete eligible finite geometry measurements")
@@ -58,6 +61,8 @@ def choose(rows):
 
 
 def primary_score(row):
+    from . import condition_evaluation as fitted
+    if fitted.CONFIG in row or fitted.MEAN in row: return fitted.score(row)
     from .absolute_coordinate import RMSD
     from .coordinate_statistics import RANKING
     if RANKING in row:

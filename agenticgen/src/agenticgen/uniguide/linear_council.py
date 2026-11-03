@@ -16,7 +16,8 @@ def history_view(row):
     from .absolute_coordinate import METRICS
     from .coordinate_statistics import RANKING, SUMMARY
 
-    names = [
+    from .condition_evaluation import CONFIG, MEAN, METRIC, POSE
+    names = [CONFIG, MEAN, METRIC, POSE,
         "id",
         scale.EFFECTIVE,
         scale.TICKS,
@@ -73,11 +74,13 @@ def advise(
     anchors = {r["id"]: r for r in history}
     if not anchors or len(anchors) != len(history):
         raise ValueError("Unique completed linear history required")
+    from .path_search import enabled as is_path_search
+    path_search = is_path_search(domain)
     learning = config.get("guidance_checkpoint_context")
     if scale.open_domain(domain) and learning is None:
         from .checkpoint_learning import context
         learning = context(config,history,[],domain)
-    if learning and learning["rebase_from_best_checkpoint"]:
+    if learning and learning["rebase_from_best_checkpoint"] and not path_search:
         anchors = {
             learning["best_checkpoint_id"]: anchors[learning["best_checkpoint_id"]]
         }
@@ -169,11 +172,11 @@ def advise(
         common['execution_contract'].update(execute_all_proposed=True,maximum_proposals=5,
             maximum_selected=5,distance_unit='per_window_grid_index',declared_window_grids=domain['search_grids'])
     diversity_bank=[]
-    if domain.get('box_exclusion_policy'):
+    if domain.get('box_exclusion_policy') or path_search:
         from .profile_diversity import bank
         diversity_bank=bank(history,domain,learning['best_checkpoint_actual_schedule'],failures)
         common['box_exclusion_contract']=dict(guidance_box_mask=domain['guidance_box_mask'],
-            selection_sha256=domain['selection_sha256'],excluded_boxes_native_only=True,
+            selection_sha256=domain.get('selection_sha256'),excluded_boxes_native_only=not path_search,
             allowed_scale_zero_retains_chemistry=True)
         common['coverage_profile_suggestions']=diversity_bank
         common['portfolio_diversity']=dict(distance_reference='current_global_best',
@@ -204,6 +207,25 @@ def advise(
             "Find potentially better complete configurations through distinct jump intensities. Do not design ablations or prove inference mechanisms."
         )
         common["working_neighbourhood_is_a_preference_not_an_admission_limit"] = True
+    if path_search:
+        from .condition_evaluation import CONFIG, METRIC, MEAN, POSE
+        common[CONFIG] = dict(domain[CONFIG], candidate_metric=METRIC, objective=MEAN,
+            diagnostic_only=POSE, population=50, aggregation='unfiltered arithmetic mean',
+            correspondence='existing terminal Hungarian assignment; no rematching after fitting',
+            fit_scope='condition points only; proper rotation and translation, no reflection or scaling')
+        common.pop("box_exclusion_contract", None)
+        common["all_boxes_available"] = True
+        for tier in common.get('exploration_hypotheses',[]):
+            tier.pop('total_absolute_strength_change',None)
+            tier['interpretation'] = 'Grid-index distance only; early temporal directions are audited separately.'
+        common["search_path_context"] = learning["search_path_context"]
+        common["search_objective"] = "Minimize the unfiltered arithmetic mean of condition-only proper-Kabsch RMSD over all 50 candidates."
+        common["decision_methodology"] = [
+            "Start with B1/B2, extend forward using measured evidence, and backtrack when needed.",
+            "Propose at least two different parent-relative early signed directions; keep all six windows independent.",
+            "Use same-background dose comparisons and bounded suffix adaptation to improve complete profiles.",
+            "Audit and execute the entire legal portfolio; a program performs admission, not a synthesis Agent.",
+            "Submit proposals with a measured-source search focus and brief evidence summaries."]
     text = text_schema
     decisions = (["hold"] if final else ["propose", "hold"] if scale.open_domain(domain)
                  else ["propose", "hold", "request_domain_evidence"])
@@ -224,8 +246,16 @@ def advise(
         fields = proposal_schema["properties"]
         proposal_schema = object_schema({key: fields[key] for key in ("decision", "proposals", "reason")})
 
+    if path_search:
+        from .path_search import focus_schema
+        proposal_schema["properties"]["search_focus"] = focus_schema(anchors)
+        proposal_schema["required"].append("search_focus")
+
     def check_proposals(result):
         jsonschema.validate(result, proposal_schema)
+        if path_search:
+            from .path_search import validate_focus
+            validate_focus(result["search_focus"], learning["search_path_context"])
         proposed = result["proposals"]
         if (result["decision"] == "hold") != (not proposed):
             raise jsonschema.ValidationError(
@@ -252,14 +282,15 @@ def advise(
                 )
         if len({p["id"] for p in proposed}) != len(proposed):
             raise jsonschema.ValidationError("Repeated proposal identity")
-        if domain.get('box_exclusion_policy') and not final:
+        if (domain.get('box_exclusion_policy') or path_search) and not final:
             from .profile_diversity import require_portfolio
             require_portfolio(proposed,domain,learning['best_checkpoint_actual_schedule'],
-                              diversity_bank,common['remaining_formal_attempts'],pairwise=False)
-        if scale.open_domain(domain):
+                              diversity_bank,common['remaining_formal_attempts'],pairwise=path_search)
+        if scale.open_domain(domain) and not (path_search and final):
             from .linear_admission import audit_actions, require_executable
             try:
-                require_executable(audit_actions(config,history,domain,proposed,failures,learning,portfolio=expanded),portfolio=expanded)
+                require_executable(audit_actions(config,history,domain,proposed,failures,learning,
+                    portfolio=expanded,evidence_ids=registry.receipt_ids),portfolio=expanded)
             except ValueError as error:
                 raise jsonschema.ValidationError(str(error)) from error
 
@@ -325,6 +356,13 @@ def advise(
 
     proposed = invoke("proposal", common, proposal_schema, check_proposals)
     candidates = {p["id"]: p for p in proposed["proposals"]}
+    if path_search:
+        result = dict(decision=proposed["decision"], reason=proposed["reason"],
+                      selected=list(candidates), actions=list(candidates.values()),
+                      condition_evaluation=domain['condition_evaluation'],
+                      search_focus=proposed["search_focus"], execution_source="deterministic_all_proposals")
+        frozen(folder / "DECISION.json", result)
+        return result
     candidate_admission = None
     if scale.open_domain(domain):
         from .linear_admission import audit_actions

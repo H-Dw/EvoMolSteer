@@ -8,7 +8,8 @@ SPLIT_RELEASE = "2.13.0"
 
 
 def enabled(value):
-    return (value.get("box_exclusion", {}).get("policy") == POLICY
+    from .path_search import enabled as path_search
+    return (path_search(value) or value.get("box_exclusion", {}).get("policy") == POLICY
             or value.get("box_exclusion_policy") == POLICY)
 
 

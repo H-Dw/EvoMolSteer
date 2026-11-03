@@ -66,14 +66,18 @@ def validate_config(config):
     chemical=chemical_policy(config)
     config=dict(config,chemical_inpainting=dict(config.get("chemical_inpainting",{}),enabled=chemical["enabled"]))
     from .coordinate_statistics import policy as statistics_policy, CONFIG
-    config = dict(config, **{CONFIG: statistics_policy(config)})
+    from .path_search import enabled as path_search
+    if path_search(config):
+        config.pop(CONFIG, None)  # The complete-population evaluator has no trimming controls.
+    else:
+        config = dict(config, **{CONFIG: statistics_policy(config)})
     from .linear_scale import enabled as linear_enabled
     declared_release=config.get("agent_tools",{}).get("skill_release")
-    required_release=((declared_release if declared_release in ("2.8.0","2.8.1","2.8.2","2.9.0","2.10.0","2.10.1","2.11.0","2.12.0","2.13.0") else "2.7.0") if config.get("guidance_exploration") else "2.6.0") if linear_enabled(config) else "2.5.0"
+    required_release=((declared_release if declared_release in ("2.8.0","2.8.1","2.8.2","2.9.0","2.10.0","2.10.1","2.11.0","2.12.0","2.13.0","2.14.0") else "2.7.0") if config.get("guidance_exploration") else "2.6.0") if linear_enabled(config) else "2.5.0"
     if config.get("agent_tools",{}).get("skill_release")!=required_release:
         raise ValueError("Coordinate control and runtime skill release differ")
     from .absolute_coordinate import ASSIGNMENT, DYNAMIC_ASSIGNMENT
-    expected_assignment=DYNAMIC_ASSIGNMENT if required_release in ("2.7.0","2.8.0","2.8.1","2.8.2","2.9.0","2.10.0","2.10.1","2.11.0","2.12.0","2.13.0") else ASSIGNMENT
+    expected_assignment=DYNAMIC_ASSIGNMENT if required_release in ("2.7.0","2.8.0","2.8.1","2.8.2","2.9.0","2.10.0","2.10.1","2.11.0","2.12.0","2.13.0","2.14.0") else ASSIGNMENT
     if config.get("atom_assignment_policy",expected_assignment)!=expected_assignment:
         raise ValueError("Coordinate assignment and skill contracts differ; use a new compatible release")
     from .geometry_calibration import plan
@@ -83,16 +87,16 @@ def validate_config(config):
     extended = (config.get("prefix_inpainting",{}).get("enabled")
         or config.get("checkpoint_learning",{}).get("enabled")
         or windows(config) != [list(w) for w in WINDOWS])
-    if extended and declared_release not in ("2.8.0","2.8.1","2.8.2","2.9.0","2.10.0","2.10.1","2.11.0","2.12.0","2.13.0"):
+    if extended and declared_release not in ("2.8.0","2.8.1","2.8.2","2.9.0","2.10.0","2.10.1","2.11.0","2.12.0","2.13.0","2.14.0"):
         raise ValueError("Optional prefix, variable windows and checkpoint learning require skills 2.8.x or 2.9.0")
-    if windows(config)[0][0] == 0 and declared_release not in ("2.10.0","2.10.1","2.11.0","2.12.0","2.13.0"):
+    if windows(config)[0][0] == 0 and declared_release not in ("2.10.0","2.10.1","2.11.0","2.12.0","2.13.0","2.14.0"):
         raise ValueError("Zero-start gradient windows require the explicit skills 2.10.0 contract")
-    if declared_release in ("2.10.0","2.10.1","2.11.0","2.12.0","2.13.0"):
+    if declared_release in ("2.10.0","2.10.1","2.11.0","2.12.0","2.13.0","2.14.0"):
         from .guidance_windows import SIX, SEVEN
         layout=SEVEN if declared_release=="2.13.0" else SIX
         if windows(config) != [list(pair) for pair in layout]:
             raise ValueError("Skill release and explicit window layout differ")
-    if declared_release in ("2.10.1","2.11.0","2.12.0","2.13.0") and config["chemical_inpainting"].get("activation") != "guidance_phase":
+    if declared_release in ("2.10.1","2.11.0","2.12.0","2.13.0","2.14.0") and config["chemical_inpainting"].get("activation") != "guidance_phase":
         raise ValueError("Skills 2.10.1 require chemistry synchronized with the guidance phase")
     if declared_release == "2.10.0" and config["chemical_inpainting"].get("activation"):
         raise ValueError("Use skills 2.10.1 for the synchronized chemical phase")
@@ -100,6 +104,10 @@ def validate_config(config):
         raise ValueError("Native sampling windows and random seeds are fixed")
     from .box_gates import configure as configure_boxes
     config=configure_boxes(config)
+    from .path_search import enabled as path_search, validate_config as validate_path
+    if path_search(config): validate_path(config)
+    elif "condition_evaluation" in config:
+        raise ValueError("Condition-fitted evaluation requires its explicit new release")
     return dict(config,initials_root=str(source))
 
 
@@ -147,6 +155,10 @@ def require_acceptance(config):
 def calibrate(config,model_loader=load_model,executor=execute):
     from .geometry_calibration import run
     config=validate_config(config);require_acceptance(config)
+    from .path_search import enabled as path_search
+    if path_search(config):
+        from .path_calibration import run as calibrate_path
+        return calibrate_path(config,calibrated(config),model_loader,executor)
     if config.get("box_exclusion",{}).get("enabled"):
         from .box_exclusion import run as exclude_boxes
         return exclude_boxes(config,calibrated(config),model_loader,executor)

@@ -16,6 +16,10 @@ def best(rows):
 
 
 def plan(config, target):
+    from .path_search import enabled as path_search
+    if path_search(config):
+        from .path_calibration import plan as path_plan
+        return path_plan(config, target)
     if config.get('box_exclusion',{}).get('enabled'):
         from .box_exclusion import BACKGROUNDS,search_backgrounds
         from .box_search import enabled
@@ -198,7 +202,7 @@ def ensure_limits(config, subject_count):
             ),
             per_teacher_stage_caps=dict(calibration=cap,
                 **(dict(formal=50*config['guidance_control']['maximum_selected']*config['rounds'])
-                   if config.get('agent_tools',{}).get('skill_release') in ('2.12.0','2.13.0') else {})),
+                   if config.get('agent_tools',{}).get('skill_release') in ('2.12.0','2.13.0','2.14.0') else {})),
         ),
     )
 
@@ -208,7 +212,13 @@ def evaluate(model, config, subject, job, executor):
 
     if executor is execute:
         from .geometry_batch import execute_many
-
+        from .path_search import enabled as path_search, record_numerical_failure
+        if path_search(config):
+            try:
+                return execute_many(model,config,subject['teacher'],subject['condition'],[job])[0]
+            except FloatingPointError as error:
+                record_numerical_failure(config,subject,job,error)
+                return error
         return execute_many(
             model, config, subject["teacher"], subject["condition"], [job]
         )[0]
@@ -369,6 +379,10 @@ class LinearSearch:
 
 
 def run(config, subjects, model_loader, executor):
+    from .path_search import enabled as path_search
+    if path_search(config):
+        from .path_calibration import run as path_run
+        return path_run(config, subjects, model_loader, executor)
     import torch
     from .geometry_sampling import compatibility
     from .geometry_calibration import verify_frozen

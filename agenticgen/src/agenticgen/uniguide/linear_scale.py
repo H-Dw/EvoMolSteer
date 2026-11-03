@@ -62,9 +62,12 @@ def integer(value, label, minimum=1):
 def configure(config):
     calibration = config.get("calibration", {})
     selected_policy = config.get("guidance_control", {}).get("policy", POLICY)
+    from .path_search import enabled as path_search
+    from .path_calibration import POLICY as path_calibration_policy
+    calibration_policy = path_calibration_policy if path_search(config) else selected_policy
     if (
         set(calibration) - {"search_policy"}
-        or calibration.get("search_policy", selected_policy) != selected_policy
+        or calibration.get("search_policy", calibration_policy) != calibration_policy
     ):
         raise ValueError(
             "Linear control cannot reuse exponent calibration settings or measurements"
@@ -145,7 +148,7 @@ def configure(config):
         for target, values in overrides.items()
     }
     return dict(
-        config, guidance_control=settings, calibration=dict(search_policy=selected_policy)
+        config, guidance_control=settings, calibration=dict(search_policy=calibration_policy)
     )
 
 
@@ -224,6 +227,8 @@ def validate_domain(
     ):
         raise ValueError("Exponent protocol cannot enter the linear interface")
     settings = domain["control_settings"]
+    from .path_search import enabled as path_search, validate_domain as validate_path_domain
+    if path_search(domain): validate_path_domain(domain)
     from .box_search import enabled as expanded_search,validate_grids,apply_shape
     if expanded_search(domain):
         validate_grids(domain.get('search_grids'),settings['search_maximum'],len(windows(domain)))
@@ -339,7 +344,8 @@ def action_schema(anchor_ids, domain=None):
             path_relation=dict(enum=["new_joint_region", "frontier_jump", "redirect_from_reviewed_best"]),
         ))
         schema["required"].append("optimization_target")
-    if domain and domain.get("box_exclusion_policy"):
+    from .path_search import enabled as path_search
+    if domain and (domain.get("box_exclusion_policy") or path_search(domain)):
         schema["properties"].pop("updates")
         schema["required"].remove("updates")
         schema["properties"]["target_scale_schedule"] = dict(type="array",minItems=count,maxItems=count,
@@ -351,7 +357,8 @@ def action_schema(anchor_ids, domain=None):
 
 def resolve_action(action, anchors, domain, seen=(), failures=()):
     validate_domain(domain)
-    if domain.get("box_exclusion_policy"):
+    from .path_search import enabled as path_search
+    if domain.get("box_exclusion_policy") or path_search(domain):
         from .profile_diversity import resolve
         return resolve(action,anchors,domain,seen,failures)
     if action.get("anchor_id") not in anchors:

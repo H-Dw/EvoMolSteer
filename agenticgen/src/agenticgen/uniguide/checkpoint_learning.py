@@ -3,7 +3,7 @@
 import math
 
 from .geometry_protocol import choose, primary_score
-from .coordinate_statistics import ranking_eligible
+from .coordinate_statistics import ranking_eligible, displacement_eligible
 from .linear_scale import EFFECTIVE, open_domain
 from .io import value_sha
 
@@ -27,7 +27,7 @@ def checkpoint(groups, incumbent, baseline=None):
         for r in groups
         if r.get("attempts") == 50
         and ranking_eligible(r)
-        and r.get("stability_status") != "large_finite_displacement_growth"
+        and displacement_eligible(r)
     ]
     winner = choose(eligible) if eligible else None
     best = choose([incumbent, *eligible])
@@ -41,6 +41,9 @@ def checkpoint(groups, incumbent, baseline=None):
         best_compatible_source_id=best["id"],
         best_compatible_performance=primary_score(best),
     )
+    from . import condition_evaluation as fitted
+    if fitted.enabled(incumbent):
+        result.update(condition_evaluation=incumbent[fitted.CONFIG], performance_metric=fitted.MEAN)
     if baseline is not None:
         if primary_score(best) > primary_score(baseline):
             raise ValueError("Global best regressed below its calibration root")
@@ -125,13 +128,16 @@ def calibration_root(history, domain):
     root = rows[domain["initial_source"]]
     check_node_scope(root,domain)
     if (not root.get("complete") or root.get("attempts") != 50 or not ranking_eligible(root)
-        or root.get("stability_status") == "large_finite_displacement_growth"
+        or not displacement_eligible(root)
         or not math.isfinite(primary_score(root))):
         raise ValueError("The calibration root is not a complete eligible population50")
     return root
 
 
 def check_node_scope(row,domain):
+    from . import condition_evaluation as fitted
+    if fitted.enabled(domain) and (row.get(fitted.CONFIG) != domain[fitted.CONFIG] or not ranking_eligible(row)):
+        raise ValueError('Checkpoint lacks a compatible complete condition-aligned mean')
     if (row.get("teacher_id")!=domain["teacher_id"] or
         row.get("condition_sha256")!=domain["condition_sha256"] or
         row.get("compatibility_sha256")!=domain["sampling_protocol_sha256"]):
@@ -141,7 +147,7 @@ def check_node_scope(row,domain):
 def best_from_calibration(history, domain, completed_rounds=()):
     baseline = calibration_root(history, domain)
     candidates = [r for r in history if r.get("complete") and r.get("attempts")==50
-                  and ranking_eligible(r) and r.get("stability_status")!="large_finite_displacement_growth"]
+                  and ranking_eligible(r) and displacement_eligible(r)]
     best = baseline
     if completed_rounds:
         prior = completed_rounds[-1].get("checkpoint", {}).get("best_compatible_source_id")
@@ -155,8 +161,10 @@ def best_from_calibration(history, domain, completed_rounds=()):
 
 
 def node_summary(row):
+    from . import condition_evaluation as fitted
     return dict(source_id=row["id"],actual_schedule=row[EFFECTIVE],performance=primary_score(row),
                 population=row["attempts"], fingerprint=row.get("fingerprint"),
+                **(dict(condition_evaluation=row[fitted.CONFIG], performance_metric=fitted.MEAN) if fitted.enabled(row) else {}),
                 evidence_kind="saved_complete_measurement")
 
 
@@ -200,7 +208,8 @@ def best_state(learning):
                 performance=learning["best_checkpoint_performance"],
                 change_from_calibration=learning["change_from_calibration"],
                 best_decision_path=learning["best_decision_path"],
-                best_path_sha256=learning["best_path_sha256"])
+                best_path_sha256=learning["best_path_sha256"],
+                **{k:learning[k] for k in ('condition_evaluation','performance_metric') if k in learning})
 
 
 def rooted_context(config, history, completed_rounds, domain):
@@ -211,13 +220,21 @@ def rooted_context(config, history, completed_rounds, domain):
     recent = completed_rounds[-2:]
     stalled = (len(recent)==2 and all(r.get("checkpoint",{}).get("status")=="measured"
                and r["checkpoint"]["performance"]>=r["checkpoint"]["input_incumbent_performance"] for r in recent))
+    from .path_search import enabled as path_search
+    if path_search(domain):
+        def did_not_improve(round_row):
+            point = round_row.get('checkpoint', {})
+            prior_score = point.get('input_incumbent_performance')
+            score = point.get('best_compatible_performance', point.get('performance'))
+            return prior_score is not None and (score is None or score >= prior_score)
+        stalled = len(recent) == 2 and all(did_not_improve(r) for r in recent)
     rebase = bool(configure(config)["enabled"] and (stalled or (prior or {}).get("rebase_from_best_checkpoint")))
     bad_paths = [dict(iteration=r["iteration"], checkpoint=r.get("checkpoint"),
                       decision_summary=r.get("decision_summary"),
                       directions=[dict(source_id=g["id"],actual_schedule=g[EFFECTIVE],
                                        proposal=g.get("selected_proposal",g.get("proposal"))) for g in r["groups"]])
                  for r in recent] if rebase else []
-    return dict(policy="calibration-rooted-measured-path-v2",rebase_from_best_checkpoint=rebase,
+    result = dict(policy="calibration-rooted-measured-path-v2",rebase_from_best_checkpoint=rebase,
                 calibration_baseline=node_summary(root),
                 calibration_selection=dict(origin="deterministic_complete_population_calibration_not_agent_round",
                     criterion="lowest eligible complete-population primary score",
@@ -236,3 +253,16 @@ def rooted_context(config, history, completed_rounds, domain):
                              "Do not resample the best, explain window mechanisms or design ablations." if rebase else
                              "Compare every opportunity with the calibration-rooted global best, including round one. "
                              "Use saved decisions and outcomes to seek potentially better complete paths, not mechanism explanations."))
+
+    from .path_search import enabled as path_search, context as path_context
+    if path_search(domain):
+        from . import condition_evaluation as fitted
+        result.update(condition_evaluation=domain[fitted.CONFIG], performance_metric=fitted.MEAN)
+        result["search_path_context"] = path_context(history, completed_rounds)
+        if stalled and rebase: result['rollback_reason'] = 'two_adjacent_completed_rounds_without_global_improvement'
+        result["instruction"] = (
+            "Review the measured best path and all relevant side branches. After two rounds without improvement, "
+            "backtrack to a promising early window or measured prefix. All compatible measured parents remain available. "
+            "Use same-background comparisons and bounded suffix adaptation to seek lower condition-aligned mean RMSD. "
+            "Keep the true global best and preserve all failures; do not resample an identical configuration.")
+    return result

@@ -6,6 +6,7 @@ from pathlib import Path
 from . import linear_scale as scale
 from .coordinate_statistics import (
     ranking_eligible,
+    displacement_eligible,
     summarize,
     policy as statistics_policy,
 )
@@ -54,10 +55,13 @@ def history(config, teacher, condition, domain):
             )
             continue
         row = validate_receipt(folder)
+        from . import condition_evaluation as fitted
+        if fitted.enabled(domain) and row.get(fitted.CONFIG) != domain[fitted.CONFIG]:
+            raise ValueError("Missing or incompatible condition evaluation in measured history")
         reason = None
         if not ranking_eligible(row):
             reason = "statistics_ineligible"
-        elif row.get("stability_status") == "large_finite_displacement_growth":
+        elif not displacement_eligible(row):
             reason = "measured_displacement_growth"
         elif row["attempts"] != 50:
             reason = "smaller_population_not_rankable"
@@ -315,6 +319,9 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
     root = Path(config["root"])
     from .box_search import enabled as expanded_search
     expanded=expanded_search(config)
+    from .path_search import enabled as path_search
+    if path_search(config) and (root/'INITIAL_GUIDANCE.json').exists():
+        raise ValueError('Path search starts at the deterministic calibration root; manual initialization is incompatible')
     if expanded and version!='GD01':
         raise ValueError('Expanded five-round search only runs GD01; no additional optimization version')
     if not (
@@ -346,6 +353,14 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
             raise ValueError("Runtime skills changed inside an experiment")
         if not dest.exists():
             shutil.copyfile(source, dest)
+    from .path_search import enabled as path_search
+    if path_search(config):
+        reference = runtime.skill_assets(config)['proposal.md'].parent/'references/search-policy.md'
+        dest = skills/'references/search-policy.md'
+        dest.parent.mkdir(exist_ok=True)
+        if dest.exists() and sha(dest) != sha(reference):
+            raise ValueError('Runtime skill reference changed inside an experiment')
+        if not dest.exists(): shutil.copyfile(reference, dest)
     manifest = dict(
         scale_policy=scale.POLICY,
         config_sha256=value_sha(config),
@@ -353,6 +368,8 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
         skill_hashes={p.name: sha(p) for p in skills.glob("*.md")},
         rounds=config["rounds"],
     )
+    if path_search(config):
+        manifest['supporting_reference_hashes'] = {'references/search-policy.md':sha(dest)}
     frozen(folder / "manifest.json", manifest)
     domains = read(root / "calibration/domains.json")
     subjects = runtime.calibrated(config)
@@ -512,6 +529,11 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                     "request_domain_evidence",
                 ):
                     raise ValueError("Unknown allocation decision")
+                from .path_search import enabled as path_search, focus_schema, validate_focus
+                if path_search(domain):
+                    import jsonschema
+                    jsonschema.validate(decision.get("search_focus"), focus_schema({r["id"]:r for r in current}))
+                    validate_focus(decision["search_focus"], learning["search_path_context"])
                 actions = decision["actions"]
                 if len(actions) > domain["control_settings"]["maximum_selected"] or (
                     decision["decision"] == "hold"
@@ -525,7 +547,10 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                     from .linear_admission import audit_actions, require_executable
                     incumbent = best_from_calibration(current,domain,
                         [r for r in rounds if r["teacher_id"]==target])
-                    admission = audit_actions(config,current,action_domain,actions,failed,learning,portfolio=True)
+                    from .path_search import verified_evidence_receipts
+                    observed = verified_evidence_receipts(call_folder, current, domain) if path_search(domain) else ()
+                    admission = audit_actions(config,current,action_domain,actions,failed,learning,
+                                              portfolio=True,evidence_ids=observed)
                     frozen(call_folder / "ACTION_ADMISSION.json",admission)
                     require_executable(admission,portfolio=True)
                 else:
@@ -646,6 +671,7 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                     saved['hypothesis_execution']=dict(execute_all_proposed=True,requested_ids=[a['id'] for a in actions],
                         complete_source_ids=[r['id'] for r in measured],failed_ids=sorted(failed_ids),
                         all_hypotheses_attempted=True,complete=not failed_ids)
+                if "search_focus" in decision: saved["search_focus"] = decision["search_focus"]
                 if learning:
                     saved["checkpoint"] = checkpoint(measured, incumbent,baseline=baseline)
                     saved["checkpoint_learning"] = learning
@@ -683,7 +709,7 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 for r in groups
                 if r["task_type"] == "optimization"
                 and ranking_eligible(r)
-                and r.get("stability_status") != "large_finite_displacement_growth"
+                and displacement_eligible(r)
             ]
             formal_best = choose(formal)["id"] if formal else None
             from .absolute_coordinate import METRICS
@@ -702,17 +728,21 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 .relative_to(root)
                 .as_posix(),
             )
+            from .condition_evaluation import CONFIG, MEAN, METRIC, POSE
+            summaries[target].update({k:winner[k] for k in (CONFIG, MEAN, METRIC, POSE) if k in winner})
+            if path_search(config):
+                from .coordinate_statistics import SUMMARY
+                # Search completion and the retained population's validity are separate facts.
+                summaries[target]['ranking_measurement'] = {k:winner[k] for k in
+                    ('id', 'complete', 'attempts', CONFIG, MEAN, METRIC, RANKING, SUMMARY)}
             if scale.open_domain(domain):
                 summaries[target].update(calibration_baseline=node_summary(baseline),
                     global_best_includes_calibration=True,
                     agent_improved_calibration=primary_score(winner)<primary_score(baseline),
                     change_from_calibration=primary_score(winner)-primary_score(baseline))
-            contexts.extend(
-                [
-                    str(out / "analysis_final/proposal.json"),
-                    str(out / "analysis_final/synthesis.json"),
-                ]
-            )
+            from .path_search import enabled as path_search
+            contexts.append(str(out / "analysis_final/proposal.json"))
+            if not path_search(config): contexts.append(str(out / "analysis_final/synthesis.json"))
             all_groups.extend(groups)
         finally:
             del model
@@ -746,7 +776,7 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
     best_versions = {
         target: min(
             [p for p in previous + [result] if target in p["teachers"]],
-            key=lambda v: primary_score(v["teachers"][target]),
+            key=lambda v: primary_score(v["teachers"][target].get('ranking_measurement',v["teachers"][target])),
         )["version"]
         for target in summaries
     }
@@ -756,7 +786,7 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
         previous=previous[-1] if previous else None,
         best_version_by_teacher=best_versions,
         measured_initials={t: d["initial_source"] for t, d in domains.items()},
-        next_version=None if version == "GD20" else f"GD{int(version[2:])+1:02d}",
+        next_version=None if path_search(config) or version == "GD20" else f"GD{int(version[2:])+1:02d}",
         strategy_contexts=contexts,
         requires_actual_main_agent_review=True,
     )

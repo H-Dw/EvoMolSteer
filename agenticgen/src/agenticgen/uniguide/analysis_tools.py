@@ -36,7 +36,7 @@ def metric_summary(values):
         observations_retained=len(middle), unit="angstrom")
 
 
-def paired_summary(left,right,metrics=METRICS,*,upper_tail_policy=None):
+def paired_summary(left,right,metrics=METRICS,*,upper_tail_policy=None,mean_only=False):
     identity=lambda r:(r["logical_seed"],r["logical_slot"])
     a,b={identity(r):r for r in left},{identity(r):r for r in right}
     if len(a)!=len(left) or len(b)!=len(right) or set(a)!=set(b):
@@ -49,7 +49,7 @@ def paired_summary(left,right,metrics=METRICS,*,upper_tail_policy=None):
         if any(type(v) not in (int,float) or not math.isfinite(v) for v in x+y):
             result[metric]=dict(status="unavailable", reason="Missing/nonfinite paired measurement");continue
         x,y=np.asarray(x),np.asarray(y);delta=y-x
-        center=lambda v:metric_summary(v.tolist())["symmetric_ten_percent_trimmed_mean"]
+        center = (lambda v: float(np.mean(v))) if mean_only else (lambda v:metric_summary(v.tolist())["symmetric_ten_percent_trimmed_mean"])
         per_seed=[dict(logical_seed=s, aggregation_scope="mean of all paired slots in this seed; not a single molecule",
             paired_slots=sum(k[0]==s for k in keys),
             arithmetic_mean_change=float(np.mean(delta[[k[0]==s for k in keys]]))) for s in seeds]
@@ -61,7 +61,7 @@ def paired_summary(left,right,metrics=METRICS,*,upper_tail_policy=None):
                 indices=[i for s in rng.choice(seeds,size=len(seeds),replace=True) for i in clusters[s]]
                 replicates.append(center(y[indices])-center(x[indices]))
         result[metric]=dict(status="complete", arithmetic_mean_change=float(np.mean(delta)),
-            trimmed_mean_change=center(y)-center(x), improved=int(sum(delta<0)),
+            **({"unfiltered_mean_change":center(y)-center(x)} if mean_only else {"trimmed_mean_change":center(y)-center(x)}), improved=int(sum(delta<0)),
             worsened=int(sum(delta>0)), unchanged=int(sum(delta==0)), seed_mean_changes=per_seed,
             exploratory_paired_cluster_interval=(np.quantile(replicates,[.025,.975]).tolist() if replicates else None),
             inference="fixed adaptive panel; few clusters; no independent validation or significance claim")
@@ -121,13 +121,23 @@ class EvidenceTools:
         self.outlier_policy=None
         self.statistics_policy=STATISTICS_POLICY
         self.population_fields=()
-        if condition and is_absolute(condition):
+        from . import condition_evaluation as fitted
+        if condition and is_absolute(condition) and not fitted.enabled(domain):
             from .coordinate_statistics import policy, CONFIG, POLICY as statistics_id, RANKING, SUMMARY
             config=read(self.root/"GEOMETRY_CONFIG.json") if (self.root/"GEOMETRY_CONFIG.json").exists() else {}
             self.outlier_policy=policy(config)
             self.population_fields=(RANKING,SUMMARY)
             self.statistics_policy=dict(id=statistics_id,**self.outlier_policy,
                 ranking_change=True,lower_tail_excluded=False,scope="population statistics only; gradients unchanged")
+        from . import condition_evaluation as fitted
+        self.aligned_evaluation = fitted.enabled(domain)
+        if self.aligned_evaluation:
+            from .coordinate_statistics import RANKING, SUMMARY
+            self.metrics = (fitted.METRIC, fitted.POSE, *coordinate_metrics)
+            self.primary_metric = fitted.METRIC
+            self.outlier_policy = None
+            self.population_fields = (RANKING, SUMMARY, fitted.CONFIG, fitted.MEAN, fitted.POSE)
+            self.statistics_policy = dict(id=fitted.POLICY, aggregation="complete unfiltered arithmetic mean", ranking_change=True)
         self.receipt_ids=set();self.sources={};self.records={};self.paths={}
         for run_id,row in self.history.items():
             path=(self.root/run_id).resolve()
@@ -155,6 +165,8 @@ class EvidenceTools:
                 raise ValueError("Sampling compatibility source mismatch")
             if self.outlier_policy is not None and identity["compatibility"].get("coordinate_statistics_policy")!=self.outlier_policy:
                 raise ValueError("Upper-tail statistics policy differs from measured configuration")
+            if self.aligned_evaluation and identity["compatibility"].get(fitted.CONFIG) != domain[fitted.CONFIG]:
+                raise ValueError("Condition evaluation source differs from the domain")
             records=read(path/"records.json")
             if len(records)!=row["attempts"] or len({(r["logical_seed"],r["logical_slot"]) for r in records})!=len(records):
                 raise ValueError("Measured population count/identity mismatch")
@@ -182,6 +194,11 @@ class EvidenceTools:
             specs=[(name,("Check actual executability and attempt costs for independent alternatives and their selected portfolio; no sampling."
                           if name=="audit_action_batch" else description),schema)
                    for name,description,schema in specs if name!="inspect_interval_evidence"]
+        if self.aligned_evaluation:
+            descriptions = {
+                'summarize_population':'Read the unfiltered complete-50 condition-aligned mean and separate pose/quality diagnostics.',
+                'audit_action_batch':'Audit every proposal: real parents, evidence, independent early directions, grid, novelty, and cumulative budget; no sampling.'}
+            specs = [(name,descriptions.get(name,description),schema) for name,description,schema in specs]
         if condition and condition.get("reward_policy"):
             from .geometry_condition import validate
             validate(condition)
@@ -259,6 +276,10 @@ class EvidenceTools:
             key=lambda r:r[self.primary_metric],reverse=True)[:3]
         def summary(metric):
             values=[r.get(metric) for r in rows]
+            if self.aligned_evaluation:
+                from .condition_evaluation import summarize as fitted_summary
+                from .coordinate_statistics import descriptive
+                return fitted_summary(values) if metric == self.primary_metric else descriptive(values)
             if self.outlier_policy is None:return metric_summary(values)
             from .coordinate_statistics import summarize,descriptive
             return summarize(values,self.outlier_policy) if metric==self.primary_metric else descriptive(values)
@@ -270,7 +291,8 @@ class EvidenceTools:
             worst_controlled_geometry=[dict(aggregation_scope="single molecule",**{k:r.get(k) for k in
                 ("node_id","logical_seed","logical_slot",*self.metrics)}) for r in worst],
             quality_scope="No additional PLIP/PoseBusters evaluation; do not infer unselected results",
-            ranking=("upper-RMSD-filtered population mean; raw outcomes and low RMSD retained"
+            ranking=("condition-only fitted RMSD; unfiltered mean of all 50 candidates" if self.aligned_evaluation else
+                     "upper-RMSD-filtered population mean; raw outcomes and low RMSD retained"
                      if self.outlier_policy is not None else "descriptive only; original scientific ranking unchanged"))
 
     def _compare_paired_runs(self,reference_id,candidate_id):
@@ -279,7 +301,7 @@ class EvidenceTools:
         a,b=self.history[reference_id],self.history[candidate_id]
         if any(a.get(k)!=b.get(k) or a.get(k) is None for k in ("teacher_id","condition_sha256","compatibility_sha256","attempts")):
             return dict(status="unavailable",reason="Different teacher, condition, sampling protocol or population")
-        result=paired_summary(self.records[reference_id],self.records[candidate_id],self.metrics,upper_tail_policy=self.outlier_policy)
+        result=paired_summary(self.records[reference_id],self.records[candidate_id],self.metrics,upper_tail_policy=self.outlier_policy,mean_only=self.aligned_evaluation)
         return dict(result,reference_id=reference_id,candidate_id=candidate_id,
             independent_measurement=False if a["fingerprint"]==b["fingerprint"] else "matched existing panel; not held out")
 
@@ -361,7 +383,7 @@ class EvidenceTools:
                 config=read(self.root/"GEOMETRY_CONFIG.json")
             return audit_actions(config,list(self.history.values()),self.domain,actions,
                                  getattr(self,"action_failures",()),getattr(self,"action_learning",None),
-                                 portfolio=expanded_search(self.domain))
+                                 portfolio=expanded_search(self.domain), evidence_ids=self.receipt_ids)
         if linear_scale.enabled(self.domain):
             seen=list(self.history.values());results=[]
             for action in actions:
