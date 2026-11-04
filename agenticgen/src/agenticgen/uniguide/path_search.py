@@ -7,8 +7,8 @@ POLICY = "early-forward-backtracking-v1"
 
 
 def enabled(value):
-    return (value.get("agent_tools", {}).get("skill_release") == RELEASE
-            or value.get("path_search_policy") == POLICY)
+    return (value.get("agent_tools", {}).get("skill_release") in (RELEASE, "2.15.0")
+            or value.get("path_search_policy") in (POLICY, "stage-forward-backtracking-v2"))
 
 
 def validate_config(config):

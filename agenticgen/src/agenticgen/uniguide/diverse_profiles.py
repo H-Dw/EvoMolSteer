@@ -15,6 +15,9 @@ def resolve(action, anchors, domain, seen, failures):
     blocked=[*seen,*[r for r in failures if r.get('failure') or r.get('error') or
         r.get('evidence_status') in ('statistics_ineligible','measured_displacement_growth')]]
     if any(actual==r.get(scale.EFFECTIVE) for r in blocked):
+        from . import stage_search
+        if stage_search.enabled(domain):
+            raise ValueError('Reference the existing result outside proposals; repair proposals explicitly: '+str(stage_search.lookup(actual, seen, failures)))
         raise ValueError('Profile is already measured, reserved or failed')
     target=action.get('optimization_target',{})
     incumbent=anchors.get(target.get('incumbent_source_id'))

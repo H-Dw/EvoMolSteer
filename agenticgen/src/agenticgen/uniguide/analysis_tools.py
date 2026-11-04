@@ -210,6 +210,18 @@ class EvidenceTools:
                 object_schema(dict(anchor_id=ids,**{k:dict(type="integer",enum=[0,1]) for k in KEYS},
                     evidence_ids=dict(type="array",minItems=1,maxItems=4,uniqueItems=True,
                         items=dict(type="string",pattern="^ev_[0-9a-f]{20}$")),reason=dict(type="string",minLength=1,maxLength=350)))))
+        from . import stage_search
+        if stage_search.enabled(domain):
+            revised=[]
+            for name,description,schema in specs:
+                if name=='audit_action_batch':
+                    schema['properties']['search_focus']=stage_search.focus_schema(self.history)
+                    schema['required'].append('search_focus')
+                    schema['properties']['stage_partition']=dict(anyOf=[stage_search.partition_schema(domain),dict(type='null')])
+                    schema['required'].append('stage_partition')
+                revised.append((name,description,schema))
+            specs=revised
+            specs.append(('lookup_schedule','Find a compatible measured complete schedule to reference without a new proposal or sampling.',object_schema(dict(target_scale_schedule=dict(type='array',minItems=len(domain['search_grids']),maxItems=len(domain['search_grids']),items=dict(type='integer'))))))
         self.definitions=[dict(type="function",function=dict(name=n,description=d,parameters=s)) for n,d,s in specs]
         action_source="linear_scale.py" if linear_enabled(domain) else "geometry_protocol.py"
         self.binding=dict(policy=self.statistics_policy,history_sha256=value_sha(history),domain_sha256=value_sha(domain),
@@ -217,6 +229,7 @@ class EvidenceTools:
         if condition:self.binding["reward_condition_sha256"]=condition["condition_sha256"]
         if open_domain(domain):
             self.binding["admission_implementation_sha256"]=sha(Path(__file__).with_name("linear_admission.py"))
+        if stage_search.enabled(domain): self.binding["stage_implementation_sha256"]=sha(Path(__file__).with_name("stage_search.py"))
         frozen(self.folder/"BINDING.json",self.binding)
 
     def verify_sources(self):
@@ -373,7 +386,16 @@ class EvidenceTools:
             loss_unit="angstrom_squared" if current else "unknown",
             interpretation="Current components sum half squared distance errors over pairs within each candidate. RMSD metrics retain their mean reduction; pair counts and active components affect loss magnitude. Historical loss units require their original protocol.")
 
-    def _audit_action_batch(self,actions):
+    def _lookup_schedule(self,target_scale_schedule):
+        from .stage_search import lookup
+        from .box_search import validate_profile
+        validate_profile(target_scale_schedule,self.domain)
+        result=lookup(target_scale_schedule,list(self.history.values()),getattr(self,"action_failures",()))
+        if result["status"] == "measured" and self.sources[result["source_id"]]["status"] != "available":
+            raise EvidenceIntegrityError("Cached measurement lacks a verified completion receipt")
+        return result
+
+    def _audit_action_batch(self,actions,search_focus=None,stage_partition=None):
         from . import linear_scale
         if linear_scale.open_domain(self.domain):
             from .linear_admission import audit_actions
@@ -383,7 +405,7 @@ class EvidenceTools:
                 config=read(self.root/"GEOMETRY_CONFIG.json")
             return audit_actions(config,list(self.history.values()),self.domain,actions,
                                  getattr(self,"action_failures",()),getattr(self,"action_learning",None),
-                                 portfolio=expanded_search(self.domain), evidence_ids=self.receipt_ids)
+                                 portfolio=expanded_search(self.domain), evidence_ids=self.receipt_ids, search_focus=search_focus, stage_partition=stage_partition)
         if linear_scale.enabled(self.domain):
             seen=list(self.history.values());results=[]
             for action in actions:

@@ -74,7 +74,9 @@ def advise(
     anchors = {r["id"]: r for r in history}
     if not anchors or len(anchors) != len(history):
         raise ValueError("Unique completed linear history required")
+    from . import stage_search
     from .path_search import enabled as is_path_search
+    stage_search.validate_binding(config,domain)
     path_search = is_path_search(domain)
     learning = config.get("guidance_checkpoint_context")
     if scale.open_domain(domain) and learning is None:
@@ -248,6 +250,12 @@ def advise(
 
     if path_search:
         from .path_search import focus_schema
+        if stage_search.enabled(domain):
+            focus_schema = stage_search.focus_schema
+            if learning["search_path_context"]["stage_partition"] is None:
+                proposal_schema["properties"]["stage_partition"] = stage_search.partition_schema(domain)
+                proposal_schema["required"].append("stage_partition")
+            common["decision_methodology"] = ["Partition controllable windows into Early, Middle and Late stages in the first decision; preserve the accepted mapping.", "Propose independent Early alternatives, extend forward, and revisit Early after an adopted Late change.", "Adapt suffixes with bounded historical branch opportunities and full terminal feedback.", "Reference compatible measured schedules without submitting duplicates; execute every legal novel proposal."]
         proposal_schema["properties"]["search_focus"] = focus_schema(anchors)
         proposal_schema["required"].append("search_focus")
 
@@ -255,7 +263,7 @@ def advise(
         jsonschema.validate(result, proposal_schema)
         if path_search:
             from .path_search import validate_focus
-            validate_focus(result["search_focus"], learning["search_path_context"])
+            (stage_search.validate_focus if stage_search.enabled(domain) else validate_focus)(result["search_focus"], learning["search_path_context"])
         proposed = result["proposals"]
         if (result["decision"] == "hold") != (not proposed):
             raise jsonschema.ValidationError(
@@ -282,7 +290,7 @@ def advise(
                 )
         if len({p["id"] for p in proposed}) != len(proposed):
             raise jsonschema.ValidationError("Repeated proposal identity")
-        if (domain.get('box_exclusion_policy') or path_search) and not final:
+        if (domain.get('box_exclusion_policy') or path_search) and not final and not stage_search.enabled(domain):
             from .profile_diversity import require_portfolio
             require_portfolio(proposed,domain,learning['best_checkpoint_actual_schedule'],
                               diversity_bank,common['remaining_formal_attempts'],pairwise=path_search)
@@ -290,7 +298,7 @@ def advise(
             from .linear_admission import audit_actions, require_executable
             try:
                 require_executable(audit_actions(config,history,domain,proposed,failures,learning,
-                    portfolio=expanded,evidence_ids=registry.receipt_ids),portfolio=expanded)
+                    portfolio=expanded,evidence_ids=registry.receipt_ids,search_focus=result.get("search_focus"),stage_partition=result.get("stage_partition")),portfolio=expanded)
             except ValueError as error:
                 raise jsonschema.ValidationError(str(error)) from error
 
@@ -361,6 +369,10 @@ def advise(
                       selected=list(candidates), actions=list(candidates.values()),
                       condition_evaluation=domain['condition_evaluation'],
                       search_focus=proposed["search_focus"], execution_source="deterministic_all_proposals")
+        if stage_search.enabled(domain):
+            result["stage_partition"] = proposed.get("stage_partition") or learning["search_path_context"]["stage_partition"]
+            result["stage_partition_sha256"] = value_sha(result["stage_partition"])
+            stage_search.freeze_partition(config["root"],domain,result["stage_partition"])
         frozen(folder / "DECISION.json", result)
         return result
     candidate_admission = None

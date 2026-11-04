@@ -26,9 +26,11 @@ def budget_state(config, domain):
                 unknown_configuration_stability='unmeasured; no safety or improvement guarantee')
 
 
-def audit_actions(config, history, domain, actions, failures=(), learning=None, *, portfolio=False, evidence_ids=()):
+def audit_actions(config, history, domain, actions, failures=(), learning=None, *, portfolio=False, evidence_ids=(), search_focus=None, stage_partition=None):
     from .linear_runtime import remaining_profile_cost
     from .path_search import enabled as path_search
+    from . import stage_search
+    stage_search.validate_binding(config,domain)
     state = budget_state(config,domain)
     available = state['remaining_formal_attempts']
     frontier = dict(state['range_evidence_allowance'])
@@ -97,12 +99,17 @@ def audit_actions(config, history, domain, actions, failures=(), learning=None, 
     if portfolio and all_valid and (domain.get('box_exclusion_policy') or path_search(domain)):
         from .profile_diversity import bank, require_portfolio
         try:
-            suggestions=bank(history,domain,learning['best_checkpoint_actual_schedule'],failures)
-            if actions or not path_search(domain):
-                require_portfolio(actions,domain,learning['best_checkpoint_actual_schedule'],suggestions,state['remaining_formal_attempts'])
-            if path_search(domain):
-                from .path_search import audit_early
-                early_audit = audit_early(actions, history, domain, failures, state['remaining_formal_attempts'])
+            from . import stage_search
+            if stage_search.enabled(domain):
+                early_audit = stage_search.audit(actions,history,domain,failures,
+                    state["remaining_formal_attempts"],learning,search_focus,stage_partition)
+            else:
+                suggestions=bank(history,domain,learning['best_checkpoint_actual_schedule'],failures)
+                if actions or not path_search(domain):
+                    require_portfolio(actions,domain,learning['best_checkpoint_actual_schedule'],suggestions,state['remaining_formal_attempts'])
+                if path_search(domain):
+                    from .path_search import audit_early
+                    early_audit = audit_early(actions,history,domain,failures,state["remaining_formal_attempts"])
         except ValueError as error:
             batch_ok=False;diversity_error=str(error)
     return dict(status='complete',actions=results,budget_state=state,

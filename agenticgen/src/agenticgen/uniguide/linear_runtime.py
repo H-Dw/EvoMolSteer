@@ -1,4 +1,5 @@
 """Variable allocation rounds, exact frontier evidence, and full-history retention."""
+from . import stage_search
 
 import shutil
 from pathlib import Path
@@ -399,6 +400,7 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
             raise ValueError(
                 "Linear search rules differ from the frozen domain; an explicit new binding is required"
             )
+        stage_search.validate_binding(config,domain)
         if expanded:
             from .box_search import grids,early_shape
             if domain['search_grids']!=grids(config,target) or domain['early_guidance_shape']!=early_shape(config):
@@ -532,8 +534,11 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 from .path_search import enabled as path_search, focus_schema, validate_focus
                 if path_search(domain):
                     import jsonschema
-                    jsonschema.validate(decision.get("search_focus"), focus_schema({r["id"]:r for r in current}))
-                    validate_focus(decision["search_focus"], learning["search_path_context"])
+                    stage_mode=stage_search.enabled(domain)
+                    jsonschema.validate(decision.get("search_focus"), (stage_search.focus_schema if stage_mode else focus_schema)({r["id"]:r for r in current}))
+                    (stage_search.validate_focus if stage_mode else validate_focus)(decision["search_focus"], learning["search_path_context"])
+                    if stage_mode and learning["search_path_context"]["stage_partition"] is not None and decision.get("stage_partition") != learning["search_path_context"]["stage_partition"]:
+                        raise ValueError("Stage partition changed before execution")
                 actions = decision["actions"]
                 if len(actions) > domain["control_settings"]["maximum_selected"] or (
                     decision["decision"] == "hold"
@@ -550,9 +555,11 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                     from .path_search import verified_evidence_receipts
                     observed = verified_evidence_receipts(call_folder, current, domain) if path_search(domain) else ()
                     admission = audit_actions(config,current,action_domain,actions,failed,learning,
-                                              portfolio=True,evidence_ids=observed)
+                                              portfolio=True,evidence_ids=observed,search_focus=decision.get("search_focus"),
+                                              stage_partition=(decision.get("stage_partition") if stage_search.enabled(domain) and learning["search_path_context"]["stage_partition"] is None else None))
                     frozen(call_folder / "ACTION_ADMISSION.json",admission)
                     require_executable(admission,portfolio=True)
+                    if stage_search.enabled(domain): stage_search.freeze_partition(root,domain,decision["stage_partition"])
                 else:
                     incumbent = choose(current)
                 for index, action in enumerate(actions, 1):
@@ -672,6 +679,8 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                         complete_source_ids=[r['id'] for r in measured],failed_ids=sorted(failed_ids),
                         all_hypotheses_attempted=True,complete=not failed_ids)
                 if "search_focus" in decision: saved["search_focus"] = decision["search_focus"]
+                if "stage_partition" in decision:
+                    saved.update(stage_partition=decision["stage_partition"],stage_actions=actions,stage_partition_sha256=value_sha(decision["stage_partition"]))
                 if learning:
                     saved["checkpoint"] = checkpoint(measured, incumbent,baseline=baseline)
                     saved["checkpoint_learning"] = learning
@@ -735,6 +744,8 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                 # Search completion and the retained population's validity are separate facts.
                 summaries[target]['ranking_measurement'] = {k:winner[k] for k in
                     ('id', 'complete', 'attempts', CONFIG, MEAN, METRIC, RANKING, SUMMARY)}
+            if stage_search.enabled(domain):
+                summaries[target]['search_path_context'] = final_learning['search_path_context']
             if scale.open_domain(domain):
                 summaries[target].update(calibration_baseline=node_summary(baseline),
                     global_best_includes_calibration=True,

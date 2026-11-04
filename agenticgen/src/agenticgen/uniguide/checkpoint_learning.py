@@ -209,7 +209,9 @@ def best_state(learning):
                 change_from_calibration=learning["change_from_calibration"],
                 best_decision_path=learning["best_decision_path"],
                 best_path_sha256=learning["best_path_sha256"],
-                **{k:learning[k] for k in ('condition_evaluation','performance_metric') if k in learning})
+                **{k:learning[k] for k in ('condition_evaluation','performance_metric') if k in learning},
+                **(dict(search_path_context=learning['search_path_context'])
+                   if learning.get('search_path_context',{}).get('policy')=='stage-forward-backtracking-v2' else {}))
 
 
 def rooted_context(config, history, completed_rounds, domain):
@@ -258,7 +260,14 @@ def rooted_context(config, history, completed_rounds, domain):
     if path_search(domain):
         from . import condition_evaluation as fitted
         result.update(condition_evaluation=domain[fitted.CONFIG], performance_metric=fitted.MEAN)
-        result["search_path_context"] = path_context(history, completed_rounds)
+        from . import stage_search
+        result["search_path_context"] = (stage_search.context(history, completed_rounds, domain, best) if stage_search.enabled(domain) else path_context(history, completed_rounds))
+        if stage_search.enabled(domain):
+            result["search_path_context"] = stage_search.restore_partition(config["root"],domain,result["search_path_context"])
+            pending = result["search_path_context"].get("pending_early_revisit")
+            if pending:
+                pending.update(status="unfulfilled_at_round_limit" if len(completed_rounds)>=config["rounds"] else "due_next_round",
+                               additional_rounds_authorized=False)
         if stalled and rebase: result['rollback_reason'] = 'two_adjacent_completed_rounds_without_global_improvement'
         result["instruction"] = (
             "Review the measured best path and all relevant side branches. After two rounds without improvement, "
