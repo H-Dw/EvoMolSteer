@@ -11,7 +11,7 @@ from .io import read,write,frozen,sha,value_sha,Budget
 from .native_tools import cpu,device,load_pt,save_pt,tensor_digest
 from . import condition_evaluation as fitted
 
-POLICY='iterative-affinity-teacher-v1'
+POLICY='iterative-affinity-teacher-v2'
 
 
 def seeds(round_number):
@@ -95,7 +95,7 @@ def validate(config):
         or config.get('teacher_iteration')!=dict(rmsd_max_angstrom=.5,pb_top_k=10,rounds=5,population=50)
         or config.get('windows')!=[list(w) for w in SIX] or not fitted.enabled(config)
         or config.get('agent_tools') is not None or config.get('output_policy')!='raw999'
-        or config.get('chemical_inpainting')!=dict(enabled=True,activation='guidance_phase',scope='full_molecule_graph')
+        or config.get('chemical_inpainting')!=dict(enabled=True,activation='guidance_phase')
         or config.get('prefix_inpainting')!={'enabled':False}):
         raise ValueError('Iterative teacher configuration differs from its fixed protocol')
     policy(config)
@@ -114,10 +114,15 @@ def run(config):
     from .profiling import quality,plip_profile
     from .quality import built_molecules
     from .batching import take
-    config=validate(config);root=Path(config['root']);root.mkdir(parents=True,exist_ok=True)
+    config=validate(config)
+    # Use the same PB/PLIP dependency bundle as experiment 1's quality workers.
+    if config.get('plip_dependencies'):
+        import sys
+        sys.path.insert(0,config['plip_dependencies'])
+    root=Path(config['root']);root.mkdir(parents=True,exist_ok=True)
     frozen(root/'GEOMETRY_CONFIG.json',config)
     frozen(root/'SOURCE_BINDING.json',dict(implementation={name:sha(Path(__file__).with_name(name)) for name in
-        ['iterative_affinity.py','full_graph.py','geometry_chemistry.py','geometry_sampling.py','condition_evaluation.py']},
+        ['iterative_affinity.py','geometry_chemistry.py','geometry_sampling.py','condition_evaluation.py']},
         checkpoint_sha256=config['checkpoint_sha256']))
     target=config['conditions'][0]['teacher_id']
     template=next(t for t in read(Path(config['generation_context_root'])/'teachers.json') if t['target']==target)
@@ -135,9 +140,10 @@ def run(config):
     source_mol=next(m for m in Chem.SDMolSupplier(template['sdf'],removeHs=True) if m is not None)
     baseline_features=from_molecule(source_mol,[],coordinate_frame='generation_context_angstrom')
     baseline_features['controlled_atom_ids']=[a['id'] for a in baseline_features['atoms']]
-    all_condition=prepare(baseline_features,template['protein'])
-    chemical,_,_=condition_features(model,all_condition)
-    teacher_output={k:v[None].to('cuda').float() for k,v in chemical.items()}
+    # The affinity scorer needs the complete ligand; this is not the inpainting scope.
+    scoring_condition=prepare(baseline_features,template['protein'])
+    baseline_channels,_,_=condition_features(model,scoring_condition)
+    teacher_output={k:v[None].to('cuda').float() for k,v in baseline_channels.items()}
     teacher_output.update(coords=torch.tensor(baseline_features['coordinates_angstrom'],device='cuda',dtype=torch.float32)[None],
                           mask=torch.ones((1,len(baseline_features['atoms'])),device='cuda'))
     baseline=rescore(model,teacher_output,first,com)[0]
@@ -149,7 +155,8 @@ def run(config):
         init=fresh_initial(config,target,n,round_number,prior_sampler,symmetrize)
         save_pt(destination/'initial.pt.gz',init)
         frozen(destination/'INPUT.json',dict(teacher_id=teacher['id'],condition_sha256=teacher['condition']['condition_sha256'],
-            chemical_template_sha256=value_sha(teacher['features']),seeds=seeds(round_number),scale=schedule,initial_sha256=sha(destination/'initial.pt.gz')))
+            chemical_template_sha256=value_sha(teacher['features']),
+            chemical_controlled_atom_ids=teacher['condition']['controlled_atom_ids'],seeds=seeds(round_number),scale=schedule,initial_sha256=sha(destination/'initial.pt.gz')))
         binding=scale_binding(schedule,condition=teacher['condition'],window_bounds=config['windows'],early_shape='constant')
         output,pt,_,_=sample(model,config,template,schedule,destination,50,initial_override=init,
             control_factory=functools.partial(GeometryControl,condition=teacher['condition'],scale_binding=binding),check_affinity=False)
@@ -176,9 +183,10 @@ def run(config):
             if active:
                 for name,values in step.items():
                     if name.startswith('chemical_') and name.endswith('_after_match_fraction') and any(v!=1 for v in values):
-                        raise ValueError('Full graph was not completely inpainted')
+                        raise ValueError('Interaction region was not completely inpainted')
         frozen(acceptance/'COMPLETE.json',dict(engineering_only=True,trajectory_evaluations=50,records_sha256=sha(acceptance/'records.json'),
-            full_graph=True,terminal_projection=False,complete_terminal_rescore=True))
+            chemical_inpainting_scope='controlled_atoms_and_induced_bonds',
+            terminal_projection=False,complete_terminal_rescore=True))
     for iteration in range(1,6):
         out=root/'rounds'/f'{iteration:03d}';done=out/'ROUND_COMPLETE.json'
         if done.exists():
@@ -208,7 +216,7 @@ def run(config):
                 atom_ids=[str(a.GetAtomMapNum()) if a.GetAtomMapNum() else 'atom_%04d'%a.GetIdx() for a in mol.GetAtoms()]
                 new_features=from_molecule(mol,[atom_ids[i] for i in profile['core_atoms']],coordinate_frame='generation_context_angstrom')
                 new_condition=prepare(new_features,template['protein'])
-                condition_features(model,dict(new_condition,controlled_atom_ids=atom_ids))
+                condition_features(model,new_condition)
                 return dict(features=new_features,condition=new_condition,profile=profile)
             choice,pb=select(rows,current,assess,build);write(out/'PROMOTION_AUDIT.json',dict(top_k=10,checks=pb))
             if choice:
@@ -234,5 +242,6 @@ def run(config):
         improvement=current['pic50']-baseline,attempts=250,complete=not any(r.get('failed') for r in rounds))
     frozen(root/'FINALIZED.json',result);frozen(root/'ONLINE_PROTOCOL_AUDIT.json',dict(policy=POLICY,
         scientific_attempts=250,engineering_attempts=50,rounds=5,agent_calls=0,terminal_projection=False,
+        chemical_inpainting_scope='controlled_atoms_and_induced_bonds',
         final_sha256=sha(root/'FINALIZED.json')))
     return result

@@ -29,6 +29,61 @@ def test_seed_disjointness_and_fixed_iterative_config():
     with pytest.raises(ValueError):it.validate(c)
 
 
+def test_iterative_chemical_policy_equals_experiment_one():
+    from agenticgen.uniguide.geometry_chemistry import policy
+    folder=Path(__file__).resolve().parents[2]/'configs'
+    base=read(folder/'uniguide_absolute_coordinate.json')
+    first=dict(base,**read(folder/'uniguide_stage_10_chemical.json'))
+    third=dict(base,**read(folder/'uniguide_iterative_affinity.json'))
+    assert first['chemical_inpainting']==third['chemical_inpainting']
+    assert policy(first)==policy(third)
+    third['conditions']=third['conditions'][:1]
+    old=copy.deepcopy(third);old['chemical_inpainting']['scope']='full_molecule_graph'
+    with pytest.raises(ValueError):it.validate(old)
+
+
+def test_iterative_inpaints_only_current_interaction_region(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    from agenticgen.uniguide import geometry_chemistry as chemistry
+    from agenticgen.uniguide.io import value_sha
+    import torch.nn.functional as F
+    folder=Path(__file__).resolve().parents[2]/'configs'
+    cfg=dict(read(folder/'uniguide_absolute_coordinate.json'),**read(folder/'uniguide_iterative_affinity.json'))
+    cond=dict(atoms=[dict(id=str(i)) for i in range(4)],controlled_atom_ids=['0','2'],condition_sha256='test')
+    features=dict(atomics=F.one_hot(torch.tensor([0,2]),3).float(),
+        charges=F.one_hot(torch.tensor([0,1]),2).float(),hybridization=F.one_hot(torch.tensor([1,0]),2).float(),
+        bonds=F.one_hot(torch.zeros((2,2),dtype=torch.long),5).float())
+    observed=[]
+    def encode(model,condition):
+        observed.append(condition['controlled_atom_ids'])
+        binding=dict(controlled_atom_ids=condition['controlled_atom_ids'])
+        return features,[],dict(binding,chemical_condition_sha256=value_sha(binding))
+    monkeypatch.setattr(chemistry,'condition_features',encode)
+    monkeypatch.setattr(full_graph,'assignment',lambda *a:pytest.fail('Full graph assignment must not run'))
+    control=SimpleNamespace(sampling_policy=dict(chemical_inpainting=chemistry.policy(cfg)),absolute_config=cfg,
+        geometry_condition=cond,model=object(),folder=tmp_path,rows=[{}],
+        absolute_state=SimpleNamespace(rows=[dict(slots=[3,1])]),store=lambda *a:None)
+    chemistry.ChemicalStateInpainting.configure_chemistry(control)
+    assert observed==[['0','2']]
+    state=dict(coords=torch.randn((1,4,3)),mask=torch.ones((1,4),dtype=torch.bool),
+        atomics=F.one_hot(torch.ones((1,4),dtype=torch.long),3).float(),
+        charges=F.one_hot(torch.zeros((1,4),dtype=torch.long),2).float(),
+        hybridization=F.one_hot(torch.ones((1,4),dtype=torch.long),2).float(),
+        bonds=F.one_hot(torch.ones((1,4,4),dtype=torch.long),5).float())
+    before=torch.get_rng_state().clone()
+    for step in (0,99):assert chemistry.ChemicalStateInpainting.apply_chemical_inpainting(control,state,step) is state
+    for step in (1,98):
+        out=chemistry.ChemicalStateInpainting.apply_chemical_inpainting(control,state,step)
+        assert out['coords'] is state['coords'] and out['mask'] is state['mask']
+        for key in ('atomics','charges','hybridization'):
+            assert torch.equal(out[key][:,[0,2]],state[key][:,[0,2]])
+        for i in range(4):
+            for j in range(4):
+                if (i,j) not in ((3,1),(1,3)):assert torch.equal(out['bonds'][:,i,j],state['bonds'][:,i,j])
+        assert out['atomics'][0,[3,1]].argmax(-1).tolist()==[0,2]
+    assert torch.equal(before,torch.get_rng_state())
+
+
 def test_full_graph_anchors_core_and_covers_all_slots():
     cond=dict(atoms=[dict(id=str(i)) for i in range(4)],controlled_atom_ids=['0','2'],
         reference_coordinates_angstrom=[[0,0,0],[1,0,0],[0,1,0],[0,0,1]],
