@@ -37,7 +37,7 @@ def derive_domain(config, subject, binding, rows):
     target = subject["teacher"]["target"]
     winner = choose(rows)
     protocol = value_sha(binding); condition = subject["condition"]["condition_sha256"]
-    body = dict(scale_policy=scale.OPEN_POLICY, path_search_policy=("stage-forward-backtracking-v2" if config["agent_tools"]["skill_release"] == "2.15.0" else path_search.POLICY),
+    body = dict(scale_policy=scale.OPEN_POLICY, path_search_policy=("stage-forward-backtracking-v2" if config["agent_tools"]["skill_release"] in ("2.15.0","2.16.0") else path_search.POLICY),
         condition_evaluation=dict(policy=EVALUATION), teacher_id=target, condition_sha256=condition,
         sampling_protocol_sha256=protocol, calibration_key=value_sha([target, condition, protocol]),
         control_settings=config["guidance_control"], calibrated_guidance_reference_scale=0,

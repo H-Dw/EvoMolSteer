@@ -202,7 +202,7 @@ def ensure_limits(config, subject_count):
             ),
             per_teacher_stage_caps=dict(calibration=cap,
                 **(dict(formal=50*config['guidance_control']['maximum_selected']*config['rounds'])
-                   if config.get('agent_tools',{}).get('skill_release') in ('2.12.0','2.13.0','2.14.0','2.15.0') else {})),
+                   if config.get('agent_tools',{}).get('skill_release') in ('2.12.0','2.13.0','2.14.0','2.15.0','2.16.0') else {})),
         ),
     )
 

@@ -173,6 +173,10 @@ def load_model(config, teacher, datasets=False):
         from flowr.gen import utils as util
         from flowr.gen.generate_from_pdb_selective import get_dataset
         transform, interpolant = util.load_util(args,hp,vocab,vc,vh,va)
+        if datasets=='prior':
+            from .chunking import install
+            install(model);instrument(model,Path(config['root'])/'provenance/native')
+            return model,interpolant.prior_sampler,interpolant.symmetrize
         st,so = util.load_data_from_pdb_selective(args,remove_hs=hp["remove_hs"],remove_aromaticity=hp["remove_aromaticity"])
         dt=get_dataset(st,transform,vocab,interpolant,args,hp)
         do=get_dataset(so,transform,vocab,interpolant,args,hp)

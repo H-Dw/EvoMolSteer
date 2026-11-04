@@ -7,7 +7,7 @@ POLICY = "early-forward-backtracking-v1"
 
 
 def enabled(value):
-    return (value.get("agent_tools", {}).get("skill_release") in (RELEASE, "2.15.0")
+    return (value.get("agent_tools", {}).get("skill_release") in (RELEASE, "2.15.0", "2.16.0")
             or value.get("path_search_policy") in (POLICY, "stage-forward-backtracking-v2"))
 
 
@@ -26,7 +26,7 @@ def validate_config(config):
         raise ValueError("Path search disables box Selection")
     if "guidance_box_mask" in config and config["guidance_box_mask"] != [True] * 6:
         raise ValueError("All six path-search boxes must remain available")
-    if windows(config) != [list(w) for w in SIX] or config["rounds"] != 5:
+    if windows(config) != [list(w) for w in SIX] or config["rounds"] != (10 if config["agent_tools"]["skill_release"]=="2.16.0" else 5):
         raise ValueError("Path search requires six windows and five rounds")
     settings = config["guidance_control"]
     required = dict(maximum_attempts_per_teacher=500, maximum_proposals=5, maximum_selected=5,

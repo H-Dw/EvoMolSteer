@@ -16,9 +16,14 @@ STEP_FIELDS=("chemical_inpainting_applied",)+tuple(
 
 def policy(config):
     settings=config.get("chemical_inpainting",{"enabled":True})
-    if (not isinstance(settings,dict) or "enabled" not in settings or set(settings)-{"enabled","activation"}
+    if (not isinstance(settings,dict) or "enabled" not in settings or set(settings)-{"enabled","activation","scope"}
             or type(settings["enabled"]) is not bool):
         raise ValueError("chemical_inpainting requires boolean enabled and optional activation")
+    scope=settings.get('scope','controlled_atoms_and_induced_bonds')
+    if scope not in ('controlled_atoms_and_induced_bonds','full_molecule_graph'):
+        raise ValueError('Unknown chemical inpainting scope')
+    if scope=='full_molecule_graph' and config.get('experiment_mode')!='iterative-affinity-teacher-v1':
+        raise ValueError('Full graph inpainting requires the iterative teacher protocol')
     bounds = [10,99]
     extra = {}
     if "activation" in settings:
@@ -32,7 +37,7 @@ def policy(config):
     correspondence=("current_step_endpoint_hungarian_shared_with_coordinate_loss" if config.get("atom_assignment_policy")==DYNAMIC_ASSIGNMENT else
                     "initial_endpoint_hungarian_then_frozen_per_candidate" if config.get("protocol")==absolute_policy
                     else "frozen_condition_atom_to_generated_slot")
-    return dict(policy=POLICY,enabled=settings["enabled"],scope="controlled_atoms_and_induced_bonds",
+    return dict(policy=POLICY,enabled=settings["enabled"],scope=scope,
         step_bounds=bounds,stage="after_native_transition_and_coordinate_guidance",**extra,
         correspondence=correspondence,coordinates_replaced=False,
         self_conditioning_replaced=False,terminal_projection=False,
@@ -97,7 +102,13 @@ class ChemicalStateInpainting:
         self.chemical_binding=None
         if (self.sampling_policy["chemical_inpainting"]["enabled"]
                 or getattr(self,"absolute_config",{}).get("prefix_inpainting",{}).get("enabled",False)):
-            self.chemical_features,self.chemical_slots,self.chemical_binding=condition_features(self.model,self.geometry_condition)
+            feature_condition=self.geometry_condition
+            if self.sampling_policy['chemical_inpainting']['scope']=='full_molecule_graph':
+                feature_condition=dict(feature_condition,controlled_atom_ids=[a['id'] for a in feature_condition['atoms']])
+            self.chemical_features,self.chemical_slots,self.chemical_binding=condition_features(self.model,feature_condition)
+            if self.sampling_policy['chemical_inpainting']['scope']=='full_molecule_graph':
+                self.chemical_binding['scope']='full_molecule_graph'
+                self.chemical_binding['chemical_condition_sha256']=value_sha({k:v for k,v in self.chemical_binding.items() if k!='chemical_condition_sha256'})
             settings=self.sampling_policy["chemical_inpainting"]
             if "activation" in settings:
                 body={k:v for k,v in self.chemical_binding.items() if k!="chemical_condition_sha256"}
@@ -117,8 +128,15 @@ class ChemicalStateInpainting:
             ids=torch.tensor([self.absolute_state.rows[i]["slots"] for i in range(n)],device=state["mask"].device)
         else:
             ids=torch.tensor(self.chemical_slots,device=state["mask"].device)[None].expand(n,-1)
+        if self.sampling_policy['chemical_inpainting']['scope']=='full_molecule_graph':
+            from .full_graph import assignment
+            xyz=state['coords']*self.model.coord_scale+self.com[:,None,:]
+            ids=assignment(xyz,state['mask'].bool(),self.geometry_condition,ids)
         before=match_fractions(state,ids,self.chemical_features)
         result,_=project_chemistry(state,ids,self.chemical_features)
+        if self.sampling_policy['chemical_inpainting']['scope']=='full_molecule_graph':
+            batch=torch.arange(n,device=ids.device)[:,None,None]
+            result['bonds'][batch,ids[:,:,None],ids[:,None,:]]=self.chemical_features['bonds'].to(result['bonds'])[None]
         after=match_fractions(result,ids,self.chemical_features)
         for stage,values in (("before",before),("after",after)):
             for key,value in values.items():self.rows[-1][f"chemical_{key}_{stage}_match_fraction"]=value

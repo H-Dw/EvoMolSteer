@@ -8,7 +8,7 @@ POLICY = "stage-forward-backtracking-v2"
 STAGES = ("early", "middle", "late")
 
 def enabled(value):
-    return value.get("path_search_policy") == POLICY or value.get("agent_tools", {}).get("skill_release") == "2.15.0"
+    return value.get("path_search_policy") == POLICY or value.get("agent_tools", {}).get("skill_release") in ("2.15.0","2.16.0")
 
 def validate_binding(config, domain):
     if enabled(config) != enabled(domain):
