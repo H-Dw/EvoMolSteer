@@ -222,6 +222,38 @@ def test_initial_teacher_rescore_supports_native_size_embedding(atoms):
     assert torch.equal(rng,torch.get_rng_state())
 
 
+def test_fresh_prior_converts_native_float_mask_without_consuming_caller_rng(monkeypatch):
+    import sys
+    from types import ModuleType,SimpleNamespace
+    from agenticgen.uniguide import sampler
+    from agenticgen.runtime.rng import rng_state
+    module=ModuleType('flowr.util.molrepr')
+    seen=[]
+    class Batch:
+        @staticmethod
+        def from_list(mols):
+            assert len(mols)==50
+            return SimpleNamespace(coords=torch.zeros((50,4,3)),atomics=torch.zeros((50,4,3)),
+                bonds=torch.zeros((50,4,4,5)),charges=torch.zeros((50,4,2)),hybridization=None,
+                # Matches upstream GeometricMolBatch.mask's float torch.ones.
+                mask=torch.ones((50,4)))
+    class Prior:
+        def sample_molecule(self,n,symmetrize):
+            assert n==4 and symmetrize is False
+            seen.append(float(torch.rand(())));return object()
+    module.GeometricMolBatch=Batch
+    monkeypatch.setitem(sys.modules,'flowr.util.molrepr',module)
+    monkeypatch.setattr(sampler,'population',lambda *a:dict(prior={},population=50))
+    before=it.tensor_digest(rng_state())
+    initial=it.fresh_initial({},'teacher',4,1,Prior(),False)
+    # Exercise the exact consumer contract, rather than checking a dtype alone.
+    counts=initial['prior']['mask'].sum(-1)
+    embedded=torch.nn.functional.embedding(counts,torch.arange(5,dtype=torch.float32)[:,None])
+    assert embedded[:,0].tolist()==[4.]*50
+    assert len(seen)==100 and len(initial['stream_states'])==5
+    assert it.tensor_digest(rng_state())==before
+
+
 def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch):
     from rdkit import Chem
     from agenticgen.uniguide import prepare,sampler,geometry_sampling,absolute_coordinate,geometry_chemistry

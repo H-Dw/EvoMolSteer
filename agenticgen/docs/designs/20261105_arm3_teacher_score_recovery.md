@@ -19,12 +19,20 @@ was supplied instead of the frozen first-window shape descriptor. Use the shared
 shape constructor for fixed-scale agent-free iteration too. The regression now
 expands the actual binding through `GeometryControl`, including native endpoints.
 
+The second recovery (`attempt_004`, commit `c820e17d`) passed 20 remote tests
+and reached the first native forward. Upstream `GeometricMolBatch.mask` constructs
+a floating padding mask, unlike the frozen native initial priors. Normalize this
+fresh-prior mask to `torch.long` too. It stopped before completing any inference
+step: `steps.json` and `rng_ledger.json` are empty and science reservations are
+zero. The new regression exercises this batch construction and the embedding
+consumer while checking that fresh-prior generation restores the caller RNG.
+
 Run `deploy_arm3_score_recovery.py` only after committing and publishing the fix.
-It verifies the preserved pre-inference binding failure, zero scientific
-reservations and no executed engineering trajectory, the unchanged experiment-1
+It verifies the preserved first-forward index failure, zero scientific
+reservations and no completed engineering step, the unchanged experiment-1
 fixed scale source, and the campaign budget.
 It creates a separate frozen checkout and revision plan, and runs only experiment
-3/6pyy in `jobs/05_arm3_6pyy/attempt_004`. It preserves attempts 001/002/003 and does
+3/6pyy in `jobs/05_arm3_6pyy/attempt_005`. It preserves attempts 001/002/003/004 and does
 not restart experiments 1/2 or the dependency-blocked 3w54 chain.
 
 The new coordinator runs CPU tests, waits for the shared GPU lock, then runs the
@@ -36,7 +44,7 @@ recorded without automatic resampling. The new plan caps science at 250 candidat
 the prior campaign has used 6,250 and its total cap remains 12,500.
 
 Recovery state lives under
-`/workspace/agenticgen_stage_affinity_campaign_20261104/revisions/arm3_teacher_score_binding`.
+`/workspace/agenticgen_stage_affinity_campaign_20261104/revisions/arm3_integer_masks`.
 `REVISION_FINISHED.all_success` describes this single recovered task. It must not
 be reported as success of the whole six-task campaign; the other failures remain.
 Background inspection should follow the new launch identity and this attempt,

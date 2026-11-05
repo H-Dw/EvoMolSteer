@@ -86,6 +86,9 @@ def fresh_initial(config,target,n,round_number,prior_sampler,symmetrize):
             mols.extend(group[:10]);streams.append(rng_state())
         batch=GeometricMolBatch.from_list(mols)
         prior={k:getattr(batch,k) for k in ('coords','atomics','bonds','charges','mask')}
+        # GeometricMolBatch builds a float padding mask; FLOWR's size embedding
+        # requires the integral atom-count contract of the frozen native priors.
+        prior['mask']=prior['mask'].long()
         if getattr(batch,'hybridization',None) is not None:prior['hybridization']=batch.hybridization
         for key in ('interactions','fragment_mode'):
             if key in initial['prior']:prior[key]=initial['prior'][key]
