@@ -99,19 +99,20 @@ def test_invalid_endpoint_inputs_fail_before_network(fault):
     with pytest.raises(ValueError):it.rescore(model,out,dict(coords=torch.ones((1,1,3))),com)
 
 
-def initial_state(n=4):
-    return dict(population=50,prior=endpoint(50,n),target_com=torch.ones((50,3)),
-        stream_states=[{}]*5,pocket_target=dict(coords=torch.ones((50,3,3))),pocket_off=dict(coords=torch.ones((50,3,3))))
+def initial_state(n=4,count=50):
+    return dict(population=count,prior=endpoint(count,n),target_com=torch.ones((count,3)),
+        stream_states=[{}]*5,pocket_target=dict(coords=torch.ones((count,3,3))),pocket_off=dict(coords=torch.ones((count,3,3))))
 
 
-def test_teacher_size_changes_preserve_fixed_protein_frame_and_dense_schema():
-    reference=initial_state();initial=initial_state(7);condition=dict(atoms=[{}]*7)
+@pytest.mark.parametrize('count',[20,50])
+def test_teacher_size_changes_preserve_fixed_protein_frame_and_dense_schema(count):
+    reference=initial_state(count=count);initial=initial_state(7,count=count);condition=dict(atoms=[{}]*7)
     assert inputs.audit_initial(initial,reference,condition)['atoms']==7
     initial['target_com'][0,0]=2
     with pytest.raises(ValueError,match='frame'):inputs.audit_initial(initial,reference,condition)
-    initial=initial_state(7);initial['prior']['mask'][0,0]=0
+    initial=initial_state(7,count=count);initial['prior']['mask'][0,0]=0
     with pytest.raises(ValueError,match='counts'):inputs.audit_initial(initial,reference,condition)
-    initial=initial_state(7);initial['pocket_target']['coords'][0,0,0]=2
+    initial=initial_state(7,count=count);initial['pocket_target']['coords'][0,0,0]=2
     with pytest.raises(ValueError,match='frame'):inputs.audit_initial(initial,reference,condition)
 
 

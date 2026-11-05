@@ -78,8 +78,9 @@ def audit_teacher(model,teacher,protein):
 def audit_initial(initial,reference,condition):
     from .iterative_affinity import validate_prior
     n=len(condition['atoms']);validate_prior(initial['prior'],reference['prior'],n)
-    if initial.get('population')!=50 or len(initial['stream_states'])!=5:
-        raise ValueError('Fresh inference requires fifty rows and five independent seed streams')
+    count=initial.get('population')
+    if type(count) is not int or count not in (20,50) or reference.get('population')!=count or len(initial['stream_states'])!=5:
+        raise ValueError('Fresh inference requires the configured twenty/fifty rows and five independent seed streams')
     validate_endpoint(initial['prior'])
     if not bool((initial['prior']['mask'].sum(-1)==n).all()):
         raise ValueError('Generated slot counts differ from the current teacher heavy-atom count')
@@ -87,12 +88,12 @@ def audit_initial(initial,reference,condition):
         if tensor_digest(initial[key])!=tensor_digest(reference[key]):
             raise ValueError('Fresh inference changed the frozen pocket/frame: '+key)
     center=initial['target_com']
-    if center.shape!=(50,3) or not bool(torch.isfinite(center).all()) or not torch.equal(center,center[:1].expand_as(center)):
+    if center.shape!=(count,3) or not bool(torch.isfinite(center).all()) or not torch.equal(center,center[:1].expand_as(center)):
         raise ValueError('Initial teacher scoring and candidate scoring require the same fixed pocket center')
     pocket=initial['pocket_target']
     if not torch.equal(pocket['coords'],pocket['coords'][:1].expand_as(pocket['coords'])):
         raise ValueError('Initial teacher scoring and candidate scoring use different protein pockets')
-    return dict(population=50,atoms=n,prior={k:dict(shape=list(v.shape),dtype=str(v.dtype)) for k,v in initial['prior'].items() if torch.is_tensor(v)},
+    return dict(population=count,atoms=n,prior={k:dict(shape=list(v.shape),dtype=str(v.dtype)) for k,v in initial['prior'].items() if torch.is_tensor(v)},
         pocket_sha256=tensor_digest(pocket),target_com_sha256=tensor_digest(center),
         frame='world angstrom output; (output - target_com) / coord_scale for affinity only',
         reference_pocket_and_center_unchanged=True)

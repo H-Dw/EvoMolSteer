@@ -85,10 +85,11 @@ def prior_from_batch(batch):
 
 def validate_prior(prior,reference,n):
     """Check vocabulary widths against frozen native inputs, allowing new sizes."""
+    population=len(reference['coords'])
     for name,axes in [('coords',1),('atomics',1),('bonds',2),('charges',1),('mask',1),('hybridization',1)]:
         if name=='hybridization' and reference.get(name) is None:continue
         original=reference[name];value=prior.get(name)
-        expected=(50,)+((n,)*axes)+tuple(original.shape[axes+1:])
+        expected=(population,)+((n,)*axes)+tuple(original.shape[axes+1:])
         if not torch.is_tensor(value) or tuple(value.shape)!=expected:
             raise ValueError('Fresh prior '+name+' differs from the native input shape/vocabulary')
         if (name=='mask' and value.dtype not in (torch.int32,torch.int64,torch.bool)
@@ -100,13 +101,14 @@ def fresh_initial(config,target,n,round_number,prior_sampler,symmetrize):
     from flowr.util.molrepr import GeometricMolBatch
     from .sampler import population
     from agenticgen.runtime.rng import rng_state,set_rng
-    initial=population(config,target,50);old=rng_state();mols=[];streams=[]
+    count=config.get('population',50)
+    initial=population(config,target,count);old=rng_state();mols=[];streams=[]
     try:
         for seed in seeds(round_number,config.get('scientific_seed_block_offset',0)):
             torch.manual_seed(seed);np.random.seed(seed);random.seed(seed)
-            # Preserve native twenty-row prior draws; use the first ten slots.
+            # Preserve native twenty-row draws and their RNG advancement.
             group=[prior_sampler.sample_molecule(n,symmetrize=symmetrize) for _ in range(20)]
-            mols.extend(group[:10]);streams.append(rng_state())
+            mols.extend(group[:count//5]);streams.append(rng_state())
         batch=GeometricMolBatch.from_list(mols)
         prior=prior_from_batch(batch)
         validate_prior(prior,initial['prior'],n)
@@ -114,13 +116,13 @@ def fresh_initial(config,target,n,round_number,prior_sampler,symmetrize):
             if key in initial['prior']:prior[key]=initial['prior'][key]
         if 'fragment_mask' in initial['prior']:
             previous=initial['prior']['fragment_mask']
-            prior['fragment_mask']=torch.zeros((50,n),dtype=previous.dtype) if torch.is_tensor(previous) else previous
+            prior['fragment_mask']=torch.zeros((count,n),dtype=previous.dtype) if torch.is_tensor(previous) else previous
         if 'res_names' in initial['prior']:
             previous=initial['prior']['res_names']
             if previous.shape[1]!=n:
                 if not torch.equal(previous,previous[:,:1].expand_as(previous)):
                     raise ValueError('Nonuniform ligand residue metadata cannot be mapped to a new atom count')
-                previous=previous[:,:1].expand(50,n).clone()
+                previous=previous[:,:1].expand(count,n).clone()
             prior['res_names']=previous
         initial.update(prior=cpu(prior),stream_states=streams)
         return initial
@@ -130,14 +132,17 @@ def fresh_initial(config,target,n,round_number,prior_sampler,symmetrize):
 def validate(config):
     from .guidance_windows import SIX
     from .geometry_chemistry import policy
-    if (config.get('experiment_mode')!=POLICY or config.get('rounds')!=5 or config.get('population')!=50
-        or config.get('teacher_iteration')!=dict(rmsd_max_angstrom=.5,pb_top_k=10,rounds=5,population=50)
+    count=config.get('population')
+    if (config.get('experiment_mode')!=POLICY or config.get('rounds')!=5 or type(count) is not int or count not in (20,50)
+        or config.get('teacher_iteration')!=dict(rmsd_max_angstrom=.5,pb_top_k=10,rounds=5,population=count)
         or config.get('windows')!=[list(w) for w in SIX] or not fitted.enabled(config)
         or config.get('agent_tools') is not None or config.get('output_policy')!='raw999'
         or config.get('chemical_inpainting')!=dict(enabled=True,activation='guidance_phase')
         or config.get('prefix_inpainting')!={'enabled':False}):
         raise ValueError('Iterative teacher configuration differs from its fixed protocol')
     policy(config)
+    if count==20 and config.get('engineering_replay'):
+        raise ValueError('Twenty-candidate execution requires its own full twenty-row engineering acceptance')
     offset=config.get('scientific_seed_block_offset',0)
     if type(offset) is not int or offset<0 or offset in range(1,6):
         raise ValueError('Scientific seed block offset must preserve a disjoint five-round seed namespace')
@@ -160,6 +165,7 @@ def run(config):
     from .affinity_inputs import audit_teacher,audit_initial,audit_original_molecule
     from .affinity_replay import replay,validate_trajectory
     config=validate(config)
+    count=config['population'];total=5*count
     # Use the same PB/PLIP dependency bundle as experiment 1's quality workers.
     if config.get('plip_dependencies'):
         import sys
@@ -179,11 +185,11 @@ def run(config):
     scale_source=dict(source_root=str(source),source_id=representative,mean=score,
         scale=schedule,final_sha256=sha(source/'versions/GD01/FINALIZED.json'),aggregate_sha256=sha(source/representative/'aggregate.json'))
     frozen(root/'SCALE_SOURCE.json',scale_source)
-    frozen(root/'ATTEMPT_LIMITS.json',dict(stage_caps=dict(formal=250),per_teacher_stage_caps=dict(formal=250)))
+    frozen(root/'ATTEMPT_LIMITS.json',dict(stage_caps=dict(formal=total),per_teacher_stage_caps=dict(formal=total)))
     write(root/'BUDGET_SCOPE.json',dict(stage='formal',teacher_id=target))
     features=read(config['conditions'][0]['features_path']);condition=prepare(features,template['protein'])
     model,prior_sampler,symmetrize=load_model(config,template,datasets='prior')
-    initial=population(config,target,50);first=device(take(initial['pocket_target'],[0],50));com=initial['target_com'][:1].to('cuda')
+    initial=population(config,target,count);first=device(take(initial['pocket_target'],[0],count));com=initial['target_com'][:1].to('cuda')
     source_mol=unique_teacher(template['sdf'],template['node_id'],template['heavy_atoms'])
     original_audit=audit_original_molecule(features,source_mol,template)
     baseline_features=from_molecule(source_mol,[],coordinate_frame='generation_context_angstrom')
@@ -214,37 +220,38 @@ def run(config):
         binding=scale_binding(schedule,condition=teacher['condition'],window_bounds=config['windows'],early_shape=early_shape(config))
         if cached:pt=device(init['pocket_target'])
         else:
-            output,pt,_,_=sample(model,config,template,schedule,destination,50,initial_override=init,
+            output,pt,_,_=sample(model,config,template,schedule,destination,count,initial_override=init,
                 control_factory=functools.partial(GeometryControl,condition=teacher['condition'],scale_binding=binding),check_affinity=False)
-        rows=terminal_records(model,output,teacher['condition'],destination,50,config=config)
+        rows=terminal_records(model,output,teacher['condition'],destination,count,config=config)
         scores=rescore(model,output,pt,init['target_com'].to('cuda'))
         if cached:
             old_assignment=read(Path(config['engineering_replay']['source_attempt'])/'acceptance/COORDINATE_ASSIGNMENT.json')
             if read(destination/'COORDINATE_ASSIGNMENT.json')!=old_assignment:
                 raise ValueError('Replayed terminal condition correspondence or geometry changed')
-            # Independent deployed experiment-1 preparation, on all fifty rows.
+        if round_number==0:
+            # Independently compare the deployed experiment-1 scoring definition.
             from agenticgen.runtime.scoring import final_metrics
             from types import SimpleNamespace
             pt['complex']=[SimpleNamespace(com=c.numpy()) for c in init['target_com']]
             reference_folder=destination/'experiment1_scoring_reference';reference_folder.mkdir()
             trace=SimpleNamespace(pt=pt,po=pt,arm='engineering_reference',batch=0,seed=None,
-                roots=np.arange(50),parents=np.arange(50),events=[None]*100)
+                roots=np.arange(count),parents=np.arange(count),events=[None]*100)
             before=tensor_digest(__import__('agenticgen.runtime.rng',fromlist=['rng_state']).rng_state())
             score_binding=lambda:dict(endpoint=output,pocket={k:v for k,v in pt.items() if k!='complex'},com=init['target_com'])
             source_digest=tensor_digest(score_binding())
             reference_rows=final_metrics(model,output,trace,reference_folder)
             reference_scores=[r['pic50_on_rescore'] for r in reference_rows]
             difference=max(abs(a-b) for a,b in zip(scores,reference_scores))
-            if (len(reference_scores)!=50 or difference>1e-5
+            if (len(reference_scores)!=count or difference>1e-5
                     or before!=tensor_digest(__import__('agenticgen.runtime.rng',fromlist=['rng_state']).rng_state())
                     or source_digest!=tensor_digest(score_binding())):
-                raise ValueError('Replayed endpoint scoring differs from experiment 1 or mutated inputs/RNG')
-            frozen(destination/'SCORING_DEVICE_AUDIT.json',dict(population=50,
+                raise ValueError('Endpoint scoring differs from experiment 1 or mutated inputs/RNG')
+            frozen(destination/'SCORING_DEVICE_AUDIT.json',dict(population=count,
                 native_returned_device=str(output['coords'].device),pocket_device=str(pt['coords'].device),
                 model_device=str(next(model.parameters()).device),reference='runtime.scoring.final_metrics',
                 maximum_pic50_difference=difference,endpoint_and_pocket_unchanged=True,rng_unchanged=True))
         for i,r in enumerate(rows):
-            r.update(pic50_on_rescore=scores[i],logical_seed=round_seeds(round_number)[i//10],round=round_number,
+            r.update(pic50_on_rescore=scores[i],logical_seed=round_seeds(round_number)[i//(count//5)],round=round_number,
                 teacher_id=teacher['id'],source_id=destination.relative_to(root).as_posix()+'/'+r['node_id'])
             raw=output.get('affinity',{}).get('pic50')
             if raw is not None:r['pic50_on_upstream']=float(raw.reshape(-1)[i].detach().cpu())
@@ -256,11 +263,11 @@ def run(config):
     if not (acceptance/'COMPLETE.json').exists():
         if (acceptance/'INPUT.json').exists():raise RuntimeError('Interrupted acceptance; no automatic resampling')
         rows=generate(0,acceptance,current)
-        validate_trajectory(acceptance)
-        frozen(acceptance/'COMPLETE.json',dict(engineering_only=True,trajectory_evaluations=50,records_sha256=sha(acceptance/'records.json'),
+        validate_trajectory(acceptance,population=count)
+        frozen(acceptance/'COMPLETE.json',dict(engineering_only=True,trajectory_evaluations=count,records_sha256=sha(acceptance/'records.json'),
             chemical_inpainting_scope='controlled_atoms_and_induced_bonds',
             terminal_projection=False,complete_terminal_rescore=True,
-            new_trajectory_evaluations=0 if config.get('engineering_replay') else 50,
+            new_trajectory_evaluations=0 if config.get('engineering_replay') else count,
             replay_receipt_sha256=sha(acceptance/'ENGINEERING_REPLAY.json') if config.get('engineering_replay') else None))
     for iteration in range(1,6):
         out=root/'rounds'/f'{iteration:03d}';done=out/'ROUND_COMPLETE.json'
@@ -274,13 +281,13 @@ def run(config):
         if (out/'CLAIM.json').exists():
             interrupted=read(out/'CLAIM.json')
             if interrupted['input_teacher_sha256']!=value_sha(current):raise ValueError('Interrupted parent differs')
-            Budget(root).reserve(out.relative_to(root).as_posix(),'formal',50,value_sha(interrupted))
-            write(out/'FAILED.json',dict(type='interrupted',attempts=50,no_retry=True))
-            frozen(done,dict(input_teacher_sha256=value_sha(current),output_teacher=current,promoted=False,attempts=50,
+            Budget(root).reserve(out.relative_to(root).as_posix(),'formal',count,value_sha(interrupted))
+            write(out/'FAILED.json',dict(type='interrupted',attempts=count,no_retry=True))
+            frozen(done,dict(input_teacher_sha256=value_sha(current),output_teacher=current,promoted=False,attempts=count,
                 failed=True,files={n:sha(out/n) for n in ['CLAIM.json','FAILED.json']}))
             continue
         claim=dict(input_teacher_sha256=value_sha(current),round=iteration,seeds=round_seeds(iteration),scale=schedule)
-        frozen(out/'CLAIM.json',claim);Budget(root).reserve(out.relative_to(root).as_posix(),'formal',50,value_sha(claim))
+        frozen(out/'CLAIM.json',claim);Budget(root).reserve(out.relative_to(root).as_posix(),'formal',count,value_sha(claim))
         old=copy.deepcopy(current)
         try:
             rows=generate(iteration,out,current);mols=built_molecules(out/'molecules_all_built.sdf')
@@ -303,27 +310,27 @@ def run(config):
             if choice:
                 row,prepared=choice
                 current=dict(id=f'round_{iteration:03d}',pic50=row['pic50_on_rescore'],source_id=row['source_id'],**prepared)
-                save_pt(out/'promoted_teacher.pt.gz',take(load_pt(out/'terminal.pt.gz'),[row['tensor_row']],50))
+                save_pt(out/'promoted_teacher.pt.gz',take(load_pt(out/'terminal.pt.gz'),[row['tensor_row']],count))
                 with Chem.SDWriter(str(out/'promoted_teacher.sdf')) as writer:writer.write(mols[row['node_id']])
             frozen(done,dict(input_teacher_sha256=value_sha(old),output_teacher=current,promoted=choice is not None,
-                attempts=50,files={n:sha(out/n) for n in ['CLAIM.json','INPUT.json','records.json','PROMOTION_AUDIT.json','COORDINATE_ASSIGNMENT.json','promoted_teacher.sdf','promoted_teacher.pt.gz'] if (out/n).exists()}))
+                attempts=count,files={n:sha(out/n) for n in ['CLAIM.json','INPUT.json','records.json','PROMOTION_AUDIT.json','COORDINATE_ASSIGNMENT.json','promoted_teacher.sdf','promoted_teacher.pt.gz'] if (out/n).exists()}))
         except Exception as error:
-            write(out/'FAILED.json',dict(type=type(error).__name__,error=str(error),attempts=50,no_retry=True))
-            frozen(done,dict(input_teacher_sha256=value_sha(old),output_teacher=old,promoted=False,attempts=50,
+            write(out/'FAILED.json',dict(type=type(error).__name__,error=str(error),attempts=count,no_retry=True))
+            frozen(done,dict(input_teacher_sha256=value_sha(old),output_teacher=old,promoted=False,attempts=count,
                 failed=True,files={n:sha(out/n) for n in ['CLAIM.json','FAILED.json']}));current=old
     rounds=[read(root/'rounds'/f'{r:03d}'/'ROUND_COMPLETE.json') for r in range(1,6)]
     ledger=read(root/'attempts.json')
-    if len(ledger)!=5 or sum(x['count'] for x in ledger.values())!=250:raise ValueError('Iterative budget identity changed')
+    if len(ledger)!=5 or sum(x['count'] for x in ledger.values())!=total:raise ValueError('Iterative budget identity changed')
     previous=baseline
     for receipt in rounds:
         now=receipt['output_teacher']['pic50']
         if not math.isfinite(now) or now<previous or (receipt['promoted'] and now<=previous):raise ValueError('Teacher promotion is not strictly improving')
         previous=now
     result=dict(policy=POLICY,teacher=target,rounds=rounds,final_teacher=current,initial_pic50=baseline,
-        improvement=current['pic50']-baseline,attempts=250,complete=not any(r.get('failed') for r in rounds))
+        improvement=current['pic50']-baseline,attempts=total,population=count,complete=not any(r.get('failed') for r in rounds))
     frozen(root/'FINALIZED.json',result);frozen(root/'ONLINE_PROTOCOL_AUDIT.json',dict(policy=POLICY,
-        scientific_attempts=250,engineering_attempts=50,rounds=5,agent_calls=0,terminal_projection=False,
+        scientific_attempts=total,population=count,engineering_attempts=count,rounds=5,agent_calls=0,terminal_projection=False,
         chemical_inpainting_scope='controlled_atoms_and_induced_bonds',
-        new_engineering_attempts=0 if config.get('engineering_replay') else 50,
+        new_engineering_attempts=0 if config.get('engineering_replay') else count,
         final_sha256=sha(root/'FINALIZED.json')))
     return result

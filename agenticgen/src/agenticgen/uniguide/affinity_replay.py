@@ -23,18 +23,19 @@ def require_scientific_allowance(plan):
         raise ValueError('Scientific budget approval does not bind this exact rerun')
 
 
-def validate_trajectory(folder):
+def validate_trajectory(folder,population=50):
+    if type(population) is not int or population not in (20,50):raise ValueError('Unsupported engineering population')
     steps=read(folder/'steps.json')
     if len(steps)!=100 or [s['step'] for s in steps]!=list(range(100)):
         raise ValueError('Engineering acceptance requires all one hundred inference steps')
     for step in steps:
         active=1<=step['step']<=98
         flags=step['chemical_inpainting_applied']
-        if len(flags)!=50 or any(flag!=active for flag in flags):
+        if len(flags)!=population or any(flag!=active for flag in flags):
             raise ValueError('Chemical endpoint policy or engineering population changed')
         if active:
             matches=[values for name,values in step.items() if name.startswith('chemical_') and name.endswith('_after_match_fraction')]
-            if len(matches)<3 or any(len(v)!=50 or any(x!=1 for x in v) for v in matches):
+            if len(matches)<3 or any(len(v)!=population or any(x!=1 for x in v) for v in matches):
                 raise ValueError('Interaction region was not completely inpainted')
     return steps
 

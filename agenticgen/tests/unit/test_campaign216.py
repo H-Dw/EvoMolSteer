@@ -29,6 +29,19 @@ def test_seed_disjointness_and_fixed_iterative_config():
     with pytest.raises(ValueError):it.validate(c)
 
 
+def test_twenty_candidate_iteration_config_and_acceptance_boundary():
+    folder=Path(__file__).resolve().parents[2]/'configs'
+    c=read(folder/'uniguide_absolute_coordinate.json');c.update(read(folder/'uniguide_iterative_affinity_20.json'))
+    c['conditions']=c['conditions'][:1]
+    result=it.validate(c)
+    assert result['population']==result['teacher_iteration']['population']==20 and result['rounds']==5
+    assert result['scientific_seed_block_offset']==7 and 'agent_tools' not in result
+    c['engineering_replay']={'source_attempt':'old-fifty-row-acceptance'}
+    with pytest.raises(ValueError,match='twenty-row engineering'):it.validate(c)
+    c.pop('engineering_replay');c['teacher_iteration']['population']=50
+    with pytest.raises(ValueError):it.validate(c)
+
+
 def test_fixed_scale_iteration_binds_native_early_shape_without_an_agent():
     from types import SimpleNamespace
     from agenticgen.uniguide.box_search import early_shape,enabled
@@ -222,7 +235,8 @@ def test_initial_teacher_rescore_supports_native_size_embedding(atoms):
     assert torch.equal(rng,torch.get_rng_state())
 
 
-def test_fresh_prior_converts_native_float_mask_without_consuming_caller_rng(monkeypatch):
+@pytest.mark.parametrize('count',[20,50])
+def test_fresh_prior_converts_native_float_mask_without_consuming_caller_rng(monkeypatch,count):
     import sys
     from types import ModuleType,SimpleNamespace
     from agenticgen.uniguide import sampler
@@ -232,37 +246,38 @@ def test_fresh_prior_converts_native_float_mask_without_consuming_caller_rng(mon
     class Batch:
         @staticmethod
         def from_list(mols):
-            assert len(mols)==50
-            return SimpleNamespace(coords=torch.zeros((50,4,3)),atomics=torch.zeros((50,4,3)),
-                bonds=torch.zeros((50,16,3),dtype=torch.long),
-                adjacency=torch.tensor([.1,.2,.3,.15,.25]).expand(50,4,4,5).clone(),
-                charges=torch.zeros((50,4,2)),hybridization=None,
+            assert len(mols)==count
+            return SimpleNamespace(coords=torch.zeros((count,4,3)),atomics=torch.zeros((count,4,3)),
+                bonds=torch.zeros((count,16,3),dtype=torch.long),
+                adjacency=torch.tensor([.1,.2,.3,.15,.25]).expand(count,4,4,5).clone(),
+                charges=torch.zeros((count,4,2)),hybridization=None,
                 # Matches upstream GeometricMolBatch.mask's float torch.ones.
-                mask=torch.ones((50,4)))
+                mask=torch.ones((count,4)))
     class Prior:
         def sample_molecule(self,n,symmetrize):
             assert n==4 and symmetrize is False
             seen.append(float(torch.rand(())));return object()
     module.GeometricMolBatch=Batch
     monkeypatch.setitem(sys.modules,'flowr.util.molrepr',module)
-    reference=dict(coords=torch.zeros((50,3,3)),atomics=torch.zeros((50,3,3)),
-        bonds=torch.zeros((50,3,3,5)),charges=torch.zeros((50,3,2)),mask=torch.ones((50,3),dtype=torch.int32),
-        res_names=torch.zeros((50,3),dtype=torch.long))
-    monkeypatch.setattr(sampler,'population',lambda *a:dict(prior=reference,population=50))
+    reference=dict(coords=torch.zeros((count,3,3)),atomics=torch.zeros((count,3,3)),
+        bonds=torch.zeros((count,3,3,5)),charges=torch.zeros((count,3,2)),mask=torch.ones((count,3),dtype=torch.int32),
+        res_names=torch.zeros((count,3),dtype=torch.long))
+    monkeypatch.setattr(sampler,'population',lambda *a:dict(prior=reference,population=count))
     before=it.tensor_digest(rng_state())
-    initial=it.fresh_initial({},'teacher',4,1,Prior(),False)
+    config=dict(population=count)
+    initial=it.fresh_initial(config,'teacher',4,1,Prior(),False)
     # Exercise the exact consumer contract, rather than checking a dtype alone.
     counts=initial['prior']['mask'].sum(-1)
     embedded=torch.nn.functional.embedding(counts,torch.arange(5,dtype=torch.float32)[:,None])
-    assert embedded[:,0].tolist()==[4.]*50
+    assert embedded[:,0].tolist()==[4.]*count
     edges=torch.nn.functional.linear(initial['prior']['bonds'],torch.ones((64,5)))
-    assert edges.shape==(50,4,4,64)
+    assert edges.shape==(count,4,4,64)
     assert torch.equal(initial['prior']['bonds'][0,0,1],torch.tensor([.1,.2,.3,.15,.25]))
-    assert initial['prior']['res_names'].shape==(50,4)
+    assert initial['prior']['res_names'].shape==(count,4)
     assert len(seen)==100 and len(initial['stream_states'])==5
     assert it.tensor_digest(rng_state())==before
-    reference['bonds']=torch.zeros((50,3,3,6))
-    with pytest.raises(ValueError,match='bonds'):it.fresh_initial({},'teacher',4,1,Prior(),False)
+    reference['bonds']=torch.zeros((count,3,3,6))
+    with pytest.raises(ValueError,match='bonds'):it.fresh_initial(config,'teacher',4,1,Prior(),False)
     assert it.tensor_digest(rng_state())==before
 
 
@@ -280,17 +295,19 @@ def test_prior_adapter_with_real_native_molecule_storage():
     assert torch.nn.functional.linear(prior['bonds'],torch.ones((64,5))).shape==(2,n,n,64)
 
 
-@pytest.mark.parametrize('reuse_engineering',[False,True])
-def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch,reuse_engineering):
+@pytest.mark.parametrize('count,reuse_engineering,promote',[(50,False,False),(50,True,False),(20,False,False),(20,False,True)])
+def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch,count,reuse_engineering,promote):
     from rdkit import Chem
     from agenticgen.uniguide import prepare,sampler,geometry_sampling,absolute_coordinate,geometry_chemistry
     from agenticgen.uniguide import affinity_inputs
     from agenticgen.uniguide import affinity_replay
+    from agenticgen.uniguide import profiling,teacher_preparation
     from agenticgen.runtime import scoring
     from agenticgen.uniguide.io import write,value_sha
     import test_early_path_search as old
     folder=Path(__file__).resolve().parents[2]/'configs'
     cfg=read(folder/'uniguide_absolute_coordinate.json');cfg.update(read(folder/'uniguide_iterative_affinity.json'))
+    cfg['population']=count;cfg['teacher_iteration']['population']=count
     cfg.update(root=str(tmp_path/'run'),generation_context_root=str(tmp_path/'context'),fixed_scale_source=str(tmp_path/'source'))
     cfg['conditions']=[dict(teacher_id='t',features_path=str(tmp_path/'features.json'))]
     mol=Chem.MolFromSmiles('CCCC');mol.AddConformer(Chem.Conformer(4));mol.GetConformer().Set3D(True);mol.SetProp('node_id','initial')
@@ -313,7 +330,7 @@ def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch,reu
     for key in ('tensor','ones'):
         original=getattr(torch,key)
         monkeypatch.setattr(torch,key,lambda *a,_fn=original,**kw:_fn(*a,**dict(kw,device='cpu')))
-    initial=dict(pocket_target=dict(mask=torch.ones((50,1)),coords=torch.zeros((50,1,3))),target_com=torch.zeros((50,3)))
+    initial=dict(pocket_target=dict(mask=torch.ones((count,1)),coords=torch.zeros((count,1,3))),target_com=torch.zeros((count,3)))
     monkeypatch.setattr(sampler,'population',lambda *a:copy.deepcopy(initial))
     fresh=[]
     def fresh_initial(*args):fresh.append(args[3]);return copy.deepcopy(initial)
@@ -321,7 +338,8 @@ def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch,reu
     def rescore(model,out,*a):
         if len(out['coords'])==1:
             torch.nn.functional.embedding(out['mask'].sum(-1),torch.zeros((5,1)))
-        return [7 if len(out['coords'])==1 else 8]*len(out['coords'])
+        b=len(out['coords'])
+        return [7.] if b==1 else [8.]*(b-1)+[9. if promote else 8.]
     monkeypatch.setattr(it,'rescore',rescore)
     calls=[]
     def sample(model,c,t,s,dest,*a,**kw):
@@ -331,14 +349,26 @@ def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch,reu
         assert expanded[0]==expanded[99]==0 and expanded[1:99]==[10]*98
         calls.append(dest.name)
         if dest.name=='003':raise FloatingPointError('injected')
-        write(dest/'steps.json',[dict(step=i,chemical_inpainting_applied=[1<=i<=98]*50,
-            **{f'chemical_{key}_after_match_fraction':[1.]*50 for key in ('atomics','charges','bonds')}) for i in range(100)])
-        return dict(coords=torch.zeros((50,4,3))),{},None,None
+        write(dest/'steps.json',[dict(step=i,chemical_inpainting_applied=[1<=i<=98]*count,
+            **{f'chemical_{key}_after_match_fraction':[1.]*count for key in ('atomics','charges','bonds')}) for i in range(100)])
+        from agenticgen.uniguide.native_tools import save_pt
+        output=dict(coords=torch.arange(count,dtype=torch.float32)[:,None,None].expand(count,4,3).clone())
+        save_pt(dest/'terminal.pt.gz',output)
+        return output,copy.deepcopy(initial['pocket_target']),None,None
     monkeypatch.setattr(sampler,'sample',sample)
     def records(model,out,condition,dest,*a,**kw):
-        (dest/'molecules_all_built.sdf').write_text('');write(dest/'COORDINATE_ASSIGNMENT.json',{})
-        return [dict(node_id=str(i),tensor_row=i,build_success=False,connected=False,**{fitted.METRIC:.1}) for i in range(50)]
+        with Chem.SDWriter(str(dest/'molecules_all_built.sdf')) as writer:
+            if promote:
+                for i in range(count):
+                    m=Chem.Mol(mol);m.SetProp('node_id',str(i));writer.write(m)
+        write(dest/'COORDINATE_ASSIGNMENT.json',{})
+        return [dict(node_id=str(i),tensor_row=i,build_success=promote,connected=promote,**{fitted.METRIC:.1}) for i in range(count)]
     monkeypatch.setattr(geometry_sampling,'terminal_records',records)
+    monkeypatch.setattr(scoring,'final_metrics',lambda model,out,*a:[dict(pic50_on_rescore=s) for s in rescore(model,out)])
+    if promote:
+        monkeypatch.setattr(profiling,'quality',lambda *a:dict(posebusters_pass=True,posebusters_evaluable=True))
+        monkeypatch.setattr(profiling,'plip_profile',lambda *a:dict(core_atoms=[0,1]))
+        monkeypatch.setattr(teacher_preparation,'prepare',lambda *a:(features,dict(features,condition_sha256=value_sha(features)),{}))
     if reuse_engineering:
         cfg['engineering_replay']=dict(source_attempt=str(tmp_path/'old'))
         write(tmp_path/'old/acceptance/COORDINATE_ASSIGNMENT.json',{})
@@ -350,12 +380,20 @@ def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch,reu
                 **{f'chemical_{key}_after_match_fraction':[1.]*50 for key in ('atomics','charges','bonds')}) for i in range(100)])
             return copy.deepcopy(initial),dict(coords=torch.zeros((50,4,3)))
         monkeypatch.setattr(affinity_replay,'replay',replay)
-        monkeypatch.setattr(scoring,'final_metrics',lambda *a:[dict(pic50_on_rescore=8.) for _ in range(50)])
     result=it.run(cfg)
-    assert calls==([] if reuse_engineering else ['acceptance'])+['001','002','003','004','005'] and result['attempts']==250
+    assert calls==([] if reuse_engineering else ['acceptance'])+['001','002','003','004','005'] and result['attempts']==5*count
     assert fresh==([] if reuse_engineering else [0])+[1,2,3,4,5]
     acceptance=read(tmp_path/'run/acceptance/COMPLETE.json')
-    assert acceptance['new_trajectory_evaluations']==(0 if reuse_engineering else 50)
+    assert acceptance['new_trajectory_evaluations']==(0 if reuse_engineering else count)
     assert not result['complete'] and result['rounds'][2]['failed']
+    assert result['rounds'][2]['attempts']==count
+    assert read(tmp_path/'run/ATTEMPT_LIMITS.json')['stage_caps']['formal']==5*count
+    if promote:
+        from agenticgen.uniguide.native_tools import load_pt
+        promoted=load_pt(tmp_path/'run/rounds/001/promoted_teacher.pt.gz')
+        assert promoted['coords'].shape==(1,4,3) and (promoted['coords']==count-1).all()
+        assert result['final_teacher']['pic50']==9.
+    first=read(tmp_path/'run/rounds/001/records.json')
+    assert [r['logical_seed'] for r in first]==[s for s in it.seeds(1) for _ in range(count//5)]
     again=it.run(cfg)
     assert again==result and len(calls)==(5 if reuse_engineering else 6)

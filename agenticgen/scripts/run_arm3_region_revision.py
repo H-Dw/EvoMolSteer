@@ -55,7 +55,7 @@ def main():
         search_ids={j['id'] for j in read(suite/'PLAN.json')['jobs'] if j['arm']<3}
         searches=[r for r in read(suite/'job_results.json') if r['job_id'] in search_ids]
         frozen(root/'REVISION_FINISHED.json',dict(results=results,scientific_candidate_cap=plan['scientific_candidate_cap'],
-            supersedes_only_unstarted_arm3=True,all_success=all(r['status']=='completed' for r in results),
+            supersedes_only_unstarted_arm3=plan.get('supersedes_only_unstarted_arm3',True),all_success=all(r['status']=='completed' for r in results),
             parent_search_results=searches,effective_campaign_all_success=len(searches)==4 and len(results)==2 and
             all(r['status']=='completed' for r in searches+results)))
         write(root/'STATUS.json',dict(stage='finished'));snapshot(suite)
