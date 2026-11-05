@@ -280,34 +280,44 @@ def test_prior_adapter_with_real_native_molecule_storage():
     assert torch.nn.functional.linear(prior['bonds'],torch.ones((64,5))).shape==(2,n,n,64)
 
 
-def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch):
+@pytest.mark.parametrize('reuse_engineering',[False,True])
+def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch,reuse_engineering):
     from rdkit import Chem
     from agenticgen.uniguide import prepare,sampler,geometry_sampling,absolute_coordinate,geometry_chemistry
+    from agenticgen.uniguide import affinity_inputs
+    from agenticgen.uniguide import affinity_replay
+    from agenticgen.runtime import scoring
     from agenticgen.uniguide.io import write,value_sha
     import test_early_path_search as old
     folder=Path(__file__).resolve().parents[2]/'configs'
     cfg=read(folder/'uniguide_absolute_coordinate.json');cfg.update(read(folder/'uniguide_iterative_affinity.json'))
     cfg.update(root=str(tmp_path/'run'),generation_context_root=str(tmp_path/'context'),fixed_scale_source=str(tmp_path/'source'))
     cfg['conditions']=[dict(teacher_id='t',features_path=str(tmp_path/'features.json'))]
-    mol=Chem.MolFromSmiles('CCCC');mol.AddConformer(Chem.Conformer(4));mol.GetConformer().Set3D(True)
+    mol=Chem.MolFromSmiles('CCCC');mol.AddConformer(Chem.Conformer(4));mol.GetConformer().Set3D(True);mol.SetProp('node_id','initial')
     with Chem.SDWriter(str(tmp_path/'teacher.sdf')) as w:w.write(mol)
     features=dict(atoms=[dict(id=str(i),element='C') for i in range(4)],bonds=[],controlled_atom_ids=['0','1'],coordinates_angstrom=[[0,0,0]]*4)
     write(tmp_path/'features.json',features)
-    write(tmp_path/'context/teachers.json',[dict(target='t',protein='p',sdf=str(tmp_path/'teacher.sdf'),node_id='initial',pic50=7)])
+    write(tmp_path/'context/teachers.json',[dict(target='t',protein='p',sdf=str(tmp_path/'teacher.sdf'),node_id='initial',pic50=7,heavy_atoms=4)])
     write(tmp_path/'source/versions/GD01/FINALIZED.json',dict(complete=True,configured_rounds=10,teachers=dict(t=dict(representative='best'))))
     row=old.scored('best',[.1]*50,2);row['effective_guidance_scale_schedule']=[10]*6;write(tmp_path/'source/best/aggregate.json',row)
-    monkeypatch.setattr(prepare,'load_model',lambda *a,**kw:(object(),None,False))
+    model=torch.nn.Linear(1,1)
+    monkeypatch.setattr(prepare,'load_model',lambda *a,**kw:(model,None,False))
     monkeypatch.setattr(absolute_coordinate,'prepare',lambda f,*a:dict(f,condition_sha256=value_sha(f)))
     monkeypatch.setattr(geometry_chemistry,'condition_features',lambda *a:(dict(atomics=torch.zeros((4,3)),bonds=torch.zeros((4,4,5))),[],{}))
+    monkeypatch.setattr(affinity_inputs,'audit_original_molecule',lambda *a:{})
+    monkeypatch.setattr(affinity_inputs,'audit_teacher',lambda *a:{})
+    monkeypatch.setattr(affinity_inputs,'audit_initial',lambda *a:{})
     monkeypatch.setattr(it,'device',lambda x:x)
     original_to=torch.Tensor.to
     monkeypatch.setattr(torch.Tensor,'to',lambda self,*a,**kw:original_to(self,*(['cpu',*a[1:]] if a and a[0]=='cuda' else a),**kw))
     for key in ('tensor','ones'):
         original=getattr(torch,key)
         monkeypatch.setattr(torch,key,lambda *a,_fn=original,**kw:_fn(*a,**dict(kw,device='cpu')))
-    initial=dict(pocket_target=dict(mask=torch.ones((50,1))),target_com=torch.zeros((50,3)))
+    initial=dict(pocket_target=dict(mask=torch.ones((50,1)),coords=torch.zeros((50,1,3))),target_com=torch.zeros((50,3)))
     monkeypatch.setattr(sampler,'population',lambda *a:copy.deepcopy(initial))
-    monkeypatch.setattr(it,'fresh_initial',lambda *a:copy.deepcopy(initial))
+    fresh=[]
+    def fresh_initial(*args):fresh.append(args[3]);return copy.deepcopy(initial)
+    monkeypatch.setattr(it,'fresh_initial',fresh_initial)
     def rescore(model,out,*a):
         if len(out['coords'])==1:
             torch.nn.functional.embedding(out['mask'].sum(-1),torch.zeros((5,1)))
@@ -321,15 +331,31 @@ def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch):
         assert expanded[0]==expanded[99]==0 and expanded[1:99]==[10]*98
         calls.append(dest.name)
         if dest.name=='003':raise FloatingPointError('injected')
-        write(dest/'steps.json',[dict(step=i,chemical_inpainting_applied=[1<=i<=98]*50) for i in range(100)])
+        write(dest/'steps.json',[dict(step=i,chemical_inpainting_applied=[1<=i<=98]*50,
+            **{f'chemical_{key}_after_match_fraction':[1.]*50 for key in ('atomics','charges','bonds')}) for i in range(100)])
         return dict(coords=torch.zeros((50,4,3))),{},None,None
     monkeypatch.setattr(sampler,'sample',sample)
     def records(model,out,condition,dest,*a,**kw):
         (dest/'molecules_all_built.sdf').write_text('');write(dest/'COORDINATE_ASSIGNMENT.json',{})
         return [dict(node_id=str(i),tensor_row=i,build_success=False,connected=False,**{fitted.METRIC:.1}) for i in range(50)]
     monkeypatch.setattr(geometry_sampling,'terminal_records',records)
+    if reuse_engineering:
+        cfg['engineering_replay']=dict(source_attempt=str(tmp_path/'old'))
+        write(tmp_path/'old/acceptance/COORDINATE_ASSIGNMENT.json',{})
+        def replay(c,destination,*args):
+            from agenticgen.uniguide.native_tools import save_pt
+            save_pt(destination/'initial.pt.gz',initial)
+            write(destination/'ENGINEERING_REPLAY.json',dict(new_trajectory_evaluations=0))
+            write(destination/'steps.json',[dict(step=i,chemical_inpainting_applied=[1<=i<=98]*50,
+                **{f'chemical_{key}_after_match_fraction':[1.]*50 for key in ('atomics','charges','bonds')}) for i in range(100)])
+            return copy.deepcopy(initial),dict(coords=torch.zeros((50,4,3)))
+        monkeypatch.setattr(affinity_replay,'replay',replay)
+        monkeypatch.setattr(scoring,'final_metrics',lambda *a:[dict(pic50_on_rescore=8.) for _ in range(50)])
     result=it.run(cfg)
-    assert calls==['acceptance','001','002','003','004','005'] and result['attempts']==250
+    assert calls==([] if reuse_engineering else ['acceptance'])+['001','002','003','004','005'] and result['attempts']==250
+    assert fresh==([] if reuse_engineering else [0])+[1,2,3,4,5]
+    acceptance=read(tmp_path/'run/acceptance/COMPLETE.json')
+    assert acceptance['new_trajectory_evaluations']==(0 if reuse_engineering else 50)
     assert not result['complete'] and result['rounds'][2]['failed']
     again=it.run(cfg)
-    assert again==result and len(calls)==6
+    assert again==result and len(calls)==(5 if reuse_engineering else 6)

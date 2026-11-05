@@ -18,7 +18,7 @@ def main():
     env=dict(os.environ,CUDA_VISIBLE_DEVICES='',HIP_VISIBLE_DEVICES='',ROCR_VISIBLE_DEVICES='',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1')
     write(root/'STATUS.json',dict(stage='cpu_preflight'))
     with (root/'cpu_preflight.log').open('xb') as stream:
-        check=subprocess.run([sys.executable,'-m','pytest','tests/unit/test_campaign216.py','tests/unit/test_synchronized_chemistry.py',
+        check=subprocess.run([sys.executable,'-m','pytest','tests/unit/test_campaign216.py','tests/unit/test_synchronized_chemistry.py','tests/unit/test_affinity_endpoint.py',
             '-q','--junitxml='+str(root/'cpu_preflight.xml')],cwd=repo/'agenticgen',env=env,stdout=stream,stderr=subprocess.STDOUT)
     frozen(root/'CPU_PREFLIGHT_EXIT.json',dict(returncode=check.returncode,log_sha256=sha(root/'cpu_preflight.log')))
     if check.returncode:

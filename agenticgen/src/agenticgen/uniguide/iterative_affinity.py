@@ -54,22 +54,20 @@ def teacher_endpoint(channels,coordinates,device):
 def rescore(model,output,pocket,com):
     """Same decoded endpoint and t=.9999 definition as runtime.scoring, no file mutation."""
     from .batching import take
+    from .affinity_inputs import scoring_inputs,validate_endpoint
+    validate_endpoint(output)
     b=len(output['coords']);scores=[];before=tensor_digest(__import__('agenticgen.runtime.rng',fromlist=['rng_state']).rng_state())
     with torch.no_grad():
         for start in range(0,b,10):
             ids=list(range(start,min(start+10,b)));n=len(ids)
             # Keep the deployed network microbatch shape even for the baseline teacher.
             padded=ids+[ids[-1]]*(10-n)
-            final={k:v for k,v in take(output,padded,b).items() if torch.is_tensor(v) and k!='affinity'}
-            final['coords']=(final['coords']-com[padded,None,:])/model.coord_scale
-            for k in ('atomics','bonds','charges','hybridization'):
-                if k in final:final[k]=torch.nn.functional.one_hot(final[k].argmax(-1),final[k].shape[-1]).float()
-            times=[torch.full((10,),.9999,device=final['coords'].device) for _ in range(3)]
-            result=model._predict_affinity(final,final,take(pocket,padded,b),times)
+            final,score_pocket,times=scoring_inputs(model,take(output,padded,b),take(pocket,padded,b),com[padded])
+            result=model._predict_affinity(final,final,score_pocket,times)
             scores.extend(result['affinity']['pic50'].detach().cpu().reshape(-1).tolist()[:n])
     if before!=tensor_digest(__import__('agenticgen.runtime.rng',fromlist=['rng_state']).rng_state()):
         raise ValueError('Endpoint rescore consumed sampling RNG')
-    if not all(math.isfinite(s) for s in scores):raise FloatingPointError('Nonfinite endpoint pIC50')
+    if len(scores)!=b or not all(math.isfinite(s) for s in scores):raise FloatingPointError('Incomplete or nonfinite endpoint pIC50')
     return scores
 
 
@@ -144,7 +142,7 @@ def validate(config):
 
 
 def run(config):
-    from .prepare import load_model
+    from .prepare import load_model,unique_teacher
     from .sampler import population,sample
     from .geometry_sampling import GeometryControl,scale_binding,terminal_records
     from .absolute_coordinate import prepare
@@ -154,6 +152,8 @@ def run(config):
     from .profiling import quality,plip_profile
     from .quality import built_molecules
     from .batching import take
+    from .affinity_inputs import audit_teacher,audit_initial,audit_original_molecule
+    from .affinity_replay import replay,validate_trajectory
     config=validate(config)
     # Use the same PB/PLIP dependency bundle as experiment 1's quality workers.
     if config.get('plip_dependencies'):
@@ -162,7 +162,7 @@ def run(config):
     root=Path(config['root']);root.mkdir(parents=True,exist_ok=True)
     frozen(root/'GEOMETRY_CONFIG.json',config)
     frozen(root/'SOURCE_BINDING.json',dict(implementation={name:sha(Path(__file__).with_name(name)) for name in
-        ['iterative_affinity.py','geometry_chemistry.py','geometry_sampling.py','condition_evaluation.py','box_search.py']},
+        ['iterative_affinity.py','affinity_inputs.py','affinity_replay.py','geometry_chemistry.py','geometry_sampling.py','condition_evaluation.py','box_search.py']},
         checkpoint_sha256=config['checkpoint_sha256']))
     target=config['conditions'][0]['teacher_id']
     template=next(t for t in read(Path(config['generation_context_root'])/'teachers.json') if t['target']==target)
@@ -170,14 +170,16 @@ def run(config):
     if not final['complete'] or final['configured_rounds']!=10:raise ValueError('Experiment 1 is not complete')
     representative=final['teachers'][target]['representative'];measured=read(source/representative/'aggregate.json')
     score=fitted.score(measured);schedule=measured['effective_guidance_scale_schedule']
-    frozen(root/'SCALE_SOURCE.json',dict(source_root=str(source),source_id=representative,mean=score,
-        scale=schedule,final_sha256=sha(source/'versions/GD01/FINALIZED.json'),aggregate_sha256=sha(source/representative/'aggregate.json')))
+    scale_source=dict(source_root=str(source),source_id=representative,mean=score,
+        scale=schedule,final_sha256=sha(source/'versions/GD01/FINALIZED.json'),aggregate_sha256=sha(source/representative/'aggregate.json'))
+    frozen(root/'SCALE_SOURCE.json',scale_source)
     frozen(root/'ATTEMPT_LIMITS.json',dict(stage_caps=dict(formal=250),per_teacher_stage_caps=dict(formal=250)))
     write(root/'BUDGET_SCOPE.json',dict(stage='formal',teacher_id=target))
     features=read(config['conditions'][0]['features_path']);condition=prepare(features,template['protein'])
     model,prior_sampler,symmetrize=load_model(config,template,datasets='prior')
     initial=population(config,target,50);first=device(take(initial['pocket_target'],[0],50));com=initial['target_com'][:1].to('cuda')
-    source_mol=next(m for m in Chem.SDMolSupplier(template['sdf'],removeHs=True) if m is not None)
+    source_mol=unique_teacher(template['sdf'],template['node_id'],template['heavy_atoms'])
+    original_audit=audit_original_molecule(features,source_mol,template)
     baseline_features=from_molecule(source_mol,[],coordinate_frame='generation_context_angstrom')
     baseline_features['controlled_atom_ids']=[a['id'] for a in baseline_features['atoms']]
     # The affinity scorer needs the complete ligand; this is not the inpainting scope.
@@ -187,19 +189,54 @@ def run(config):
     baseline=rescore(model,teacher_output,first,com)[0]
     current=dict(id='initial',pic50=baseline,condition=condition,features=features,source_id=template['node_id'])
     frozen(root/'BASELINE.json',dict(current,historical_pic50=template['pic50'],scoring='decoded-endpoint-t0.9999',checkpoint_sha256=config['checkpoint_sha256']))
+    frozen(root/'TEACHER_INPUT_AUDIT.json',dict(original_molecule=original_audit,
+        teacher=audit_teacher(model,current,template['protein']),baseline_pic50=baseline,
+        baseline_atom_count=int(teacher_output['mask'].sum()),inpainting_atom_count=len(condition['controlled_atom_ids'])))
 
     def generate(round_number,destination,teacher):
         n=len(teacher['condition']['atoms'])
-        init=fresh_initial(config,target,n,round_number,prior_sampler,symmetrize)
-        save_pt(destination/'initial.pt.gz',init)
+        cached=round_number==0 and bool(config.get('engineering_replay'))
+        if cached:init,output=replay(config,destination,teacher,scale_source)
+        else:
+            init=fresh_initial(config,target,n,round_number,prior_sampler,symmetrize)
+            save_pt(destination/'initial.pt.gz',init)
+        frozen(destination/'INPUT_AUDIT.json',dict(teacher=audit_teacher(model,teacher,template['protein']),
+            generation=audit_initial(init,initial,teacher['condition'])))
         frozen(destination/'INPUT.json',dict(teacher_id=teacher['id'],condition_sha256=teacher['condition']['condition_sha256'],
             chemical_template_sha256=value_sha(teacher['features']),
             chemical_controlled_atom_ids=teacher['condition']['controlled_atom_ids'],seeds=seeds(round_number),scale=schedule,initial_sha256=sha(destination/'initial.pt.gz')))
         binding=scale_binding(schedule,condition=teacher['condition'],window_bounds=config['windows'],early_shape=early_shape(config))
-        output,pt,_,_=sample(model,config,template,schedule,destination,50,initial_override=init,
-            control_factory=functools.partial(GeometryControl,condition=teacher['condition'],scale_binding=binding),check_affinity=False)
+        if cached:pt=device(init['pocket_target'])
+        else:
+            output,pt,_,_=sample(model,config,template,schedule,destination,50,initial_override=init,
+                control_factory=functools.partial(GeometryControl,condition=teacher['condition'],scale_binding=binding),check_affinity=False)
         rows=terminal_records(model,output,teacher['condition'],destination,50,config=config)
         scores=rescore(model,output,pt,init['target_com'].to('cuda'))
+        if cached:
+            old_assignment=read(Path(config['engineering_replay']['source_attempt'])/'acceptance/COORDINATE_ASSIGNMENT.json')
+            if read(destination/'COORDINATE_ASSIGNMENT.json')!=old_assignment:
+                raise ValueError('Replayed terminal condition correspondence or geometry changed')
+            # Independent deployed experiment-1 preparation, on all fifty rows.
+            from agenticgen.runtime.scoring import final_metrics
+            from types import SimpleNamespace
+            pt['complex']=[SimpleNamespace(com=c.numpy()) for c in init['target_com']]
+            reference_folder=destination/'experiment1_scoring_reference';reference_folder.mkdir()
+            trace=SimpleNamespace(pt=pt,po=pt,arm='engineering_reference',batch=0,seed=None,
+                roots=np.arange(50),parents=np.arange(50),events=[None]*100)
+            before=tensor_digest(__import__('agenticgen.runtime.rng',fromlist=['rng_state']).rng_state())
+            score_binding=lambda:dict(endpoint=output,pocket={k:v for k,v in pt.items() if k!='complex'},com=init['target_com'])
+            source_digest=tensor_digest(score_binding())
+            reference_rows=final_metrics(model,output,trace,reference_folder)
+            reference_scores=[r['pic50_on_rescore'] for r in reference_rows]
+            difference=max(abs(a-b) for a,b in zip(scores,reference_scores))
+            if (len(reference_scores)!=50 or difference>1e-5
+                    or before!=tensor_digest(__import__('agenticgen.runtime.rng',fromlist=['rng_state']).rng_state())
+                    or source_digest!=tensor_digest(score_binding())):
+                raise ValueError('Replayed endpoint scoring differs from experiment 1 or mutated inputs/RNG')
+            frozen(destination/'SCORING_DEVICE_AUDIT.json',dict(population=50,
+                native_returned_device=str(output['coords'].device),pocket_device=str(pt['coords'].device),
+                model_device=str(next(model.parameters()).device),reference='runtime.scoring.final_metrics',
+                maximum_pic50_difference=difference,endpoint_and_pocket_unchanged=True,rng_unchanged=True))
         for i,r in enumerate(rows):
             r.update(pic50_on_rescore=scores[i],logical_seed=seeds(round_number)[i//10],round=round_number,
                 teacher_id=teacher['id'],source_id=destination.relative_to(root).as_posix()+'/'+r['node_id'])
@@ -213,18 +250,12 @@ def run(config):
     if not (acceptance/'COMPLETE.json').exists():
         if (acceptance/'INPUT.json').exists():raise RuntimeError('Interrupted acceptance; no automatic resampling')
         rows=generate(0,acceptance,current)
-        steps=read(acceptance/'steps.json')
-        if len(steps)!=100:raise ValueError('Acceptance did not complete full inference')
-        for step in steps:
-            active=1<=step['step']<=98
-            if any(flag!=active for flag in step['chemical_inpainting_applied']):raise ValueError('Chemical endpoint policy changed')
-            if active:
-                for name,values in step.items():
-                    if name.startswith('chemical_') and name.endswith('_after_match_fraction') and any(v!=1 for v in values):
-                        raise ValueError('Interaction region was not completely inpainted')
+        validate_trajectory(acceptance)
         frozen(acceptance/'COMPLETE.json',dict(engineering_only=True,trajectory_evaluations=50,records_sha256=sha(acceptance/'records.json'),
             chemical_inpainting_scope='controlled_atoms_and_induced_bonds',
-            terminal_projection=False,complete_terminal_rescore=True))
+            terminal_projection=False,complete_terminal_rescore=True,
+            new_trajectory_evaluations=0 if config.get('engineering_replay') else 50,
+            replay_receipt_sha256=sha(acceptance/'ENGINEERING_REPLAY.json') if config.get('engineering_replay') else None))
     for iteration in range(1,6):
         out=root/'rounds'/f'{iteration:03d}';done=out/'ROUND_COMPLETE.json'
         if done.exists():
@@ -255,6 +286,12 @@ def run(config):
                 new_features=from_molecule(mol,[atom_ids[i] for i in profile['core_atoms']],coordinate_frame='generation_context_angstrom')
                 new_condition=prepare(new_features,template['protein'])
                 condition_features(model,new_condition)
+                frozen(out/'profiles'/row['node_id']/'TEACHER_INPUT_AUDIT.json',dict(
+                    teacher=audit_teacher(model,dict(id=row['node_id'],source_id=row['source_id'],
+                        features=new_features,condition=new_condition),template['protein']),
+                    candidate_tensor_row=row['tensor_row'],terminal_sha256=sha(out/'terminal.pt.gz'),
+                    frozen_candidate_pic50=row['pic50_on_rescore'],condition_used_for_eligibility_sha256=current['condition']['condition_sha256'],
+                    geometry_source='Native built SDF in the fixed generation frame; no conformer generation or optimization'))
                 return dict(features=new_features,condition=new_condition,profile=profile)
             choice,pb=select(rows,current,assess,build);write(out/'PROMOTION_AUDIT.json',dict(top_k=10,checks=pb))
             if choice:
@@ -281,5 +318,6 @@ def run(config):
     frozen(root/'FINALIZED.json',result);frozen(root/'ONLINE_PROTOCOL_AUDIT.json',dict(policy=POLICY,
         scientific_attempts=250,engineering_attempts=50,rounds=5,agent_calls=0,terminal_projection=False,
         chemical_inpainting_scope='controlled_atoms_and_induced_bonds',
+        new_engineering_attempts=0 if config.get('engineering_replay') else 50,
         final_sha256=sha(root/'FINALIZED.json')))
     return result
