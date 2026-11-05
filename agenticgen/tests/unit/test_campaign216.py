@@ -174,9 +174,33 @@ def test_rescore_uses_decoded_returned_endpoint_and_preserves_rng(monkeypatch):
             assert torch.allclose(t[0],torch.full((10,),.9999))
             assert (a['atomics'].sum(-1)==1).all()
             return dict(affinity=dict(pic50=a['coords'].sum((1,2))[:,None]))
-    output=dict(coords=torch.tensor([[[4.,2,0]]]),atomics=torch.tensor([[[.2,.8]]]),mask=torch.ones((1,1)))
+    output=dict(coords=torch.tensor([[[4.,2,0]]]),atomics=torch.tensor([[[.2,.8]]]),mask=torch.ones((1,1),dtype=torch.long))
     result=it.rescore(Model(),output,dict(mask=torch.ones((1,1))),torch.tensor([[2.,0,0]]))
     assert result==[2.] and output['coords'][0,0,0]==4
+
+
+@pytest.mark.parametrize('atoms',[1,4,29])
+def test_initial_teacher_rescore_supports_native_size_embedding(atoms):
+    import torch.nn.functional as F
+    channels=dict(atomics=torch.tensor([[.2,.8]]).repeat(atoms,1),
+        bonds=F.one_hot(torch.zeros((atoms,atoms),dtype=torch.long),5).float())
+    coordinates=[[4.,2.,0.]]*atoms
+    endpoint=it.teacher_endpoint(channels,coordinates,'cpu')
+    before=copy.deepcopy(endpoint);rng=torch.get_rng_state().clone()
+    class Model:
+        coord_scale=2
+        def _predict_affinity(self,a,b,p,t):
+            assert a is b and len(a['coords'])==10
+            assert (a['mask'].sum(-1)==atoms).all()
+            assert (a['atomics'].argmax(-1)==1).all()
+            # This is the native FLOWR size-embedding operation that failed online.
+            counts=a['mask'].sum(dim=-1,keepdim=True)
+            embedded=F.embedding(counts,torch.arange(atoms+1,dtype=torch.float32)[:,None])
+            return dict(affinity=dict(pic50=embedded[:,0]+a['coords'].sum((1,2))[:,None]))
+    result=it.rescore(Model(),endpoint,dict(mask=torch.ones((1,1),dtype=torch.long)),torch.tensor([[2.,0.,0.]]))
+    assert result==[float(3*atoms)]
+    assert all(torch.equal(endpoint[k],before[k]) for k in endpoint)
+    assert torch.equal(rng,torch.get_rng_state())
 
 
 def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch):
@@ -207,7 +231,11 @@ def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch):
     initial=dict(pocket_target=dict(mask=torch.ones((50,1))),target_com=torch.zeros((50,3)))
     monkeypatch.setattr(sampler,'population',lambda *a:copy.deepcopy(initial))
     monkeypatch.setattr(it,'fresh_initial',lambda *a:copy.deepcopy(initial))
-    monkeypatch.setattr(it,'rescore',lambda model,out,*a:[7 if len(out['coords'])==1 else 8]*len(out['coords']))
+    def rescore(model,out,*a):
+        if len(out['coords'])==1:
+            torch.nn.functional.embedding(out['mask'].sum(-1),torch.zeros((5,1)))
+        return [7 if len(out['coords'])==1 else 8]*len(out['coords'])
+    monkeypatch.setattr(it,'rescore',rescore)
     calls=[]
     def sample(model,c,t,s,dest,*a,**kw):
         calls.append(dest.name)

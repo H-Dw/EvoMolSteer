@@ -50,10 +50,11 @@ def main():
                 results.append(dict(job_id=job['id'],status='failed',error=str(error),automatic_retry=False))
             finally:
                 write(root/'job_results.json',results);snapshot(suite)
-        searches=[r for r in read(suite/'job_results.json') if r['job_id'] not in {j['id'] for j in plan['jobs']}]
-        frozen(root/'REVISION_FINISHED.json',dict(results=results,scientific_candidate_cap=500,
+        search_ids={j['id'] for j in read(suite/'PLAN.json')['jobs'] if j['arm']<3}
+        searches=[r for r in read(suite/'job_results.json') if r['job_id'] in search_ids]
+        frozen(root/'REVISION_FINISHED.json',dict(results=results,scientific_candidate_cap=plan['scientific_candidate_cap'],
             supersedes_only_unstarted_arm3=True,all_success=all(r['status']=='completed' for r in results),
-            parent_search_results=searches,effective_campaign_all_success=len(searches)==4 and
+            parent_search_results=searches,effective_campaign_all_success=len(searches)==4 and len(results)==2 and
             all(r['status']=='completed' for r in searches+results)))
         write(root/'STATUS.json',dict(stage='finished'));snapshot(suite)
 

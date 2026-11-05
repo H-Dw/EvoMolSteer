@@ -42,6 +42,15 @@ def select(records,current,assess,make_condition):
     return (choices[0] if choices else None),receipts
 
 
+def teacher_endpoint(channels,coordinates,device):
+    """Build the full ligand used for baseline scoring, with native integer counts."""
+    endpoint={k:v[None].to(device).float() for k,v in channels.items()}
+    endpoint['coords']=torch.tensor(coordinates,device=device,dtype=torch.float32)[None]
+    # FLOWR sums this mask and uses the result as an nn.Embedding index.
+    endpoint['mask']=torch.ones(endpoint['coords'].shape[:2],device=device,dtype=torch.long)
+    return endpoint
+
+
 def rescore(model,output,pocket,com):
     """Same decoded endpoint and t=.9999 definition as runtime.scoring, no file mutation."""
     from .batching import take
@@ -143,9 +152,7 @@ def run(config):
     # The affinity scorer needs the complete ligand; this is not the inpainting scope.
     scoring_condition=prepare(baseline_features,template['protein'])
     baseline_channels,_,_=condition_features(model,scoring_condition)
-    teacher_output={k:v[None].to('cuda').float() for k,v in baseline_channels.items()}
-    teacher_output.update(coords=torch.tensor(baseline_features['coordinates_angstrom'],device='cuda',dtype=torch.float32)[None],
-                          mask=torch.ones((1,len(baseline_features['atoms'])),device='cuda'))
+    teacher_output=teacher_endpoint(baseline_channels,baseline_features['coordinates_angstrom'],'cuda')
     baseline=rescore(model,teacher_output,first,com)[0]
     current=dict(id='initial',pic50=baseline,condition=condition,features=features,source_id=template['node_id'])
     frozen(root/'BASELINE.json',dict(current,historical_pic50=template['pic50'],scoring='decoded-endpoint-t0.9999',checkpoint_sha256=config['checkpoint_sha256']))
