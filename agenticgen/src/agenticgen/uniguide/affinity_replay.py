@@ -11,6 +11,18 @@ TRAJECTORY_FILES=('INPUT.json','initial.pt.gz','initial.pt.sha.json','terminal.p
 REPLAY_FILES=(*ROOT_FILES,*('acceptance/'+name for name in TRAJECTORY_FILES))
 
 
+def require_scientific_allowance(plan):
+    """An independent rerun cannot silently reset a consumed teacher allowance."""
+    if not plan.get('requires_scientific_budget_approval'):return
+    path=Path(plan['root'])/'SCIENTIFIC_BUDGET_APPROVAL.json'
+    if not path.exists():raise RuntimeError('New scientific candidate allowance requires explicit user approval')
+    approved=read(path)
+    expected=dict(commit=plan['commit'],approved_new_scientific_candidates=plan['scientific_candidate_cap'],
+        config_sha256={j['id']:j['config_sha256'] for j in plan['jobs']})
+    if any(approved.get(k)!=v for k,v in expected.items()) or not approved.get('authorization_source'):
+        raise ValueError('Scientific budget approval does not bind this exact rerun')
+
+
 def validate_trajectory(folder):
     steps=read(folder/'steps.json')
     if len(steps)!=100 or [s['step'] for s in steps]!=list(range(100)):
@@ -39,7 +51,9 @@ def replay(config,destination,teacher,scale_source):
     for name,digest in spec['files'].items():
         if sha(source/name)!=digest:raise ValueError('Engineering replay source changed: '+name)
     saved=read(source/'GEOMETRY_CONFIG.json')
-    normalize=lambda c:{k:v for k,v in c.items() if k not in ('root','engineering_replay')}
+    # Engineering uses its original block six; only later scientific rounds use
+    # a new namespace after an explicitly authorized independent rerun.
+    normalize=lambda c:{k:v for k,v in c.items() if k not in ('root','engineering_replay','scientific_seed_block_offset')}
     if normalize(saved)!=normalize(config):raise ValueError('Engineering replay generation configuration differs')
     # These generation modules did not change in the device-only scoring repair.
     for name,digest in read(source/'SOURCE_BINDING.json')['implementation'].items():

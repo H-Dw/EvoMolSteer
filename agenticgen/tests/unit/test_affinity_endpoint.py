@@ -179,6 +179,25 @@ def test_completed_engineering_replay_does_not_sample_or_reserve_science(tmp_pat
     with pytest.raises(ValueError,match='fresh'):replay.replay(cfg,dest,teacher,scale)
 
 
+def test_engineering_replay_keeps_original_seeds_when_scientific_namespace_changes(tmp_path):
+    source,dest,cfg,teacher,scale=cache_fixture(tmp_path)
+    cfg['scientific_seed_block_offset']=7
+    initial,out=replay.replay(cfg,dest,teacher,scale)
+    assert initial['population']==len(out['coords'])==50
+
+
+def test_consumed_scientific_budget_cannot_be_reset_by_an_independent_rerun(tmp_path):
+    plan=dict(root=str(tmp_path),commit='frozen-commit',scientific_candidate_cap=250,
+        jobs=[dict(id='teacher',config_sha256='config-hash')],requires_scientific_budget_approval=True)
+    with pytest.raises(RuntimeError,match='explicit user approval'):replay.require_scientific_allowance(plan)
+    approval=dict(commit='frozen-commit',approved_new_scientific_candidates=250,
+        config_sha256=dict(teacher='config-hash'),authorization_source='Explicit user grant for the independent rerun')
+    path=tmp_path/'SCIENTIFIC_BUDGET_APPROVAL.json';write(path,dict(approval,approved_new_scientific_candidates=200))
+    with pytest.raises(ValueError,match='exact rerun'):replay.require_scientific_allowance(plan)
+    write(path,approval);replay.require_scientific_allowance(plan)
+    replay.require_scientific_allowance(dict(plan,requires_scientific_budget_approval=False))
+
+
 @pytest.mark.parametrize('fault',['hash','config','teacher','scale','science','partial','chemistry','projection','path'])
 def test_replay_rejects_incompatible_or_consumed_sources(tmp_path,fault):
     source,dest,cfg,teacher,scale=cache_fixture(tmp_path)

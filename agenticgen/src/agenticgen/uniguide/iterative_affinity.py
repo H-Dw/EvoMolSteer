@@ -14,9 +14,9 @@ from . import condition_evaluation as fitted
 POLICY='iterative-affinity-teacher-v2'
 
 
-def seeds(round_number):
+def seeds(round_number,scientific_block_offset=0):
     # Blocks zero through four belong to the historical search; block six is acceptance.
-    block=round_number if round_number else 6
+    block=round_number+scientific_block_offset if round_number else 6
     return [42+100003*(5*block+k) for k in range(5)]
 
 
@@ -31,13 +31,15 @@ def select(records,current,assess,make_condition):
     receipts=[];choices=[]
     for row in shortlist(records,current['pic50']):
         item=dict(node_id=row['node_id'],pic50=row['pic50_on_rescore'],rmsd=row[fitted.METRIC])
+        stage='posebusters'
         try:
             quality=assess(row);item['quality']=quality
             if quality.get('posebusters_pass') is True and quality.get('posebusters_evaluable',True):
+                stage='teacher_condition'
                 condition=make_condition(row);choices.append((row,condition))
                 item['usable_condition']=True
         except Exception as error:
-            item.update(usable_condition=False,error_type=type(error).__name__,error=str(error))
+            item.update(usable_condition=False,error_stage=stage,error_type=type(error).__name__,error=str(error))
         receipts.append(item)
     return (choices[0] if choices else None),receipts
 
@@ -100,7 +102,7 @@ def fresh_initial(config,target,n,round_number,prior_sampler,symmetrize):
     from agenticgen.runtime.rng import rng_state,set_rng
     initial=population(config,target,50);old=rng_state();mols=[];streams=[]
     try:
-        for seed in seeds(round_number):
+        for seed in seeds(round_number,config.get('scientific_seed_block_offset',0)):
             torch.manual_seed(seed);np.random.seed(seed);random.seed(seed)
             # Preserve native twenty-row prior draws; use the first ten slots.
             group=[prior_sampler.sample_molecule(n,symmetrize=symmetrize) for _ in range(20)]
@@ -136,6 +138,9 @@ def validate(config):
         or config.get('prefix_inpainting')!={'enabled':False}):
         raise ValueError('Iterative teacher configuration differs from its fixed protocol')
     policy(config)
+    offset=config.get('scientific_seed_block_offset',0)
+    if type(offset) is not int or offset<0 or offset in range(1,6):
+        raise ValueError('Scientific seed block offset must preserve a disjoint five-round seed namespace')
     if len(config['conditions'])!=1:raise ValueError('One teacher per iterative job')
     result=dict(config,initials_root=config['generation_context_root']);result.pop('agent_tools',None)
     return result
@@ -160,9 +165,10 @@ def run(config):
         import sys
         sys.path.insert(0,config['plip_dependencies'])
     root=Path(config['root']);root.mkdir(parents=True,exist_ok=True)
+    round_seeds=lambda r:seeds(r,config.get('scientific_seed_block_offset',0))
     frozen(root/'GEOMETRY_CONFIG.json',config)
     frozen(root/'SOURCE_BINDING.json',dict(implementation={name:sha(Path(__file__).with_name(name)) for name in
-        ['iterative_affinity.py','affinity_inputs.py','affinity_replay.py','geometry_chemistry.py','geometry_sampling.py','condition_evaluation.py','box_search.py']},
+        ['iterative_affinity.py','affinity_inputs.py','affinity_replay.py','teacher_preparation.py','geometry_chemistry.py','geometry_sampling.py','condition_evaluation.py','box_search.py']},
         checkpoint_sha256=config['checkpoint_sha256']))
     target=config['conditions'][0]['teacher_id']
     template=next(t for t in read(Path(config['generation_context_root'])/'teachers.json') if t['target']==target)
@@ -204,7 +210,7 @@ def run(config):
             generation=audit_initial(init,initial,teacher['condition'])))
         frozen(destination/'INPUT.json',dict(teacher_id=teacher['id'],condition_sha256=teacher['condition']['condition_sha256'],
             chemical_template_sha256=value_sha(teacher['features']),
-            chemical_controlled_atom_ids=teacher['condition']['controlled_atom_ids'],seeds=seeds(round_number),scale=schedule,initial_sha256=sha(destination/'initial.pt.gz')))
+            chemical_controlled_atom_ids=teacher['condition']['controlled_atom_ids'],seeds=round_seeds(round_number),scale=schedule,initial_sha256=sha(destination/'initial.pt.gz')))
         binding=scale_binding(schedule,condition=teacher['condition'],window_bounds=config['windows'],early_shape=early_shape(config))
         if cached:pt=device(init['pocket_target'])
         else:
@@ -238,7 +244,7 @@ def run(config):
                 model_device=str(next(model.parameters()).device),reference='runtime.scoring.final_metrics',
                 maximum_pic50_difference=difference,endpoint_and_pocket_unchanged=True,rng_unchanged=True))
         for i,r in enumerate(rows):
-            r.update(pic50_on_rescore=scores[i],logical_seed=seeds(round_number)[i//10],round=round_number,
+            r.update(pic50_on_rescore=scores[i],logical_seed=round_seeds(round_number)[i//10],round=round_number,
                 teacher_id=teacher['id'],source_id=destination.relative_to(root).as_posix()+'/'+r['node_id'])
             raw=output.get('affinity',{}).get('pic50')
             if raw is not None:r['pic50_on_upstream']=float(raw.reshape(-1)[i].detach().cpu())
@@ -273,7 +279,7 @@ def run(config):
             frozen(done,dict(input_teacher_sha256=value_sha(current),output_teacher=current,promoted=False,attempts=50,
                 failed=True,files={n:sha(out/n) for n in ['CLAIM.json','FAILED.json']}))
             continue
-        claim=dict(input_teacher_sha256=value_sha(current),round=iteration,seeds=seeds(iteration),scale=schedule)
+        claim=dict(input_teacher_sha256=value_sha(current),round=iteration,seeds=round_seeds(iteration),scale=schedule)
         frozen(out/'CLAIM.json',claim);Budget(root).reserve(out.relative_to(root).as_posix(),'formal',50,value_sha(claim))
         old=copy.deepcopy(current)
         try:
@@ -283,13 +289,13 @@ def run(config):
                 mol=mols[row['node_id']];profile=plip_profile(mol,template['protein'],out/'profiles'/row['node_id'])
                 if not profile.get('core_atoms'):raise ValueError('No usable direct PLIP site')
                 atom_ids=[str(a.GetAtomMapNum()) if a.GetAtomMapNum() else 'atom_%04d'%a.GetIdx() for a in mol.GetAtoms()]
-                new_features=from_molecule(mol,[atom_ids[i] for i in profile['core_atoms']],coordinate_frame='generation_context_angstrom')
-                new_condition=prepare(new_features,template['protein'])
-                condition_features(model,new_condition)
+                from .teacher_preparation import prepare as prepare_teacher
+                new_features,new_condition,graph_audit=prepare_teacher(model,mol,[atom_ids[i] for i in profile['core_atoms']],template['protein'])
                 frozen(out/'profiles'/row['node_id']/'TEACHER_INPUT_AUDIT.json',dict(
                     teacher=audit_teacher(model,dict(id=row['node_id'],source_id=row['source_id'],
                         features=new_features,condition=new_condition),template['protein']),
                     candidate_tensor_row=row['tensor_row'],terminal_sha256=sha(out/'terminal.pt.gz'),
+                    graph_roundtrip=graph_audit,
                     frozen_candidate_pic50=row['pic50_on_rescore'],condition_used_for_eligibility_sha256=current['condition']['condition_sha256'],
                     geometry_source='Native built SDF in the fixed generation frame; no conformer generation or optimization'))
                 return dict(features=new_features,condition=new_condition,profile=profile)

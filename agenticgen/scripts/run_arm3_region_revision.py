@@ -13,12 +13,14 @@ from run_stage_affinity_campaign import snapshot
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--plan',required=True);args=parser.parse_args()
     plan=read(args.plan);root=Path(plan['root']);suite=Path(plan['parent_suite']);repo=Path(plan['repo'])
+    from agenticgen.uniguide.affinity_replay import require_scientific_allowance
+    require_scientific_allowance(plan)
     if subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()!=plan['commit']:
         raise ValueError('Revision checkout changed')
     env=dict(os.environ,CUDA_VISIBLE_DEVICES='',HIP_VISIBLE_DEVICES='',ROCR_VISIBLE_DEVICES='',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1')
     write(root/'STATUS.json',dict(stage='cpu_preflight'))
     with (root/'cpu_preflight.log').open('xb') as stream:
-        check=subprocess.run([sys.executable,'-m','pytest','tests/unit/test_campaign216.py','tests/unit/test_synchronized_chemistry.py','tests/unit/test_affinity_endpoint.py',
+        check=subprocess.run([sys.executable,'-m','pytest','tests/unit/test_campaign216.py','tests/unit/test_synchronized_chemistry.py','tests/unit/test_affinity_endpoint.py','tests/unit/test_teacher_preparation.py',
             '-q','--junitxml='+str(root/'cpu_preflight.xml')],cwd=repo/'agenticgen',env=env,stdout=stream,stderr=subprocess.STDOUT)
     frozen(root/'CPU_PREFLIGHT_EXIT.json',dict(returncode=check.returncode,log_sha256=sha(root/'cpu_preflight.log')))
     if check.returncode:
