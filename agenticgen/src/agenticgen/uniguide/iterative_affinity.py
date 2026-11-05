@@ -120,6 +120,7 @@ def run(config):
     from .absolute_coordinate import prepare
     from .geometry_condition import from_molecule
     from .geometry_chemistry import condition_features
+    from .box_search import early_shape
     from .profiling import quality,plip_profile
     from .quality import built_molecules
     from .batching import take
@@ -131,7 +132,7 @@ def run(config):
     root=Path(config['root']);root.mkdir(parents=True,exist_ok=True)
     frozen(root/'GEOMETRY_CONFIG.json',config)
     frozen(root/'SOURCE_BINDING.json',dict(implementation={name:sha(Path(__file__).with_name(name)) for name in
-        ['iterative_affinity.py','geometry_chemistry.py','geometry_sampling.py','condition_evaluation.py']},
+        ['iterative_affinity.py','geometry_chemistry.py','geometry_sampling.py','condition_evaluation.py','box_search.py']},
         checkpoint_sha256=config['checkpoint_sha256']))
     target=config['conditions'][0]['teacher_id']
     template=next(t for t in read(Path(config['generation_context_root'])/'teachers.json') if t['target']==target)
@@ -164,7 +165,7 @@ def run(config):
         frozen(destination/'INPUT.json',dict(teacher_id=teacher['id'],condition_sha256=teacher['condition']['condition_sha256'],
             chemical_template_sha256=value_sha(teacher['features']),
             chemical_controlled_atom_ids=teacher['condition']['controlled_atom_ids'],seeds=seeds(round_number),scale=schedule,initial_sha256=sha(destination/'initial.pt.gz')))
-        binding=scale_binding(schedule,condition=teacher['condition'],window_bounds=config['windows'],early_shape='constant')
+        binding=scale_binding(schedule,condition=teacher['condition'],window_bounds=config['windows'],early_shape=early_shape(config))
         output,pt,_,_=sample(model,config,template,schedule,destination,50,initial_override=init,
             control_factory=functools.partial(GeometryControl,condition=teacher['condition'],scale_binding=binding),check_affinity=False)
         rows=terminal_records(model,output,teacher['condition'],destination,50,config=config)

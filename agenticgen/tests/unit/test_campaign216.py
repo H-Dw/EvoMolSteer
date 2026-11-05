@@ -29,6 +29,25 @@ def test_seed_disjointness_and_fixed_iterative_config():
     with pytest.raises(ValueError):it.validate(c)
 
 
+def test_fixed_scale_iteration_binds_native_early_shape_without_an_agent():
+    from types import SimpleNamespace
+    from agenticgen.uniguide.box_search import early_shape,enabled
+    from agenticgen.uniguide.geometry_sampling import scale_binding,GeometryControl
+    from agenticgen.uniguide.geometry_dynamics import policy
+    folder=Path(__file__).resolve().parents[2]/'configs'
+    cfg=dict(read(folder/'uniguide_absolute_coordinate.json'),**read(folder/'uniguide_iterative_affinity.json'))
+    cfg['conditions']=cfg['conditions'][:1];cfg=it.validate(cfg)
+    assert 'agent_tools' not in cfg and not enabled(cfg)
+    schedule=[50,100,40,60,80,200]
+    binding=scale_binding(schedule,window_bounds=cfg['windows'],early_shape=early_shape(cfg))
+    control=SimpleNamespace(scale_binding=binding)
+    expanded=GeometryControl.expand_schedule(control,schedule)
+    assert early_shape(cfg)==policy(cfg)['early_guidance_shape']
+    assert expanded[0]==expanded[99]==0
+    for scale,(lo,hi) in zip(schedule,cfg['windows']):
+        assert expanded[max(1,lo):min(99,hi+1)]==[scale]*len(range(max(1,lo),min(99,hi+1)))
+
+
 def test_iterative_chemical_policy_equals_experiment_one():
     from agenticgen.uniguide.geometry_chemistry import policy
     folder=Path(__file__).resolve().parents[2]/'configs'
@@ -238,6 +257,10 @@ def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch):
     monkeypatch.setattr(it,'rescore',rescore)
     calls=[]
     def sample(model,c,t,s,dest,*a,**kw):
+        from agenticgen.uniguide.geometry_sampling import GeometryControl
+        from types import SimpleNamespace
+        expanded=GeometryControl.expand_schedule(SimpleNamespace(scale_binding=kw['control_factory'].keywords['scale_binding']),s)
+        assert expanded[0]==expanded[99]==0 and expanded[1:99]==[10]*98
         calls.append(dest.name)
         if dest.name=='003':raise FloatingPointError('injected')
         write(dest/'steps.json',[dict(step=i,chemical_inpainting_applied=[1<=i<=98]*50) for i in range(100)])

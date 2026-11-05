@@ -12,11 +12,19 @@ operation and the padded ten-row endpoint rescorer. It also checks input and RNG
 preservation. The existing five-round failure/replay test now exercises the mask
 index contract at the baseline instead of completely bypassing it.
 
+The first recovery (`attempt_003`, commit `cd955853`) passed 19 remote CPU tests
+and scored the initial teacher on the real GPU (pIC50 5.81679630279541). Before
+the first inference step, it exposed a second error: a bare `constant` string
+was supplied instead of the frozen first-window shape descriptor. Use the shared
+shape constructor for fixed-scale agent-free iteration too. The regression now
+expands the actual binding through `GeometryControl`, including native endpoints.
+
 Run `deploy_arm3_score_recovery.py` only after committing and publishing the fix.
-It verifies the prior failure, zero scientific reservations and no engineering
-input, the unchanged experiment-1 fixed scale source, and the campaign budget.
+It verifies the preserved pre-inference binding failure, zero scientific
+reservations and no executed engineering trajectory, the unchanged experiment-1
+fixed scale source, and the campaign budget.
 It creates a separate frozen checkout and revision plan, and runs only experiment
-3/6pyy in `jobs/05_arm3_6pyy/attempt_003`. It preserves attempts 001/002 and does
+3/6pyy in `jobs/05_arm3_6pyy/attempt_004`. It preserves attempts 001/002/003 and does
 not restart experiments 1/2 or the dependency-blocked 3w54 chain.
 
 The new coordinator runs CPU tests, waits for the shared GPU lock, then runs the
@@ -28,7 +36,7 @@ recorded without automatic resampling. The new plan caps science at 250 candidat
 the prior campaign has used 6,250 and its total cap remains 12,500.
 
 Recovery state lives under
-`/workspace/agenticgen_stage_affinity_campaign_20261104/revisions/arm3_teacher_score_dtype`.
+`/workspace/agenticgen_stage_affinity_campaign_20261104/revisions/arm3_teacher_score_binding`.
 `REVISION_FINISHED.all_success` describes this single recovered task. It must not
 be reported as success of the whole six-task campaign; the other failures remain.
 Background inspection should follow the new launch identity and this attempt,

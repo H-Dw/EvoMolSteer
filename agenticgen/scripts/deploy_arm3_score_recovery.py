@@ -11,10 +11,10 @@ BOOTSTRAP=r'''
 import json,os,pathlib,subprocess,sys,time
 from hashlib import sha256
 suite=pathlib.Path('/workspace/agenticgen_stage_affinity_campaign_20261104')
-previous=suite/'revisions/arm3_interaction_region'
-root=suite/'revisions/arm3_teacher_score_dtype'
+previous=suite/'revisions/arm3_teacher_score_dtype'
+root=suite/'revisions/arm3_teacher_score_binding'
 commit=sys.argv[1]
-repo=pathlib.Path('/workspace/uniguide_runs/arm3-score-'+commit[:12])
+repo=pathlib.Path('/workspace/uniguide_runs/arm3-binding-'+commit[:12])
 
 def read(p):return json.loads(pathlib.Path(p).read_text())
 def write(p,value):
@@ -40,8 +40,11 @@ if failure['status']!='failed' or read(previous/(job['id']+'_EXIT.json'))['retur
  raise RuntimeError('Expected the preserved failed teacher-score attempt')
 if sha(job['config'])!=job['config_sha256']:raise RuntimeError('Original configuration changed')
 cfg=read(job['config']);failed=pathlib.Path(cfg['root'])
-if attempts(failed) or (failed/'BASELINE.json').exists() or (failed/'acceptance/INPUT.json').exists() or list(failed.glob('rounds/*/CLAIM.json')):
- raise RuntimeError('Old attempt has generated or reserved work; no automatic replay is allowed')
+if attempts(failed) or list(failed.glob('rounds/*/CLAIM.json')) or any((failed/'acceptance'/name).exists() for name in
+ ('trace.h5','steps.json','terminal.pt.gz','COMPLETE.json')):
+ raise RuntimeError('Old attempt has executed or reserved work; no automatic replay is allowed')
+if 'Unrecognized frozen early dose shape' not in (previous/(job['id']+'.log')).read_text():
+ raise RuntimeError('Expected the preserved pre-inference schedule-binding failure')
 source=pathlib.Path(cfg['fixed_scale_source'])
 final=read(source/'versions/GD01/FINALIZED.json')
 if not final['complete'] or final['configured_rounds']!=10:raise RuntimeError('Experiment 1 is incomplete')
@@ -54,7 +57,7 @@ for j in parent['jobs']:
  for p in pathlib.Path(read(j['config'])['root']).parent.glob('attempt_*'):
   spent[str(p)]=attempts(p)
 if sum(spent.values())+250>12500:raise RuntimeError('Campaign candidate cap would be exceeded')
-new_attempt=failed.parent/'attempt_003'
+new_attempt=failed.parent/'attempt_004'
 if new_attempt.exists():raise RuntimeError('The scientific recovery attempt already exists')
 
 root.mkdir(parents=True)
@@ -66,7 +69,7 @@ try:
   if result.returncode:raise RuntimeError('GitHub fetch failed')
 except Exception as error:
  write(root/'GITHUB_FETCH_FAILED.json',dict(type=type(error).__name__,error=str(error)))
- subprocess.run(['git','-C',str(repo),'fetch','/workspace/arm3-score-'+commit[:12]+'.bundle','codex/uniguide-flowr-agent'],
+ subprocess.run(['git','-C',str(repo),'fetch','/workspace/arm3-binding-'+commit[:12]+'.bundle','codex/uniguide-flowr-agent'],
   check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 subprocess.run(['git','-C',str(repo),'checkout','--detach',commit],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 if subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()!=commit:raise RuntimeError('Recovery commit differs')
@@ -78,7 +81,7 @@ plan=dict(root=str(root),parent_suite=str(suite),repo=str(repo),commit=commit,jo
  global_executor_lock=parent['global_executor_lock'],scientific_candidate_cap=250,
  previous_revision=str(previous),previous_attempt_scientific_candidates=0,campaign_scientific_candidates_before=sum(spent.values()),
  attempt_budget_audit=spent,fixed_scale_source=frozen_scale,
- reason='User authorized fixing the initial teacher floating mask/index failure and rerunning experiment 3/6pyy only',timestamp=time.time())
+ reason='User authorized repairing and rerunning experiment 3/6pyy; retain the successful integer-mask fix and correct the pre-inference dose-shape binding',timestamp=time.time())
 write(root/'PLAN.json',plan)
 env=dict(os.environ)
 env['PYTHONPATH']=os.pathsep.join([str(repo/'agenticgen/src'),str(repo/'src'),'/workspace/uniguide_deps',cfg['flowr']])
@@ -108,7 +111,7 @@ def main():
             client.connect('ssh.zzai.scnet.cn',port=11741,username='root',password=os.environ['GUIDANCE_REMOTE_PASSWORD'],
                 timeout=20,auth_timeout=20,banner_timeout=20)
             sftp=client.open_sftp();sftp.get_channel().settimeout(30)
-            remote='/workspace/arm3-score-'+commit[:12]
+            remote='/workspace/arm3-binding-'+commit[:12]
             sftp.put(str(bundle),remote+'.bundle');sftp.put(str(bootstrap),remote+'-bootstrap.py')
             inner='/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python '+shlex.quote(remote+'-bootstrap.py')+' '+shlex.quote(commit)+' >&3'
             # Existing shell initialization may print secrets; discard both streams.

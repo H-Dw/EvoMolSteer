@@ -81,7 +81,8 @@ def classify(actual, best, domain):
 
 
 def early_shape(config):
-    if not enabled(config):
+    # Fixed-scale teacher iteration retains the dose shape without a search Agent.
+    if not enabled(config) and config.get('experiment_mode') != 'iterative-affinity-teacher-v2':
         return None
     shape = config["box_search"]["early_guidance_shape"]
     return dict(policy=shape, window=[0,10], effective_steps=[1,10],
