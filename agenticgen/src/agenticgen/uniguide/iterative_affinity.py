@@ -73,6 +73,29 @@ def rescore(model,output,pocket,com):
     return scores
 
 
+def prior_from_batch(batch):
+    """Convert native molecule storage into the dense inference input contract."""
+    prior={k:getattr(batch,k) for k in ('coords','atomics','charges')}
+    # .bonds stores (source, target, type) edge triples and discards soft types.
+    prior['bonds']=batch.adjacency
+    prior['mask']=batch.mask.long()
+    if getattr(batch,'hybridization',None) is not None:prior['hybridization']=batch.hybridization
+    return prior
+
+
+def validate_prior(prior,reference,n):
+    """Check vocabulary widths against frozen native inputs, allowing new sizes."""
+    for name,axes in [('coords',1),('atomics',1),('bonds',2),('charges',1),('mask',1),('hybridization',1)]:
+        if name=='hybridization' and reference.get(name) is None:continue
+        original=reference[name];value=prior.get(name)
+        expected=(50,)+((n,)*axes)+tuple(original.shape[axes+1:])
+        if not torch.is_tensor(value) or tuple(value.shape)!=expected:
+            raise ValueError('Fresh prior '+name+' differs from the native input shape/vocabulary')
+        if (name=='mask' and value.dtype not in (torch.int32,torch.int64,torch.bool)
+                or name!='mask' and value.dtype!=original.dtype):
+            raise ValueError('Fresh prior '+name+' differs from the native input dtype')
+
+
 def fresh_initial(config,target,n,round_number,prior_sampler,symmetrize):
     from flowr.util.molrepr import GeometricMolBatch
     from .sampler import population
@@ -85,16 +108,20 @@ def fresh_initial(config,target,n,round_number,prior_sampler,symmetrize):
             group=[prior_sampler.sample_molecule(n,symmetrize=symmetrize) for _ in range(20)]
             mols.extend(group[:10]);streams.append(rng_state())
         batch=GeometricMolBatch.from_list(mols)
-        prior={k:getattr(batch,k) for k in ('coords','atomics','bonds','charges','mask')}
-        # GeometricMolBatch builds a float padding mask; FLOWR's size embedding
-        # requires the integral atom-count contract of the frozen native priors.
-        prior['mask']=prior['mask'].long()
-        if getattr(batch,'hybridization',None) is not None:prior['hybridization']=batch.hybridization
+        prior=prior_from_batch(batch)
+        validate_prior(prior,initial['prior'],n)
         for key in ('interactions','fragment_mode'):
             if key in initial['prior']:prior[key]=initial['prior'][key]
         if 'fragment_mask' in initial['prior']:
             previous=initial['prior']['fragment_mask']
             prior['fragment_mask']=torch.zeros((50,n),dtype=previous.dtype) if torch.is_tensor(previous) else previous
+        if 'res_names' in initial['prior']:
+            previous=initial['prior']['res_names']
+            if previous.shape[1]!=n:
+                if not torch.equal(previous,previous[:,:1].expand_as(previous)):
+                    raise ValueError('Nonuniform ligand residue metadata cannot be mapped to a new atom count')
+                previous=previous[:,:1].expand(50,n).clone()
+            prior['res_names']=previous
         initial.update(prior=cpu(prior),stream_states=streams)
         return initial
     finally:set_rng(old)

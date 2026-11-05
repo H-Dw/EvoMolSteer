@@ -234,7 +234,9 @@ def test_fresh_prior_converts_native_float_mask_without_consuming_caller_rng(mon
         def from_list(mols):
             assert len(mols)==50
             return SimpleNamespace(coords=torch.zeros((50,4,3)),atomics=torch.zeros((50,4,3)),
-                bonds=torch.zeros((50,4,4,5)),charges=torch.zeros((50,4,2)),hybridization=None,
+                bonds=torch.zeros((50,16,3),dtype=torch.long),
+                adjacency=torch.tensor([.1,.2,.3,.15,.25]).expand(50,4,4,5).clone(),
+                charges=torch.zeros((50,4,2)),hybridization=None,
                 # Matches upstream GeometricMolBatch.mask's float torch.ones.
                 mask=torch.ones((50,4)))
     class Prior:
@@ -243,15 +245,39 @@ def test_fresh_prior_converts_native_float_mask_without_consuming_caller_rng(mon
             seen.append(float(torch.rand(())));return object()
     module.GeometricMolBatch=Batch
     monkeypatch.setitem(sys.modules,'flowr.util.molrepr',module)
-    monkeypatch.setattr(sampler,'population',lambda *a:dict(prior={},population=50))
+    reference=dict(coords=torch.zeros((50,3,3)),atomics=torch.zeros((50,3,3)),
+        bonds=torch.zeros((50,3,3,5)),charges=torch.zeros((50,3,2)),mask=torch.ones((50,3),dtype=torch.int32),
+        res_names=torch.zeros((50,3),dtype=torch.long))
+    monkeypatch.setattr(sampler,'population',lambda *a:dict(prior=reference,population=50))
     before=it.tensor_digest(rng_state())
     initial=it.fresh_initial({},'teacher',4,1,Prior(),False)
     # Exercise the exact consumer contract, rather than checking a dtype alone.
     counts=initial['prior']['mask'].sum(-1)
     embedded=torch.nn.functional.embedding(counts,torch.arange(5,dtype=torch.float32)[:,None])
     assert embedded[:,0].tolist()==[4.]*50
+    edges=torch.nn.functional.linear(initial['prior']['bonds'],torch.ones((64,5)))
+    assert edges.shape==(50,4,4,64)
+    assert torch.equal(initial['prior']['bonds'][0,0,1],torch.tensor([.1,.2,.3,.15,.25]))
+    assert initial['prior']['res_names'].shape==(50,4)
     assert len(seen)==100 and len(initial['stream_states'])==5
     assert it.tensor_digest(rng_state())==before
+    reference['bonds']=torch.zeros((50,3,3,6))
+    with pytest.raises(ValueError,match='bonds'):it.fresh_initial({},'teacher',4,1,Prior(),False)
+    assert it.tensor_digest(rng_state())==before
+
+
+def test_prior_adapter_with_real_native_molecule_storage():
+    native=pytest.importorskip('flowr.util.molrepr')
+    n=4;prob=torch.tensor([.1,.2,.3,.15,.25])
+    mol=native.GeometricMol(coords=torch.zeros((n,3)),atomics=torch.full((n,12),1/12),
+        bond_indices=torch.cartesian_prod(torch.arange(n),torch.arange(n)),
+        bond_types=prob.repeat(n*n,1),charges=torch.full((n,3),1/3))
+    batch=native.GeometricMolBatch.from_list([mol,mol])
+    prior=it.prior_from_batch(batch)
+    assert batch.bonds.shape==(2,16,3) and prior['bonds'].shape==(2,n,n,5)
+    assert torch.equal(prior['bonds'][0,0,1],prob)
+    torch.nn.functional.embedding(prior['mask'].sum(-1),torch.zeros((n+1,1)))
+    assert torch.nn.functional.linear(prior['bonds'],torch.ones((64,5))).shape==(2,n,n,64)
 
 
 def test_iterative_five_round_budget_failure_and_replay(tmp_path,monkeypatch):

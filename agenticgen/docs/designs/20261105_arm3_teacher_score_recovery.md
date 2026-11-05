@@ -27,12 +27,24 @@ step: `steps.json` and `rng_ledger.json` are empty and science reservations are
 zero. The new regression exercises this batch construction and the embedding
 consumer while checking that fresh-prior generation restores the caller RNG.
 
+The third recovery (`attempt_005`, commit `f9ecaa8e`) passed 21 remote tests and
+then exposed an additional initial-input adapter error at the first forward.
+`GeometricMolBatch.bonds` is a sparse edge list (50 x 289 x 3 for this teacher),
+whereas the native model expects dense bond probabilities (50 x 17 x 17 x 5).
+Use its native `.adjacency` property, preserving soft probabilities. Validate all
+core tensor shapes, categorical vocabulary widths and dtypes against frozen native
+priors before inference; the teacher atom count may change. Preserve ligand
+residue metadata, resizing only uniform labels when the atom count changes.
+The regression includes both the sparse/dense distinction and a real upstream
+`GeometricMolBatch` fixture in the remote environment. No inference step or science
+candidate completed in this failed engineering attempt; it remains archived.
+
 Run `deploy_arm3_score_recovery.py` only after committing and publishing the fix.
-It verifies the preserved first-forward index failure, zero scientific
+It verifies the preserved first-forward bond-format failure, zero scientific
 reservations and no completed engineering step, the unchanged experiment-1
 fixed scale source, and the campaign budget.
 It creates a separate frozen checkout and revision plan, and runs only experiment
-3/6pyy in `jobs/05_arm3_6pyy/attempt_005`. It preserves attempts 001/002/003/004 and does
+3/6pyy in `jobs/05_arm3_6pyy/attempt_006`. It preserves attempts 001 through 005 and does
 not restart experiments 1/2 or the dependency-blocked 3w54 chain.
 
 The new coordinator runs CPU tests, waits for the shared GPU lock, then runs the
@@ -44,7 +56,7 @@ recorded without automatic resampling. The new plan caps science at 250 candidat
 the prior campaign has used 6,250 and its total cap remains 12,500.
 
 Recovery state lives under
-`/workspace/agenticgen_stage_affinity_campaign_20261104/revisions/arm3_integer_masks`.
+`/workspace/agenticgen_stage_affinity_campaign_20261104/revisions/arm3_native_prior`.
 `REVISION_FINISHED.all_success` describes this single recovered task. It must not
 be reported as success of the whole six-task campaign; the other failures remain.
 Background inspection should follow the new launch identity and this attempt,
