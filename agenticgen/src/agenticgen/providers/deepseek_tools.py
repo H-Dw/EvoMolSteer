@@ -11,6 +11,7 @@ from agenticgen.uniguide.io import frozen, read, sha, value_sha, write
 from .deepseek_api import response_diagnostics
 
 POLICY = "deepseek-readonly-tools-v1"
+MAX_TOOL_CALLS_PER_BATCH = 32
 
 
 class SessionStopped(RuntimeError):
@@ -109,6 +110,7 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
     binding = dict(policy=POLICY, messages=messages, response_schema=schema,
         tools=registry.definitions, registry_binding=registry.binding,
         model=model, thinking=thinking, reasoning_effort=reasoning_effort,
+        max_tool_calls_per_batch=MAX_TOOL_CALLS_PER_BATCH,
         max_output_tokens=max_output_tokens, max_format_repairs=max_format_repairs,
         attempts=attempts, timeout=timeout)
     if strict:
@@ -124,6 +126,7 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
     )
     transcript = list(messages) + [dict(role="user", content=
         "Use native registered tool calls only when required evidence is missing. "
+        f"Use at most {MAX_TOOL_CALLS_PER_BATCH} tool calls in one response. "
         + completion +
         "Copy evidence_id strings verbatim (ev_ followed by all 20 hexadecimal characters); never shorten them. "
         "Keep each text field comfortably below its maxLength; cite evidence without repeating tables or numeric arrays. "
@@ -195,7 +198,7 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                 # Keep the full assistant message including opaque reasoning_content.
                 assistant = dict(message, role="assistant")
                 if calls:
-                    if choice.get("finish_reason") != "tool_calls" or len(calls) > 8:
+                    if choice.get("finish_reason") != "tool_calls" or len(calls) > MAX_TOOL_CALLS_PER_BATCH:
                         raise SessionStopped("Invalid or oversized tool-call batch")
                     ids = [c["id"] for c in calls]
                     if len(set(ids)) != len(ids) or any(not isinstance(i,str) or not i for i in ids):
@@ -293,6 +296,7 @@ def call_with_tools(messages, schema, output, *, registry, budget, response_vali
                         response_sha256=sha(output), evidence_executed=False)))
                 evidence = sorted(registry.receipt_ids)
                 receipt = dict(policy=POLICY, binding_sha256=sha(session/"BINDING.json"),
+                    max_tool_calls_per_batch=MAX_TOOL_CALLS_PER_BATCH,
                     response_sha256=sha(output), steps=step, interface_repairs=repairs,
                     evidence_ids=evidence, transcript_files={p.relative_to(session).as_posix():sha(p)
                         for p in sorted(session.glob("step_*/*.json"))})

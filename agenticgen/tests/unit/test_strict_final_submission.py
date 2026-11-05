@@ -147,6 +147,15 @@ def test_mixed_final_and_evidence_batch_is_not_executed(tmp_path, monkeypatch):
     assert [m["tool_call_id"] for m in requests[1]["messages"] if m["role"] == "tool"] == ["evidence", "submission"]
 
 
+def test_thirty_two_evidence_calls_then_one_final_submission(tmp_path,monkeypatch):
+    registry=Registry()
+    evidence=[call('measure',{},'read_%02d'%i) for i in range(32)]
+    answer,requests=run(tmp_path,monkeypatch,[wire(evidence),wire([call()])],registry=registry)
+    assert answer==ANSWER and registry.executed==['measure']*32
+    assert [m['tool_call_id'] for m in requests[1]['messages'] if m['role']=='tool']==[c['id'] for c in evidence]
+    assert read(tmp_path/'answer.receipt.json')['interface_repairs']==0
+
+
 def test_truncation_is_terminal_without_format_or_token_increase(tmp_path, monkeypatch):
     with pytest.raises(SessionStopped, match="incomplete"):
         run(tmp_path, monkeypatch, [wire(content="{", finish="length")])

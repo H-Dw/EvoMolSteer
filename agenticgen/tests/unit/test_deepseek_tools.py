@@ -127,3 +127,41 @@ def test_ambiguous_request_not_reissued(tmp_path,monkeypatch):
     with pytest.raises(KeyboardInterrupt):
         call_with_tools(MESSAGES,SCHEMA,tmp_path/"answer.json",registry=Registry(),budget=RoundBudget(tmp_path/"budget"),transport=httpx.MockTransport(stop))
     with pytest.raises(SessionStopped,match="Ambiguous"):run(tmp_path,monkeypatch,[])
+
+
+@pytest.mark.parametrize('count',[13,15,32])
+def test_large_readonly_batches_execute_completely_in_order(tmp_path,monkeypatch,count):
+    monkeypatch.setenv('DEEPSEEK_API_KEY','mock-not-real')
+    class OrderedRegistry(Registry):
+        definitions=[dict(type='function',function=dict(name='measure',description='Read existing evidence',
+            parameters=dict(type='object',properties=dict(index=dict(type='integer')),required=['index'],additionalProperties=False)))]
+        def __init__(self):self.executed=[];self.receipt_ids=set()
+        def execute(self,name,args):
+            self.executed.append(args['index']);identity='ev_%020x'%args['index'];self.receipt_ids.add(identity)
+            return dict(status='complete',evidence_id=identity)
+    registry=OrderedRegistry();seen=[]
+    responses=[wire(None,[tool(str(i),arguments=json.dumps(dict(index=i))) for i in range(count)]),wire()]
+    def handle(request):
+        seen.append(json.loads(request.content));return httpx.Response(200,json=responses.pop(0))
+    result=call_with_tools(MESSAGES,SCHEMA,tmp_path/'answer.json',registry=registry,budget=RoundBudget(tmp_path/'budget'),
+        transport=httpx.MockTransport(handle))
+    assert result=={'ok':True} and registry.executed==list(range(count))
+    assert [m['tool_call_id'] for m in seen[1]['messages'][-count:]]==[str(i) for i in range(count)]
+    assert len(list((tmp_path/'answer.session/step_0001').glob('TOOL_*.json')))==count
+    assert len(RoundBudget(tmp_path/'budget').rows())==2
+    assert read(tmp_path/'answer.session/BINDING.json')['max_tool_calls_per_batch']==32
+    assert read(tmp_path/'answer.receipt.json')['max_tool_calls_per_batch']==32
+
+
+def test_thirty_three_calls_fail_before_any_tool_execution(tmp_path,monkeypatch):
+    monkeypatch.setenv('DEEPSEEK_API_KEY','mock-not-real');executed=[];requests=[]
+    class CountedRegistry(Registry):
+        def execute(self,name,args):executed.append(name);return super().execute(name,args)
+    def handle(request):
+        requests.append(request);return httpx.Response(200,json=wire(None,[tool(str(i)) for i in range(33)]))
+    with pytest.raises(SessionStopped,match='oversized tool-call batch'):
+        call_with_tools(MESSAGES,SCHEMA,tmp_path/'answer.json',registry=CountedRegistry(),budget=RoundBudget(tmp_path/'budget'),
+            transport=httpx.MockTransport(handle))
+    assert not executed and len(requests)==1 and not (tmp_path/'answer.json').exists()
+    assert not list((tmp_path/'answer.session/step_0001').glob('TOOL_*.json'))
+    assert read(tmp_path/'answer.session/FAILED.json')['automatic_restart'] is False
