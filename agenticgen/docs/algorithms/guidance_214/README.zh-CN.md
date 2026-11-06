@@ -252,11 +252,15 @@
 
 可编辑源：[system-workflow.mmd](system-workflow.mmd)；位图：[system-workflow.png](system-workflow.png)。图中的“真实GPU验收”是已有代码的启动前提，本次合并和文档编写没有启动新的GPU实验。
 
-### 图2：scale初始标定流程
+### 图2：scale初始标定流程（分子案例）
 
-![scale初始标定：固定背景与八个早期邻居](scale-calibration.svg)
+![scale初始标定：分子condition、固定参照与八个早期邻居](calibration-figure/api_minimal/scale_calibration_schematic.png)
 
-可编辑源：[scale-calibration.mmd](scale-calibration.mmd)；位图：[scale-calibration.png](scale-calibration.png)。每教师最多测量10个完整配置、500候选，全程由确定性程序完成。图中的B1–B4分支表示相对同一个参照独立生成配置，不表示同时执行推理；邻居成绩不会改变参照。两个背景及八个邻居的全部有效测量共同决定最终标定根。
+[图注、分子源数据与生成记录](calibration-figure/README.zh-CN.md)。新图使用6PYY/H7S的真实原子图、参考构象及9个condition原子，并展示已有标定的实际配置与均值。空白邻居格继承固定参照值，琥珀色仅标出本次改变的窗口。
+
+每教师最多测量10个完整配置、500候选，全程由确定性程序完成。B1–B4分支相对同一个参照独立生成配置；邻居成绩不会改变参照。两个背景及八个邻居的全部有效测量共同决定最终标定根。图像由指定绘图API生成，不是新推理结果。
+
+纯逻辑版本保留为[Mermaid源](scale-calibration.mmd)及[SVG](scale-calibration.svg)。
 
 ### 图3：Agent工具与提案闭环
 

@@ -1,0 +1,25 @@
+{
+  "base_url": "https://sui-xiang.com",
+  "endpoint": "/v1/images/edits/async",
+  "requested_model": "gpt-image-2.6-sunburst",
+  "fields": {
+    "model": "gpt-image-2.6-sunburst",
+    "prompt": "Refine the first supplied scientific calibration schematic. The second supplied image is the authoritative molecular geometry/atom-selection reference. Keep its scientific logic, real molecule and actual numerical data. Make a precise, restrained, minimal-text, publication-style methods figure. White canvas, thin graphite rules, neutral grey schedule cells, teal condition atoms and fixed reference, amber for a changed early-window cell. Preserve the overall four-column structure but improve typography and white space. No enclosing cards or shadows. Wide landscape, around 2:1.\n\nMANDATORY CORRECTIONS:\n1. Panel b currently says \"2 × 50\" next to EACH background. This falsely suggests four batches. Replace each with just \"50\" or \"n = 50\", or place a SINGLE shared \"2 × 50\" below the TWO background rows. There are TWO backgrounds, each with 50 candidates, total 100. No four-batch interpretation.\n2. In panel a's THREE-DIMENSIONAL ball-and-stick molecule, the two upper oxygen atoms currently lack teal selection rings. Add teal rings around BOTH upper red oxygen atoms, in addition to the already selected terminal six-carbon ring and lower oxygen. Exactly NINE selected heavy atoms = six carbons + THREE oxygens. Match the supplied molecular reference. Keep 17 total heavy atoms and correct three-fused-ring connectivity. Keep all THREE hydroxyl groups in the 2D atomic graph and its same six-carbon/three-oxygen highlighted subset.\n\nTEXT REDUCTION AND LAYOUT:\n- Remove the huge full-width title. Keep four small, aligned, bold panel labels and concise headings only: \"a  Molecular condition\", \"b  Backgrounds\", \"c  Early-window neighbours\", \"d  Initial schedule\". Use understated Arial/Helvetica-like typography, avoid oversized bold text.\n- Panel a: preserve the real atomic graph, accurate 3D molecule, and compact nine-point subset. Only labels \"6PYY / H7S\" and \"9 condition atoms\" beyond the panel heading. The two graph/3D layouts must depict the SAME reference molecule, not decorative invented molecules.\n- Panel b: keep exactly these actual two six-cell schedules and their measured means:\n  50 70 70 50 50 70   -> 0.3874 Å\n  50 100 40 40 30 50  -> 0.3692 Å\n  Row 2 is the teal-outlined fixed reference. B1..B6 labels once. A single shared \"2 × 50\" is sufficient.\n- Panel c: keep the six reference numbers 50 100 40 40 30 50 and heading \"Fixed reference\". Keep exactly EIGHT neighbour strips, paired by B1, B2, B3, B4, each strip with exactly six cells. In the EIGHT small strips, DELETE the repeated unchanged numbers: unchanged cells are blank light grey. Show ONLY the one amber changed cell's number in each strip. B1 changed numbers 40/60; B2 90/110; B3 30/50; B4 30/50. All eight originate from the SAME fixed reference; do not create a sequential optimisation chain or change B5/B6. The only remaining count is \"8 × 50\".\n- Panel d: keep the small conceptual condition-point alignment overlay and label \"Condition-only alignment\". Keep \"Lowest mean RMSD\", the actual six-cell winning schedule 50 100 40 50 30 50 with B4=50 amber, and its measured mean \"0.3608 Å\". Replace the long winner sentence with just \"Best of 10\". The selection must refer to BOTH backgrounds plus all eight neighbours. Alignment is proper Kabsch on the fixed nine corresponding condition points only, not all atoms. The overlay is illustrative, not a newly simulated candidate.\n- Remove the long methods sentence at the bottom. Keep only the unobtrusive footer \"10 schedules · 50 candidates each\". Do not repeat parameters in prose.\n- Use a delicate input arrow from the molecular condition toward the calibration workflow so that the input's role is clear. Use thin collecting arrows or a bracket to show all tested schedules feeding the final choice. No decorative clip art or new panels.\n\nDo not change measured values, add hypothetical performance curves, add a Selection Agent, alter molecular connectivity, omit condition atoms, or add any quantitative evidence. This is a conceptual workflow illustration grounded in a real input and existing calibration results, not new simulation output. Return only the refined scientific figure with clearly legible minimal labels.",
+    "size": "3072x1536",
+    "quality": "high",
+    "complexity": "high",
+    "n": "1"
+  },
+  "references": [
+    {
+      "file": "scale_calibration_schematic.png",
+      "sha256": "40ec77f80396040575c724a15cba87cf7889d032f4d171f2917f408a2d726b7d"
+    },
+    {
+      "file": "molecular_reference.png",
+      "sha256": "77a9b685c3a888be13fd6279dcd0fdb8ccc62bb29d28aefc419c94956a8857fc"
+    }
+  ],
+  "authentication": "SUIXIANG_API_KEY environment variable; credential never persisted",
+  "prompt_helper": "nature-figure generate_openrouter_schematic.py build_prompt; vendor-specific multipart transport"
+}
