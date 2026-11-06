@@ -1,0 +1,43 @@
+flowchart TB
+    subgraph PREP["Ⅰ · 准备与确定性标定"]
+        direction LR
+        A["冻结输入<br/>模型 / condition / 原生上下文<br/>固定先验与随机流"]:::input
+        B["准备与协议核对<br/>源码 / skills / 配置绑定<br/>要求匹配的真实 GPU 验收"]:::compute
+        C["确定性标定<br/>2 背景各 50 → 固定参照<br/>8 个早期邻居各 50"]:::compute
+        D{"存在有效<br/>完整标定根？"}:::compute
+        X["无有效根：留证<br/>该教师不进入搜索"]:::fail
+        V["冻结标定根与 domain<br/>六窗全部开放"]:::store
+        A --> B --> C --> D
+        D -->|否| X
+        D -->|是| V
+    end
+    subgraph SEARCH["Ⅱ · 五轮实测反馈闭环"]
+        direction LR
+        E["读取兼容历史<br/>当前最佳 / 真实路径 / 前缀族<br/>失败与剩余预算"]:::store
+        F["单个 Guidance Agent<br/>三模块 skills 与只读工具<br/>提交 ≤5 个完整配置及焦点"]:::agent
+        G["程序审计与执行前复核<br/>身份 / 证据 / 网格 / 去重<br/>早期方向 / 多样性 / 预算"]:::compute
+        H["按顺序执行全部合法提案<br/>每项完整 50 候选<br/>数值失败留证，不补样"]:::compute
+        I["终态 condition Kabsch<br/>完整 50 RMSD 算术均值<br/>严格改善才更新最佳"]:::compute
+        J["保存轮次与路径<br/>两轮无改善 → 提示回看<br/>历史父节点继续可用"]:::store
+        K{"完成<br/>5 轮？"}:::compute
+        Z["审计不通过：留证<br/>提交阶段仅一次修正<br/>执行前复核失败则停止"]:::fail
+        E --> F --> G
+        G -->|整个组合通过| H --> I --> J --> K
+        G -->|不通过| Z
+        K -->|否：下一轮| E
+    end
+    subgraph OUTPUT["Ⅲ · 结果与独立诊断状态"]
+        direction LR
+        L["同一 Agent 最终只读分析<br/>必须 hold，不再采样"]:::agent
+        M["输出最佳完整配置与均值<br/>另存逐 seed/slot 留存<br/>封存证据与结果审阅请求"]:::store
+        Q["异步 CPU 诊断 10/50<br/>PLIP / PoseBusters<br/>状态单列，不参与排名"]:::store
+        L --> M
+        Q -. 完成 / 待完成 / 失败状态 .-> M
+    end
+    PREP -->|有效根进入正式搜索| SEARCH
+    SEARCH -->|五轮结束；失败出口不继续| OUTPUT
+    classDef input fill:#e8f0fe,stroke:#3566a0,color:#142d4c;
+    classDef agent fill:#f0e8ff,stroke:#7754a7,color:#382052;
+    classDef compute fill:#e8f5ef,stroke:#38846a,color:#153d2f;
+    classDef store fill:#f0f3f6,stroke:#6e7d8d,color:#25394c;
+    classDef fail fill:#fff0ee,stroke:#bf665b,color:#662d25;

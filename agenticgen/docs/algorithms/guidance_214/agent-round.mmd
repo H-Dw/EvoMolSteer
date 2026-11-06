@@ -1,0 +1,33 @@
+flowchart TB
+    A["已校验的历史 / domain / 预算<br/>标定根与当前最佳真实祖先链"]:::input
+    B["构建路径上下文<br/>前四窗前缀族 / 已测后缀数 / 前三代表<br/>保留全部合法父节点"]:::store
+    C["三模块拼接为同一提案角色<br/>History and Evidence<br/>Path Exploration and Proposal<br/>Evidence Computation"]:::input
+    D["Guidance LLM<br/>在轮次调用与输出预算内交互"]:::agent
+    E{"请求只读工具<br/>还是最终提交？"}:::agent
+    T["程序执行只读工具<br/>总体摘要 / 同身份配对比较 / 提案审计<br/>生成证据回执，不采样"]:::compute
+    F["显式提交<br/>decision · proposals · reason · search_focus"]:::agent
+    G["程序校验整个组合<br/>真实父节点 / 已观察证据 / 最佳路径绑定<br/>六维网格 / 历史与同批去重 / 距离 / 预算"]:::compute
+    H["焦点与早期方向审计<br/>首轮 B1/B2；之后前移 / 停留 / 回溯<br/>≥2 种真实父节点相对的 B1–B4 符号方向"]:::compute
+    I{"所有提交检查<br/>通过？"}:::compute
+    J{"还有一次<br/>提交修正额度？"}:::compute
+    R["反馈错误及可用证据<br/>要求重交完整 proposals<br/>不删项、不修改数组"]:::store
+    X["会话失败留证<br/>不重新开始或补出测量"]:::fail
+    K["程序生成 DECISION 执行 ID<br/>保持 proposals 原顺序<br/>execution_source = deterministic_all_proposals"]:::store
+    L["执行前重新核对<br/>证据回执 / 焦点 / 组合 / 累计预算"]:::compute
+    M["按顺序执行全部提案<br/>每项完整 50 候选或明确数值失败<br/>不调用 Selection / synthesis Agent"]:::compute
+    N["保存本轮结果和焦点<br/>按完整均值更新最佳<br/>向下一轮提供实际反馈"]:::store
+    A --> B --> C --> D --> E
+    E -->|只读工具| T --> D
+    E -->|最终提交| F --> G --> H --> I
+    I -->|否| J
+    J -->|是| R --> D
+    J -->|否| X
+    I -->|是| K --> L
+    L -->|通过| M --> N
+    L -->|不通过| X
+    D -. 调用预算耗尽或不可恢复错误 .-> X
+    classDef input fill:#e8f0fe,stroke:#3566a0,color:#142d4c;
+    classDef agent fill:#f0e8ff,stroke:#7754a7,color:#382052;
+    classDef compute fill:#e8f5ef,stroke:#38846a,color:#153d2f;
+    classDef store fill:#f0f3f6,stroke:#6e7d8d,color:#25394c;
+    classDef fail fill:#fff0ee,stroke:#bf665b,color:#662d25;

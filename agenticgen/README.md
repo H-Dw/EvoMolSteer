@@ -2,6 +2,11 @@
 
 An installable subproject for adaptive conditional reconstruction with FLOWR.
 
+For the **Guidance 2.14.0** implementation at commit `d72a92dd`, see the
+[Chinese pseudocode and system flowcharts](docs/algorithms/guidance_214/README.zh-CN.md).
+They cover deterministic calibration, the single proposal Agent, programmatic
+admission, complete inference, condition-aligned evaluation, and candidate retention.
+
 New absolute-coordinate guidance defaults to skills **2.9.0** and the
 `linear-open-domain-v2` control interface. Merge
 [the new-run overlay](configs/uniguide_open_domain.json) into a complete new

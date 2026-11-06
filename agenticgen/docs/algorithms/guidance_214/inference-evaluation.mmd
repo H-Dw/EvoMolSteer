@@ -1,0 +1,31 @@
+flowchart TB
+    A["合法的完整六窗 scale 数组<br/>登记身份及 50 候选预算<br/>加载固定先验与对应随机流"]:::input
+    B["第 n 步原生模型前向<br/>预测 clean 终态<br/>n = 0,…,99"]:::compute
+    C["按本步预测作 Hungarian 匹配<br/>固定本次离散对应关系<br/>绝对坐标 loss 只使用 condition 点"]:::compute
+    D{"1 ≤ n ≤ 98<br/>且 scale ≠ 0？"}:::compute
+    E["输入坐标 VJP<br/>时间系数 × scale × 梯度<br/>计算额外位移 δ，不裁剪"]:::compute
+    F["δ = 0<br/>不计算无效坐标 VJP"]:::compute
+    G["原生漂移 / 噪声 / 类别转移<br/>坐标只额外加入一次 δ"]:::compute
+    H["步骤 1–98 的化学状态约束<br/>共用本步匹配，不依赖 scale 非零<br/>不覆盖坐标或 self-conditioning"]:::compute
+    I["保存 trace / 对应关系 / 随机流<br/>提交一步并截断跨步图"]:::store
+    J{"100 步<br/>完成？"}:::compute
+    P["保存第 99 步未覆盖预测<br/>raw999 返回源"]:::store
+    K["返回保存的原始预测<br/>不追加 terminal forward<br/>不作终态坐标或化学投影"]:::compute
+    L["现有终态 Hungarian 匹配<br/>随后固定 condition 对应点"]:::compute
+    M["仅 condition 点参与<br/>双精度 proper Kabsch<br/>禁止反射 / 缩放 / 拟合后重匹配"]:::compute
+    N["逐候选对齐 RMSD → 完整 50 算术均值<br/>构建失败但几何合法者仍计入<br/>不截尾、不回退旧位姿指标"]:::compute
+    O["保存候选、总体与完成回执<br/>返回配置成绩供程序更新最佳"]:::store
+    Q["异步 CPU 抽样诊断 10/50<br/>PLIP / PoseBusters<br/>全 50 构建和连通性另随候选记录"]:::store
+    A --> B --> C --> D
+    D -->|是| E --> G
+    D -->|否| F --> G
+    G --> H --> I --> J
+    J -->|否：n 加 1| B
+    B -. 仅 n=99 保存 .-> P
+    J -->|是| K
+    P -. 实际返回源 .-> K
+    K --> L --> M --> N --> O
+    O -. 诊断入队 .-> Q
+    classDef input fill:#e8f0fe,stroke:#3566a0,color:#142d4c;
+    classDef compute fill:#e8f5ef,stroke:#38846a,color:#153d2f;
+    classDef store fill:#f0f3f6,stroke:#6e7d8d,color:#25394c;
