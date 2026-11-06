@@ -32,53 +32,34 @@
 
 ## Algorithm 1 — 教师级 Guidance 搜索闭环
 
-**Require:** 冻结模型F_θ，教师集合T，每教师condition C与原生上下文E，冻结初始条件I，完整运行配置Γ及skills 2.14.0。
+以下只展开单个教师的主要搜索过程，输入准备和运行门禁作为前置条件。
 
-**Ensure:** 对每个具备有效标定根的教师，返回最佳完整配置及J、逐槽位留存和可核验回执；无有效根、数值失败或协议错误分别明确记录，不追加未经授权的测量。
+**Require:** 已准备的教师τ及condition C，冻结模型F_θ、原生上下文E与初始条件I，合法网格G，运行配置Γ及skills 2.14.0。
+
+**Ensure:** 返回最佳完整scale配置s*及其完整50候选的condition对齐RMSD均值J(s*)；没有有效标定根时明确返回失败。
 
 ```text
- 1  VerifyAndFreeze(Γ, F_θ, skills, E, I)                           ▷ 核对版本、六窗、端点、网格、预算和源码/技能哈希
- 2  Subjects ← PrepareConditions(T, C, E, I)                       ▷ 核对condition化学信息、蛋白坐标系及足够的生成槽位
- 3  RequireFreshGPUAcceptance(Γ, Subjects)                         ▷ 正式标定与搜索必须有匹配源码及配置的真实验收回执
- 4  D_by_teacher ← CalibrateAll(Subjects, Γ)                       ▷ 调用算法2；该分支没有Selection模型调用
- 5  for each teacher τ with valid domain D_τ do                   ▷ 没有有效标定根的教师记录缺失，不伪造初始配置
- 6      VerifyFrozenDomain(D_τ); FreezeVersion(GD01)               ▷ 本扩展搜索只运行GD01，不自动追加优化版本
- 7      H, F ← LoadCompatibleHistory(τ, D_τ); b₀ ← Root(D_τ)       ▷ 读取全部兼容测量；校验文件、身份与评价策略
- 8      b* ← BestFromCalibration(H, b₀); R ← ∅                    ▷ 从标定根开始，保留已有严格改善；建立轮次记录
- 9      for r = 1, …, 5 do                                       ▷ 每轮最多五个新完整配置，hold仍作为一轮记录
-10          if a verified ROUND_COMPLETE(r) exists then           ▷ 仅复用完整且哈希一致的轮次，不把中断当成可重试
-11              RestoreRoundAndDomain(r); continue                ▷ 恢复已完成结果，不重新调用模型或生成分子
-12          H, F ← LoadCompatibleHistory(τ, D_τ)                  ▷ 重新加载真实历史，失败保留但不能参与有效排名
-13          L ← BuildCheckpointAndPathContext(H, F, R, D_τ)       ▷ 提供标定根、最佳真实祖先路径、前缀族和上轮焦点
-14          FreezeHistorySnapshot(H, F, D_τ, L)                   ▷ 固定本轮Agent看到的证据，便于审计和恢复
-15          decision ← GuidanceRound(H, F, D_τ, L, final=false)    ▷ 调用算法3；单Agent完成工具交互和完整提案提交
-16          ReauditBeforeExecution(decision, H, F, D_τ, L)        ▷ 再核对焦点、证据、真实父节点、重复和累计预算
-17          measured, failures ← ∅, ∅                            ▷ 程序从已验证proposals生成执行ID列表，保持原顺序
-18          for each action a in decision.actions do              ▷ 不再由另一个Agent筛选或改写数组
-19              result ← MeasureCompleteSchedule(a.s, Γ, D_τ)    ▷ 调用算法4：完整50候选；新测量先登记预算与身份
-20              if result is NumericalFailure then                ▷ 数值失败保存回执，已消耗候选保留在预算账本中
-21                  PreserveFailure(a, result); continue          ▷ 不重试或补样；继续尝试该轮其余已审计假设
-22              if result is ContractFailure then StopWithEvidence() ▷ 配置/身份/基础设施错误传播，不能假装完成该轮
-23              measured ← measured ∪ {result}                    ▷ 每个成功假设必须有完整总体及其真实来源
-24          VerifyEveryActionMeasuredOrFailed(decision, measured) ▷ 禁止静默删项；所有提案须有完整测量或明确数值失败
-25          b* ← StrictImproveOrKeep(b*, measured)                ▷ 只用完整50均值；同分不替换现有最佳
-26          SaveRoundCheckpointAndFocus(R, r, b*, decision)       ▷ 保存实测结果、真实父节点、焦点及回溯上下文
-27      end for                                                   ▷ 五轮结束；所有历史和失败继续保留
-28      H, F ← LoadCompatibleHistory(τ, D_τ)                      ▷ 最终最佳仍在含标定的全部有效历史中确定
-29      GuidanceRound(H, F, D_τ, LatestContext, final=true)        ▷ 同一提案角色作最终只读分析，必须hold，不是第六轮采样
-30      b* ← BestFromCalibration(H, b₀, R)                       ▷ 全局最佳不能比原标定根更差
-31      retained ← RetainPerSeedSlot(H, b*)                      ▷ 按候选自身的对齐RMSD留存；不调用总体排名接口
-32      Finalize(τ, b*, retained, R, quality_status)               ▷ 区分搜索完成、失败和异步质量诊断状态
-33  end for                                                       ▷ 各教师使用各自domain、历史与预算
-34  return FinalizedResultsAndReviewRequest()                     ▷ 导出报告并等待结果审阅；该分支next_version为null
+ 1  D, H, F ← CalibrateTeacher(τ, C, G, Γ)                        ▷ 测量两个背景与八个早期邻居，建立标定证据和搜索域
+ 2  if H = ∅ then return Failure(F)                              ▷ 没有有效标定测量时，不进入正式搜索
+ 3  b₀ ← ArgMinEligible(H, J); b* ← b₀; R ← ∅                   ▷ 用标定最优配置初始化最佳，建立空的决策路径记录
+ 4  for r = 1, …, 5 do                                          ▷ 每轮最多提出五个未测的完整scale配置
+ 5      context ← BuildSearchContext(H, F, b₀, b*, R)             ▷ 汇总实测路径与前缀；两轮无改善时提示回看早期和旁支
+ 6      P, π ← GuidanceAgent(context)                            ▷ 从B1/B2起步，结合证据前移、细化或回溯，提出不同早期方向
+ 7      RequireValidPortfolio(P, D, H, F, context)                ▷ 程序核对网格、证据、去重、早期方向和预算，不改写提案
+ 8      M, F_new ← ExecuteAllSchedules(P, F_θ, C, E, I, count=50) ▷ 按原顺序执行全部合法配置，每项完整推理50候选
+ 9      H ← H ∪ M; F ← F ∪ F_new                                ▷ 保留新测量与数值失败，已测配置直接引用，不重新占用名额
+10      b* ← StrictImproveOrKeep(b*, M)                          ▷ 只按完整50候选的对齐RMSD均值更新最佳，同分则保留
+11      R ← R ∪ {(π, P, M, F_new, b*)}                           ▷ 将实际调整、结果与改进状态作为下一轮路径探索的反馈
+12  end for                                                      ▷ 完成五轮搜索，标定根和全部历史仍可用于比较
+13  return b*.schedule, J(b*)                                    ▷ 返回最佳完整配置，不把跨配置留存当成一次新测量
 ```
 
 **模块的含义：**
 
-- **VerifyAndFreeze / PrepareConditions：** 配置overlay需先与完整的主机、模型、condition及输入路径配置合成。准备阶段使用冻结生成上下文；已有condition坐标不是临时生成的替代构象。蛋白配准只用于统一测量坐标系，不投影采样坐标。
-- **BuildCheckpointAndPathContext：** 保存标定根与当前最佳的真实父节点链；按前四窗完全相同分组，提供不同后缀数、最好完整成绩和来源，突出前三个前缀族，完整历史仍可用。连续两轮没有改善时，提示回看最佳路径和失败旁支；所有兼容的已测父节点仍合法。
-- **StrictImproveOrKeep：** 最佳配置依据`J`严格更新，初始根始终保留。同分不算改善。标定和一般候选比较中的确定性同分规则为最大scale较小优先，再按来源ID排序。
-- **Finalize：** 正式搜索的数值失败会使相应完成状态为false，即使仍有可排名的历史最佳。程序还生成结果审阅请求；搜索结束不自动修改冻结skills。
+- **CalibrateTeacher：** 对应算法2，返回domain及标定的有效/失败记录；八个邻居均相对同一个固定背景生成。
+- **BuildSearchContext / GuidanceAgent：** 结合当前最佳、真实祖先路径、不同前缀和历史反馈提出下一批完整配置；所有兼容的已测父节点仍可使用。焦点与早期方向的具体约束见算法3。
+- **RequireValidPortfolio / ExecuteAllSchedules：** 程序审计完整组合后执行全部提案。每个新配置执行完整50候选；数值失败保留且不补样，具体执行和评分见算法4–5。
+- **StrictImproveOrKeep：** 仅在完整均值严格下降时替换最佳；五轮结束后的候选留存另见算法6。
 
 ## Algorithm 2 — 两背景与八个早期邻居的确定性标定
 
@@ -271,13 +252,19 @@
 
 可编辑源：[system-workflow.mmd](system-workflow.mmd)；位图：[system-workflow.png](system-workflow.png)。图中的“真实GPU验收”是已有代码的启动前提，本次合并和文档编写没有启动新的GPU实验。
 
-### 图2：Agent工具与提案闭环
+### 图2：scale初始标定流程
+
+![scale初始标定：固定背景与八个早期邻居](scale-calibration.svg)
+
+可编辑源：[scale-calibration.mmd](scale-calibration.mmd)；位图：[scale-calibration.png](scale-calibration.png)。每教师最多测量10个完整配置、500候选，全程由确定性程序完成。图中的B1–B4分支表示相对同一个参照独立生成配置，不表示同时执行推理；邻居成绩不会改变参照。两个背景及八个邻居的全部有效测量共同决定最终标定根。
+
+### 图3：Agent工具与提案闭环
 
 ![单Guidance Agent的证据与提案闭环](agent-round.svg)
 
 可编辑源：[agent-round.mmd](agent-round.mmd)；位图：[agent-round.png](agent-round.png)。程序的提交验证与执行前复核是两个阶段；后者不合格时停止，不触发静默删项。
 
-### 图3：分子推理与终态评分
+### 图4：分子推理与终态评分
 
 ![完整推理与condition对齐评价](inference-evaluation.svg)
 

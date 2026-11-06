@@ -1,0 +1,41 @@
+flowchart TB
+    subgraph BACKGROUND["Ⅰ · 测量两组预设背景"]
+        direction LR
+        A["教师 condition / 冻结初始条件<br/>六窗合法网格<br/>标定预算最多 500 候选"]:::input
+        B["测量背景一与背景二<br/>每背景完整推理 50 候选<br/>计算 condition 对齐 RMSD 均值 J"]:::compute
+        C{"至少一个背景<br/>具有有效完整测量？"}:::compute
+        X["无有效根：结束该教师标定<br/>记录失败，不进入正式搜索"]:::fail
+        D["选 J 较低的有效背景<br/>固定为参照 s_ref<br/>后续不随邻居成绩改变"]:::store
+        A --> B --> C
+        C -->|否| X
+        C -->|是| D
+    end
+    subgraph NEIGHBOURS["Ⅱ · 相对同一个参照生成八个早期邻居"]
+        direction LR
+        E["每次复制同一个 s_ref<br/>只改变一个早期窗口<br/>其余五窗保持参照值"]:::input
+        B1["B1 相邻低 / 高剂量<br/>2 个完整配置，各 50 候选"]:::compute
+        B2["B2 相邻低 / 高剂量<br/>2 个完整配置，各 50 候选"]:::compute
+        B3["B3 相邻低 / 高剂量<br/>2 个完整配置，各 50 候选"]:::compute
+        B4["B4 相邻低 / 高剂量<br/>2 个完整配置，各 50 候选"]:::compute
+        F["记录八个邻居的结果<br/>完整测量与数值失败分别保留<br/>不逐项更新 s_ref"]:::store
+        N["边界缺少一侧时<br/>取另一侧最近两个合法剂量<br/>数值失败不重试、不补样"]:::note
+        E --> B2 --> F
+        E --> B3 --> F
+        E --> B4 --> F
+        E --> B1 --> F
+        E -. 剂量与失败规则 .-> N
+    end
+    subgraph ROOT["Ⅲ · 从全部有效标定结果确定初始配置"]
+        direction LR
+        G["汇总两个背景与八个邻居<br/>最多 10 配置 × 50 候选<br/>仅完整、有限的测量可排名"]:::store
+        H["按 J 选择最终标定根 b₀<br/>J 为完整 50 候选的<br/>condition 对齐 RMSD 算术均值"]:::compute
+        I["输出初始 scale 配置<br/>冻结 domain 与标定证据<br/>作为正式 Guidance 搜索起点"]:::store
+        G --> H --> I
+    end
+    BACKGROUND -->|有效背景产生固定参照| NEIGHBOURS
+    NEIGHBOURS -->|连同两背景结果统一比较| ROOT
+    classDef input fill:#e8f0fe,stroke:#3566a0,color:#142d4c;
+    classDef compute fill:#e8f5ef,stroke:#38846a,color:#153d2f;
+    classDef store fill:#f0f3f6,stroke:#6e7d8d,color:#25394c;
+    classDef note fill:#fff8e8,stroke:#b28c40,color:#59451b;
+    classDef fail fill:#fff0ee,stroke:#bf665b,color:#662d25;
